@@ -1662,7 +1662,7 @@ h1, h2, h3, h4, h5, h6 {
    12bis. AVIS GOOGLE & CLIENTS SECTION
    -------------------------------------------------------------------------- */
 .avis-section {
-  background-color: var(--color-bg-base);
+  background-color: var(--color-bg-surface);
   position: relative;
 }
 
@@ -1721,8 +1721,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-google-review {
-  font-size: 0.75rem;
-  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  padding: 0.45rem 0.85rem;
   border-radius: var(--radius-full);
 }
 
@@ -2377,6 +2377,10 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .menu-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .avis-grid {
     grid-template-columns: 1fr;
   }
 
