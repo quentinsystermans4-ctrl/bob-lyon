@@ -2542,9 +2542,58 @@ h1, h2, h3, h4, h5, h6 {
     flex-shrink: 0;
   }
 
+  /* Privatisation Cards & Buttons Mobile Ergonomics */
+  .priv-card-body {
+    padding: 1.35rem 1.1rem;
+  }
+
+  .priv-card-body h3 {
+    font-size: 1.3rem;
+    margin-bottom: 0.65rem;
+  }
+
+  .priv-features {
+    gap: 0.55rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .priv-features li {
+    font-size: 0.86rem;
+    gap: 0.6rem;
+  }
+
+  .btn-block {
+    width: 100%;
+    max-width: 100%;
+    padding: 0.85rem 1rem;
+    font-size: clamp(0.85rem, 3.4vw, 0.98rem);
+    white-space: normal;
+    text-align: center;
+    line-height: 1.25;
+    box-sizing: border-box;
+  }
+
   .footer-bottom {
     flex-direction: column;
     text-align: center;
+  }
+}
+
+/* Extra small viewports (Samsung Galaxy / iPhone SE <= 360px) */
+@media (max-width: 360px) {
+  .container {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .priv-card-body {
+    padding: 1.15rem 0.85rem;
+  }
+
+  .btn-block {
+    font-size: 0.84rem;
+    padding: 0.75rem 0.65rem;
+    gap: 0.4rem;
   }
 }
 
