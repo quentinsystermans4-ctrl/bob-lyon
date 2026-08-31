@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="fr" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>BOB - Blonde ou Brune | Bar à Bières & Lieu Convivial aux Pentes de la Croix-Rousse, Lyon</title>
+  
+  <!-- SEO & Meta Tags -->
+  <meta name="description" content="Bar à bières artisanales et locales aux Pentes de la Croix-Rousse à Lyon 1er. 9 becs pression, vins bio, planches gourmandes, pizzas, mezzanine privatisable et Happy Hour 17h-20h !">
+  <meta name="keywords" content="bar a biere lyon, BOB lyon, blonde ou brune lyon, bar pentes croix rousse, bar lyon 1, happy hour lyon, craft beer lyon, privatisation bar lyon, mezzanine lyon">
+  <meta name="author" content="BOB - Blonde ou Brune">
+  <meta name="version" content="1.1.1">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#121214">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.boblyon.fr/">
+  <meta property="og:title" content="BOB - Blonde ou Brune | Ton bar préféré des Pentes">
+  <meta property="og:description" content="Découvrez notre sélection de 9 bières pression locales, softs, vins et cocktails, planches gourmandes et pizzas à partager au cœur des Pentes de la Croix-Rousse à Lyon.">
+  <meta property="og:image" content="assets/logos/BOB LOGO B.png">
+
+  <!-- Twitter -->
+  <meta property="twitter:card" content="summary_large_image">
+  <meta property="twitter:url" content="https://www.boblyon.fr/">
+  <meta property="twitter:title" content="BOB - Blonde ou Brune | Bar à Bières Lyon 1er">
+  <meta property="twitter:description" content="Bières artisanales, planches gourmandes, pizzas, mezzanine cosy & Happy Hour tous les soirs aux Pentes de la Croix-Rousse.">
+  <meta property="twitter:image" content="assets/logos/BOB LOGO B.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="assets/logos/BOB LOGO B.svg">
+  <link rel="apple-touch-icon" href="assets/logos/BOB EMBLEME B.png">
+
+  <!-- Google Fonts: Josefin Sans & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,300;0,400;0,600;0,700;1,400;1,700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome Icons for clean UI -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Schema.org JSON-LD for Local SEO (BarOrPub) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BarOrPub",
+    "name": "BOB - Blonde ou Brune",
+    "image": "https://www.boblyon.fr/assets/logos/BOB LOGO B.png",
+    "@id": "https://www.boblyon.fr",
+    "url": "https://www.boblyon.fr",
+    "telephone": "+33622899510",
+    "priceRange": "€€",
+    "servesCuisine": "Bar à bières, Planches apéritives, Pizzas, Tapas",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "12 rue Imbert Colomès",
+      "addressLocality": "Lyon",
+      "postalCode": "69001",
+      "addressCountry": "FR"
+    },
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 45.77095,
+      "longitude": 4.83365
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Tuesday", "Wednesday", "Thursday", "Friday"],
+        "opens": "17:00",
+        "closes": "01:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Saturday",
+        "opens": "16:00",
+        "closes": "01:00"
+      }
+    ],
+    "acceptsReservations": "True",
+    "sameAs": [
+      "https://www.instagram.com/leboblyon/",
+      "https://www.facebook.com/profile.php?id=100083176527737",
+      "https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune"
+    ]
+  }
+  </script>
+</head>
+<body class="bg-dark text-light font-body antialiased">
+
+  <!-- ZONE 1 : Top Announcement Bar -->
+  <div class="top-banner">
+    <div class="container banner-content">
+      <div class="banner-left">
+        <span class="badge-pulse"><i class="fa-solid fa-bolt"></i> HAPPY HOUR</span>
+        <span class="banner-text">Tous les jours de <strong>17h à 20h</strong> sur les bières, softs & cocktails !</span>
+      </div>
+      <div class="banner-right">
+        <div id="live-status-pill" class="status-pill">
+          <span class="status-dot"></span>
+          <span id="live-status-text">Calcul des horaires...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 2 : Header / Navigation -->
+  <header id="main-header" class="site-header">
+    <div class="container header-container">
+      <!-- Logo BOB (Logo emblème agrandi comme en zone 3) -->
+      <a href="#hero" class="brand-logo" aria-label="Accueil BOB - Blonde ou Brune">
+        <img src="assets/logos/BOB LOGO B.svg" alt="BOB - Blonde ou Brune Lyon" class="logo-header-svg" width="68" height="68">
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav class="desktop-nav" aria-label="Navigation principale">
+        <ul class="nav-list">
+          <li><a href="#hero" class="nav-link active"><i class="fa-solid fa-house"></i> Accueil</a></li>
+          <li><a href="#histoire" class="nav-link"><i class="fa-solid fa-heart"></i> L'Esprit BOB</a></li>
+          <li><a href="#carte" class="nav-link"><i class="fa-solid fa-beer-mug-empty"></i> La Carte</a></li>
+          <li><a href="#privatisation" class="nav-link"><i class="fa-solid fa-champagne-glasses"></i> Privatisation</a></li>
+          <li><a href="#partenaires" class="nav-link"><i class="fa-solid fa-handshake"></i> Partenaires</a></li>
+          <li><a href="#contact" class="nav-link"><i class="fa-solid fa-location-dot"></i> Accès & Contact</a></li>
+        </ul>
+      </nav>
+
+      <!-- Header Action Buttons -->
+      <div class="header-actions">
+        <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm btn-glow">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Réserver</span>
+        </a>
+        <button id="mobile-menu-toggle" class="mobile-toggle" aria-label="Ouvrir le menu de navigation" aria-expanded="false">
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+          <span class="hamburger-bar"></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Mobile Drawer Menu -->
+  <div id="mobile-drawer" class="mobile-drawer" aria-hidden="true">
+    <div class="drawer-overlay"></div>
+    <div class="drawer-panel">
+      <div class="drawer-header">
+        <div class="drawer-brand">
+          <img src="assets/logos/BOB LOGO B.svg" alt="BOB Lyon" class="drawer-logo" width="55" height="55">
+        </div>
+        <button id="drawer-close" class="drawer-close-btn" aria-label="Fermer le menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="drawer-status">
+        <div class="status-pill status-pill-drawer">
+          <span class="status-dot"></span>
+          <span id="drawer-status-text">Horaires en cours...</span>
+        </div>
+      </div>
+
+      <nav class="drawer-nav">
+        <ul class="drawer-nav-list">
+          <li><a href="#hero" class="drawer-link"><i class="fa-solid fa-house"></i> Accueil</a></li>
+          <li><a href="#histoire" class="drawer-link"><i class="fa-solid fa-heart"></i> L'Esprit BOB & Équipe</a></li>
+          <li><a href="#carte" class="drawer-link"><i class="fa-solid fa-beer-mug-empty"></i> La Carte</a></li>
+          <li><a href="#privatisation" class="drawer-link"><i class="fa-solid fa-champagne-glasses"></i> Privatisation & Mezzanine</a></li>
+          <li><a href="#partenaires" class="drawer-link"><i class="fa-solid fa-handshake"></i> Nos Brasseries</a></li>
+          <li><a href="#contact" class="drawer-link"><i class="fa-solid fa-location-dot"></i> Horaires, Accès & Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="drawer-footer">
+        <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block mb-3">
+          <i class="fa-solid fa-calendar-check"></i> Réserver
+        </a>
+        <div class="drawer-contact-links">
+          <a href="tel:0622899510" class="drawer-contact-item"><i class="fa-solid fa-phone"></i> 06 22 89 95 10 (Quentin)</a>
+          <a href="tel:0623422661" class="drawer-contact-item"><i class="fa-solid fa-phone"></i> 06 23 42 26 61 (Margot)</a>
+          <a href="https://goo.gl/maps/MY7jRcQqQhJo7zKR6" target="_blank" rel="noopener" class="drawer-contact-item"><i class="fa-solid fa-map-location-dot"></i> 12 rue Imbert Colomès</a>
+        </div>
+        <div class="drawer-socials">
+          <a href="https://www.instagram.com/leboblyon/" target="_blank" rel="noopener" aria-label="Instagram @leboblyon"><i class="fa-brands fa-instagram"></i></a>
+          <a href="https://www.facebook.com/profile.php?id=100083176527737" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+          <a href="mailto:boblyon@outlook.fr" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ZONE 3 : Hero Section -->
+  <section id="hero" class="hero-section">
+    <!-- Video / Graphic Background -->
+    <div class="hero-bg-media">
+      <video class="hero-video" autoplay loop muted playsinline poster="assets/images/bar-ambiance-1.webp">
+        <source src="assets/videos/BOBVIDBLANC.mp4" type="video/mp4">
+        <source src="assets/videos/BOB VIDEO .mp4" type="video/mp4">
+      </video>
+      <div class="hero-overlay"></div>
+      <div class="hero-glow"></div>
+    </div>
+
+    <div class="container hero-content">
+      <div class="hero-badge-container">
+        <span class="hero-location-badge">
+          <i class="fa-solid fa-location-dot text-gold"></i> Au cœur des Pentes de la Croix-Rousse
+        </span>
+      </div>
+
+      <!-- Animated Central Logo Graphic -->
+      <div class="hero-logo-frame">
+        <img src="assets/logos/BOB LOGO B.svg" alt="BOB Blonde ou Brune" class="hero-main-logo" width="280" height="280">
+      </div>
+
+      <h1 class="hero-title">
+        <span class="title-sub">BLONDE OU BRUNE</span>
+        <span class="title-main">Ton bar préféré des Pentes</span>
+      </h1>
+
+      <p class="hero-description">
+        Amoureux dans la vie et des bons produits, <strong>Margot & Quentin</strong> vous accueillent derrière le comptoir avec <strong>9 bières pression locales</strong>, une sélection de softs, vins et cocktails, planches gourmandes et pizzas à partager.
+      </p>
+
+      <!-- Action Buttons -->
+      <div class="hero-actions">
+        <a href="#carte" class="btn btn-primary btn-lg">
+          <i class="fa-solid fa-beer-mug-empty"></i>
+          <span>Découvrir la Carte</span>
+        </a>
+        <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-lg">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Réserver une table / un espace</span>
+        </a>
+      </div>
+
+      <!-- Key highlights pills -->
+      <div class="hero-highlights">
+        <div class="highlight-item">
+          <div class="highlight-icon"><i class="fa-solid fa-faucet-drip"></i></div>
+          <div class="highlight-text">
+            <strong>9 Bières Pression</strong>
+            <span>100% Brasseries locales & régionales</span>
+          </div>
+        </div>
+
+        <div class="highlight-item">
+          <div class="highlight-icon"><i class="fa-solid fa-pizza-slice"></i></div>
+          <div class="highlight-text">
+            <strong>Planches & Pizzas</strong>
+            <span>Charcuterie, fromages & pizzas maison</span>
+          </div>
+        </div>
+
+        <div class="highlight-item">
+          <div class="highlight-icon"><i class="fa-solid fa-dice"></i></div>
+          <div class="highlight-text">
+            <strong>Jeux, Échecs et Fléchettes</strong>
+            <span>Ambiance chaleureuse & conviviale</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scroll down indicator -->
+    <a href="#histoire" class="scroll-down-hint" aria-label="Défiler vers le bas">
+      <span>Explorer le BOB</span>
+      <i class="fa-solid fa-chevron-down"></i>
+    </a>
+  </section>
+
+  <!-- ZONE 4 : Quick Info Bar -->
+  <section class="quick-info-section">
+    <div class="container">
+      <div class="quick-info-grid">
+        <!-- Card 1: Horaires -->
+        <div class="info-card">
+          <div class="info-card-icon"><i class="fa-regular fa-clock"></i></div>
+          <div class="info-card-content">
+            <h4>Horaires d'Ouverture</h4>
+            <p class="highlight-text"><strong>Mar - Ven :</strong> 17h00 - 01h00</p>
+            <p class="highlight-text"><strong>Samedi :</strong> 16h00 - 01h00</p>
+            <span class="sub-text">Fermé dimanche & lundi</span>
+          </div>
+        </div>
+
+        <!-- Card 2: Happy Hour -->
+        <div class="info-card info-card-gold">
+          <div class="info-card-icon"><i class="fa-solid fa-bolt"></i></div>
+          <div class="info-card-content">
+            <h4>Happy Hour Quotidien</h4>
+            <p class="highlight-text"><strong>Tous les soirs : 17h à 20h</strong></p>
+            <p class="sub-text">Pintes dès 5,00€ • Softs & Cocktails à prix doux</p>
+          </div>
+        </div>
+
+        <!-- Card 3: Adresse -->
+        <div class="info-card">
+          <div class="info-card-icon"><i class="fa-solid fa-map-pin"></i></div>
+          <div class="info-card-content">
+            <h4>Adresse & Quartier</h4>
+            <p class="highlight-text"><strong>12 rue Imbert Colomès</strong></p>
+            <p class="highlight-text">69001 LYON</p>
+            <a href="https://goo.gl/maps/MY7jRcQqQhJo7zKR6" target="_blank" rel="noopener" class="card-link">
+              Itinéraire Google Maps <i class="fa-solid fa-arrow-up-right-from-square"></i>
+            </a>
+          </div>
+        </div>
+
+        <!-- Card 4: Contact & Réservation (1 numéro par ligne, sans bouton réserver) -->
+        <div class="info-card">
+          <div class="info-card-icon"><i class="fa-solid fa-phone"></i></div>
+          <div class="info-card-content">
+            <h4>Contact Direct</h4>
+            <p class="highlight-text-contact">
+              <a href="tel:0622899510" class="tel-link"><i class="fa-solid fa-phone text-gold"></i> 06 22 89 95 10 (Quentin)</a>
+            </p>
+            <p class="highlight-text-contact">
+              <a href="tel:0623422661" class="tel-link"><i class="fa-solid fa-phone text-gold"></i> 06 23 42 26 61 (Margot)</a>
+            </p>
+            <p class="sub-text-email"><a href="mailto:boblyon@outlook.fr"><i class="fa-solid fa-envelope text-gold"></i> boblyon@outlook.fr</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZONE 5 : L'Histoire & L'Esprit BOB -->
+  <section id="histoire" class="section histoire-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge"><i class="fa-solid fa-heart"></i> NOTRE HISTOIRE</span>
+        <h2 class="section-title">L'Esprit BOB : Convivialité et Simplicité au cœur des Pentes</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">
+          Un lieu de vie chaleureux pour partager un moment entre amis, suivre un match et découvrir les brasseries locales.
+        </p>
+      </div>
+
+      <div class="histoire-grid">
+        <!-- Story Content -->
+        <div class="histoire-text-block">
+          <div class="story-card">
+            <h3><span class="text-gold">Margot & Quentin :</span> Pour vous accueillir et vous conseiller</h3>
+            <p>
+              En ouvrant le <strong>BOB (Blonde ou Brune)</strong> en septembre 2022, nous nous sommes donnés une mission simple et sincère : offrir un <strong>repaire chaleureux, festif et authentique</strong> aux habitants des Pentes et à tous les amoureux de Lyon.
+            </p>
+            <p>
+              Ici, pas de bières industrielles sans âme. Nous sélectionnons avec passion nos brasseries artisanales régionales indépendantes (Brewlab, La Canute Lyonnaise, Les Danaïdes...), nos vins bio et nos produits de saison issus du circuit court.
+            </p>
+            
+            <div class="histoire-values">
+              <div class="value-item">
+                <div class="value-icon"><i class="fa-solid fa-wheat-awn"></i></div>
+                <div>
+                  <strong>Artisanal & Régional</strong>
+                  <span>Priorité absolue aux brasseurs et vignerons passionnés du coin.</span>
+                </div>
+              </div>
+
+              <div class="value-item">
+                <div class="value-icon"><i class="fa-solid fa-users"></i></div>
+                <div>
+                  <strong>Atmosphère de Quartier</strong>
+                  <span>Apéros détendus, jeux de société, échecs, fléchettes et diffusion de matchs.</span>
+                </div>
+              </div>
+
+              <div class="value-item">
+                <div class="value-icon"><i class="fa-solid fa-utensils"></i></div>
+                <div>
+                  <strong>Générosité au rendez-vous</strong>
+                  <span>Planches copieuses charcuterie/fromage, camembert rôti coulant et pizzas artisanales.</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="quote-box">
+              <i class="fa-solid fa-quote-left quote-icon"></i>
+              <p class="quote-text">« Que tu sois plutôt Blonde houblonnée, Brune de caractère, vin naturel ou mocktail fruité, il y a toujours une place pour toi au comptoir du BOB ! »</p>
+              <span class="quote-author">— Margot & Quentin</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Photo Gallery Mosaic (Margot & Quentin + 3 photos du bar : salle, mezzanine, terrasse) -->
+        <div class="histoire-gallery-block">
+          <div class="mosaic-gallery">
+            <!-- Photo 1: Margot & Quentin -->
+            <div class="mosaic-item mosaic-main" onclick="openLightbox('assets/images/margot-et-quentin.webp', 'Margot & Quentin - Vos hôtes au BOB')">
+              <img src="assets/images/margot-et-quentin.webp" alt="Margot et Quentin derrière le bar BOB" loading="lazy" width="600" height="800">
+              <div class="mosaic-overlay">
+                <span class="mosaic-tag"><i class="fa-solid fa-heart"></i> Margot & Quentin</span>
+                <span class="mosaic-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+              </div>
+            </div>
+
+            <!-- Photo 2: La Salle -->
+            <div class="mosaic-item mosaic-sub1" onclick="openLightbox('assets/images/salle.webp', 'La salle conviviale du bar BOB')">
+              <img src="assets/images/salle.webp" alt="La salle du bar BOB Lyon 1" loading="lazy" width="500" height="350">
+              <div class="mosaic-overlay">
+                <span class="mosaic-tag"><i class="fa-solid fa-beer-mug-empty"></i> La Salle</span>
+                <span class="mosaic-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+              </div>
+            </div>
+
+            <!-- Photo 3: La Mezzanine -->
+            <div class="mosaic-item mosaic-sub2" onclick="openLightbox('assets/images/mezzanine.webp', 'L\'espace Mezzanine cosy et privatif')">
+              <img src="assets/images/mezzanine.webp" alt="La mezzanine cosy du BOB" loading="lazy" width="500" height="350">
+              <div class="mosaic-overlay">
+                <span class="mosaic-tag"><i class="fa-solid fa-couch"></i> La Mezzanine</span>
+                <span class="mosaic-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+              </div>
+            </div>
+
+            <!-- Photo 4: La Terrasse -->
+            <div class="mosaic-item mosaic-sub3" onclick="openLightbox('assets/images/terrasse.webp', 'La terrasse du BOB dans les Pentes')">
+              <img src="assets/images/terrasse.webp" alt="La terrasse du bar BOB dans les Pentes" loading="lazy" width="500" height="350">
+              <div class="mosaic-overlay">
+                <span class="mosaic-tag"><i class="fa-solid fa-sun"></i> La Terrasse</span>
+                <span class="mosaic-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZONE 6 : LA CARTE INTERACTIVE -->
+  <section id="carte" class="section carte-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge"><i class="fa-solid fa-beer-mug-empty"></i> LA CARTE DU BAR</span>
+        <h2 class="section-title">Boissons Artisanales, Vins & Gourmandises</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">
+          Une sélection locale, pointue et de saison. <em>Service au comptoir dans la bonne humeur !</em>
+        </p>
+
+        <!-- Happy Hour Notice Banner in Carte -->
+        <div class="carte-hh-banner">
+          <i class="fa-solid fa-bolt-lightning text-gold"></i>
+          <span><strong>HAPPY HOUR TOUS LES JOURS DE 17H À 20H :</strong> Tarifs préférentiels indiqués avec le badge <span class="badge-hh-mini">HH</span> !</span>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs for Categories -->
+      <div class="carte-tabs-wrapper">
+        <div class="carte-tabs" role="tablist" aria-label="Catégories de la carte">
+          <button class="tab-btn active" role="tab" aria-selected="true" data-target="tab-pressions">
+            <i class="fa-solid fa-faucet-drip"></i>
+            <span>Pressions</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-target="tab-bouteilles">
+            <i class="fa-solid fa-bottle-droplet"></i>
+            <span>Bouteilles</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-target="tab-vins">
+            <i class="fa-solid fa-wine-glass"></i>
+            <span>Vins Bio & Régions</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-target="tab-cocktails">
+            <i class="fa-solid fa-martini-glass-citrus"></i>
+            <span>Cocktails & Spiritueux</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-target="tab-softs">
+            <i class="fa-solid fa-glass-water"></i>
+            <span>Softs Équitables</span>
+          </button>
+          <button class="tab-btn" role="tab" aria-selected="false" data-target="tab-food">
+            <i class="fa-solid fa-pizza-slice"></i>
+            <span>À Manger / Planches</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Tab Content Panels -->
+      <div class="tab-content-container">
+
+        <!-- TAB 1: PRESSIONS (9 BECS) -->
+        <div id="tab-pressions" class="tab-pane active" role="tabpanel">
+          <div class="category-header">
+            <h3><i class="fa-solid fa-faucet-drip text-gold"></i> Nos 9 Bières Pression à l'Ardoise</h3>
+            <p>Fraîchement tirées au comptoir • Brasseries artisanales locales • Formats 25cl & 50cl</p>
+          </div>
+
+          <div class="menu-grid">
+            <!-- Pression 1 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-blonde">Blonde</span>
+                  <span class="origin-tag">Brewlab • 4.0°</span>
+                </div>
+                <div class="price-container">
+                  <div class="price-regular">
+                    <span class="price-size">25cl : <strong>3,50 €</strong></span>
+                    <span class="price-size">50cl : <strong>6,00 €</strong></span>
+                  </div>
+                  <div class="price-hh">
+                    <span class="hh-label">HH 50cl :</span>
+                    <span class="hh-val">5,00 €</span>
+                  </div>
+                </div>
+              </div>
+              <h4 class="item-title">La Blonde</h4>
+              <p class="item-desc">Blonde dorée, légère et rafraichissante.</p>
+            </div>
+
+            <!-- Pression 2 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-blanche">Blanche</span>
+                  <span class="origin-tag">Brewlab • 4.0°</span>
+                </div>
+                <div class="price-container">
+                  <div class="price-regular">
+                    <span class="price-size">25cl : <strong>4,00 €</strong></span>
+                    <span class="price-size">50cl : <strong>7,00 €</strong></span>
+                  </div>
+                  <div class="price-hh">
+                    <span class="hh-label">HH 50cl :</span>
+                    <span class="hh-val">6,00 €</span>
+                  </div>
+                </div>
+              </div>
+              <h4 class="item-title">Miami Weiss</h4>
+              <p class="item-desc">Blanche aux notes ananas, passion et gingembre parfaite pour l'été.</p>
+            </div>
+
+            <!-- Pression 3 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-ipa">IPA</span>
+                  <span class="origin-tag">Brewlab • 5.8°</span>
+                </div>
+                <div class="price-container">
+                  <div class="price-regular">
+                    <span class="price-size">25cl : <strong>4,00 €</strong></span>
+                    <span class="price-size">50cl : <strong>7,00 €</strong></span>
+                  </div>
+                  <div class="price-hh">
+                    <span class="hh-label">HH 50cl :</span>
+                    <span class="hh-val">6,00 €</span>
+                  </div>
+                </div>
+              </div>
+              <h4 class="item-title">Amazone IPA</h4>
+              <p class="item-desc">IPA légère bien amère !</p>
+            </div>
+
+            <!-- Pression 4 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-brune">Brune</span>
+                  <span class="origin-tag">Les Danaïdes • 6.5°</span>
+                </div>
+                <div class="price-container">
+                  <div class="price-regular">
+                    <span class="price-size">25cl : <strong>4,00 €</strong></span>
+                    <span class="price-size">50cl : <strong>7,50 €</strong></span>
+                  </div>
+                  <div class="price-hh">
+                    <span class="hh-label">HH 50cl :</span>
+                    <span class="hh-val">6,50 €</span>
+                  </div>
+                </div>
+              </div>
+              <h4 class="item-title">Saison Noire</h4>
+              <p class="item-desc">Bière brune sèche de caractère.</p>
+            </div>
+
+            <!-- Pression 5 (La Bascule - Canute Lyonnaise) -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-ambree">Ambrée</span>
+                  <span class="origin-tag">La Canute Lyonnaise • 5.0°</span>
+                </div>
+                <div class="price-container">
+                  <div class="price-regular">
+                    <span class="price-size">25cl : <strong>4,00 €</strong></span>
+                    <span class="price-size">50cl : <strong>7,00 €</strong></span>
+                  </div>
+                  <div class="price-hh">
+                    <span class="hh-label">HH 50cl :</span>
+                    <span class="hh-val">6,00 €</span>
+                  </div>
+                </div>
+              </div>
+              <h4 class="item-title">La Bascule</h4>
+              <p class="item-desc">Bière ambrée légère aux notes caramélisées.</p>
+            </div>
+
+            <!-- Pression 6 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-neipa">NEIPA</span>
+                  <span class="origin-tag">Brewlab • 6.3°</span>
+                </div>
+                <div class="price-container">
+                  <div class="price-regular">
+                    <span class="price-size">25cl : <strong>4,00 €</strong></span>
+                    <span class="price-size">50cl : <strong>7,50 €</strong></span>
+                  </div>
+                  <div class="price-hh">
+                    <span class="hh-label">HH 50cl :</span>
+                    <span class="hh-val">6,50 €</span>
+                  </div>
+                </div>
+              </div>
+              <h4 class="item-title">Voodoo (NEIPA)</h4>
+              <p class="item-desc">Bière houblonnée aux saveurs d'agrumes juteux et amère.</p>
+            </div>
+
+            <!-- Pression 7 (Magma Mango - Les Danaïdes) -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-sour">Sour Acidulée</span>
+                  <span class="origin-tag">Les Danaïdes • 5.5°</span>
+                </div>
+                <div class="price-container">
+                  <div class="price-regular">
+                    <span class="price-size">25cl : <strong>4,50 €</strong></span>
+                    <span class="price-size">50cl : <strong>8,00 €</strong></span>
+                  </div>
+                  <div class="price-hh">
+                    <span class="hh-label">HH 50cl :</span>
+                    <span class="hh-val">7,00 €</span>
+                  </div>
+                </div>
+              </div>
+              <h4 class="item-title">Magma Mango</h4>
+              <p class="item-desc">Bière acidulée mangue piment, originale et fruitée.</p>
+            </div>
+
+            <!-- Pression 8 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-dipa">Double IPA</span>
+                  <span class="origin-tag">Brewlab • 7.2°</span>
+                </div>
+                <div class="price-container">
+                  <div class="price-regular">
+                    <span class="price-size">25cl : <strong>4,50 €</strong></span>
+                    <span class="price-size">50cl : <strong>8,00 €</strong></span>
+                  </div>
+                  <div class="price-hh">
+                    <span class="hh-label">HH 50cl :</span>
+                    <span class="hh-val">7,00 €</span>
+                  </div>
+                </div>
+              </div>
+              <h4 class="item-title">YAKUZA</h4>
+              <p class="item-desc">Double IPA puissante et équilibrée avec des notes d'agrumes.</p>
+            </div>
+
+            <!-- Pression 9 (Cidre) -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-cidre">Cidre Brut</span>
+                  <span class="origin-tag">Mauret • 5.0°</span>
+                </div>
+                <div class="price-container">
+                  <div class="price-regular">
+                    <span class="price-size">25cl : <strong>4,00 €</strong></span>
+                    <span class="price-size">50cl : <strong>7,00 €</strong></span>
+                  </div>
+                  <div class="price-hh">
+                    <span class="hh-label">HH 50cl :</span>
+                    <span class="hh-val">6,00 €</span>
+                  </div>
+                </div>
+              </div>
+              <h4 class="item-title">Le Cidre</h4>
+              <p class="item-desc">Cidre brut léger et fruité, pur jus français.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: BOUTEILLES -->
+        <div id="tab-bouteilles" class="tab-pane" role="tabpanel">
+          <div class="category-header">
+            <h3><i class="fa-solid fa-bottle-droplet text-gold"></i> Bouteilles à Emporter (75cl)</h3>
+            <p>Recettes éphémères de saison à emporter chez vous.</p>
+          </div>
+
+          <div class="menu-grid">
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-blonde">Sélection Saison</span>
+                <div class="price-single">75cl : <strong>7,00 €</strong></div>
+              </div>
+              <h4 class="item-title">Sélection de Saison • Les Danaïdes</h4>
+              <p class="item-desc">Découvrez les recettes de saison de la brasserie. N'hésitez pas à nous demander conseil au bar.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-ambree">Sélection Saison</span>
+                <div class="price-single">75cl : <strong>7,00 €</strong></div>
+              </div>
+              <h4 class="item-title">Sélection de Saison • La Canute Lyonnaise</h4>
+              <p class="item-desc">Découvrez les recettes de saison de la brasserie. N'hésitez pas à nous demander conseil au bar.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: VINS BIO & RÉGIONS (Prix à la ligne pour chaque format) -->
+        <div id="tab-vins" class="tab-pane" role="tabpanel">
+          <div class="category-header">
+            <h3><i class="fa-solid fa-wine-glass text-gold"></i> Vins Bio & Régions</h3>
+            <p>Sélection de vignerons indépendants et biologiques.</p>
+          </div>
+
+          <div class="menu-grid">
+            <!-- Vin Rouge 1 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-vin-rouge">Vin Rouge Bio</span>
+                <div class="price-list-vertical">
+                  <div class="price-line">12cl : <strong>4,50 €</strong></div>
+                  <div class="price-line">Pot 46cl : <strong>14,00 €</strong></div>
+                  <div class="price-line">70cl : <strong>20,00 €</strong></div>
+                </div>
+              </div>
+              <h4 class="item-title">Les Pioux 2024 • Rémi Pouizin</h4>
+              <p class="item-desc"><strong>AOP Côtes du Rhône</strong> — Vin rouge Bio, assemblage Grenache Syrah.</p>
+            </div>
+
+            <!-- Vin Rouge 2 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-vin-rouge">Vin Rouge</span>
+                <div class="price-list-vertical">
+                  <div class="price-line">12cl : <strong>5,00 €</strong></div>
+                  <div class="price-line">70cl : <strong>22,00 €</strong></div>
+                </div>
+              </div>
+              <h4 class="item-title">Syrah 2023 • Les Petites Crêtes</h4>
+              <p class="item-desc"><strong>IGP Cévennes</strong> — Vin rouge 100% Syrah.</p>
+            </div>
+
+            <!-- Vin Blanc 1 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-vin-blanc">Vin Blanc</span>
+                <div class="price-list-vertical">
+                  <div class="price-line">12cl : <strong>3,50 €</strong></div>
+                  <div class="price-line">25cl : <strong>7,00 €</strong></div>
+                  <div class="price-line">Pot 46cl : <strong>13,00 €</strong></div>
+                  <div class="price-line">70cl : <strong>18,00 €</strong></div>
+                </div>
+              </div>
+              <h4 class="item-title">Vaucluse Viognier</h4>
+              <p class="item-desc"><strong>IGP Vaucluse</strong> — Vin blanc 100% Viognier.</p>
+            </div>
+
+            <!-- Vin Blanc 2 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-vin-blanc">Vin Blanc</span>
+                <div class="price-list-vertical">
+                  <div class="price-line">12cl : <strong>5,00 €</strong></div>
+                  <div class="price-line">70cl : <strong>22,00 €</strong></div>
+                </div>
+              </div>
+              <h4 class="item-title">Tatiana 2025 • Villa Pous</h4>
+              <p class="item-desc"><strong>IGP Pays d'Oc</strong> — Chardonnay.</p>
+            </div>
+
+            <!-- Vin Blanc 3 -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-vin-blanc">Vin de Bourgogne</span>
+                <div class="price-list-vertical">
+                  <div class="price-line">12cl : <strong>5,50 €</strong></div>
+                  <div class="price-line">70cl : <strong>25,00 €</strong></div>
+                </div>
+              </div>
+              <h4 class="item-title">Mâcon-Villages 2023 • Terres Secrètes</h4>
+              <p class="item-desc"><strong>AOC Vin de Bourgogne</strong> — Vin blanc 100% Chardonnay.</p>
+            </div>
+
+            <!-- Vin Rosé -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-vin-rose">Vin Rosé</span>
+                <div class="price-list-vertical">
+                  <div class="price-line">12cl : <strong>4,00 €</strong></div>
+                  <div class="price-line">Piscine 15cl : <strong>5,00 €</strong></div>
+                  <div class="price-line">Pot 46cl : <strong>13,00 €</strong></div>
+                  <div class="price-line">70cl : <strong>18,00 €</strong></div>
+                </div>
+              </div>
+              <h4 class="item-title">Brume Saline</h4>
+              <p class="item-desc"><strong>IGP Pays d'Oc</strong> — Vin rosé Grenache / Cinsault.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 4 : COCKTAILS & SPIRITUEUX (Badges COCKTAIL ou MOCKTAIL 0.0% uniquement) -->
+        <div id="tab-cocktails" class="tab-pane" role="tabpanel">
+          <div class="category-header">
+            <h3><i class="fa-solid fa-martini-glass-citrus text-gold"></i> Cocktails & Spiritueux</h3>
+            <p>Recettes maison, grands classiques et spiritueux au comptoir.</p>
+          </div>
+
+          <div class="menu-grid">
+            <!-- Cocktails -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-cocktail">COCKTAIL</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">9,00 €</span>
+                  <span class="badge-hh-inline">HH : 8,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Spritz Lyonnais / Apérol / Limoncello</h4>
+              <p class="item-desc">Apéritif lyonnais (liqueur à la cerise) / Aperol / Limoncello (4cl), Prosecco (8cl), eau pétillante.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-cocktail">COCKTAIL</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">10,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Chartreuse Mule</h4>
+              <p class="item-desc">Chartreuse (4cl), Citron vert, Ginger Beer.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-cocktail">COCKTAIL</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">9,00 €</span>
+                  <span class="badge-hh-inline">HH : 8,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Gin Tonic</h4>
+              <p class="item-desc">Gin (4cl) + Tonic c'est logique (possibilité tonic sureau ou tonic concombre).</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-cocktail">COCKTAIL</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">9,00 €</span>
+                  <span class="badge-hh-inline">HH : 8,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Lillet Tonic Sureau</h4>
+              <p class="item-desc">Lillet (7cl) + Tonic au sureau.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-cocktail">COCKTAIL</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">9,00 €</span>
+                  <span class="badge-hh-inline">HH : 8,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Mules</h4>
+              <p class="item-desc">Vodka / Gin / Rhum (4cl), Citron vert, Ginger Beer.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-cocktail">COCKTAIL</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">9,00 €</span>
+                  <span class="badge-hh-inline">HH : 8,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Caïpirinha</h4>
+              <p class="item-desc">Cachaça (6cl), Citron vert, Sucre Roux.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-cocktail">COCKTAIL</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">10,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Porn Star Martini</h4>
+              <p class="item-desc">Vodka (4cl), Passoa (2cl), Purée de fruit de la passion, Citron vert, sirop de vanille, shot de Prosecco.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-cocktail">COCKTAIL</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">10,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Spritz St Germain</h4>
+              <p class="item-desc">Saint Germain (4cl), Prosecco (8cl), eau pétillante.</p>
+            </div>
+
+            <!-- Mocktails (Sans alcool) -->
+            <div class="menu-item-card border-gold-soft">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">MOCKTAIL 0.0%</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">6,50 €</span>
+                  <span class="badge-hh-inline">HH : 6,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">VirGin Tonic</h4>
+              <p class="item-desc">Gin Citadelle 0.0% + tonic, Variance au sureau ou concombre.</p>
+            </div>
+
+            <div class="menu-item-card border-gold-soft">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">MOCKTAIL 0.0%</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">6,50 €</span>
+                  <span class="badge-hh-inline">HH : 6,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Spritz sans alcool</h4>
+              <p class="item-desc">Spritz rafraîchissant sans alcool.</p>
+            </div>
+          </div>
+
+          <!-- Spiritueux List -->
+          <div class="spiritueux-box mt-4">
+            <h4 class="spiritueux-title"><i class="fa-solid fa-whiskey-glass text-gold"></i> Nos Spiritueux au Comptoir (2cl / 4cl)</h4>
+            <div class="spiritueux-chips">
+              <div class="spirit-chip"><strong>Ricard ou Henri Bardouin :</strong> 2cl 2,50€ | 4cl 4,00€</div>
+              <div class="spirit-chip"><strong>Suze :</strong> 4cl 4,00€ | Suze Tonic 6,00€</div>
+              <div class="spirit-chip"><strong>Limoncello :</strong> 2cl 3,00€ | 4cl 5,00€</div>
+              <div class="spirit-chip"><strong>Liqueur Verveine :</strong> 2cl 3,00€ | 4cl 5,00€</div>
+              <div class="spirit-chip"><strong>Tequila paf :</strong> 2cl 3,00€ | 4cl 5,00€</div>
+              <div class="spirit-chip"><strong>Chartreuse :</strong> 2cl 4,00€ | 4cl 7,00€</div>
+              <div class="spirit-chip"><strong>Vodka Zubrowka :</strong> 2cl 3,00€ | 4cl 5,00€</div>
+              <div class="spirit-chip"><strong>Gin Tanqueray :</strong> 2cl 3,00€ | 4cl 5,00€</div>
+              <div class="spirit-chip"><strong>Rhum arrangé :</strong> 2cl 3,00€ | 4cl 5,00€</div>
+              <div class="spirit-chip"><strong>Whisky :</strong> 2cl 3,00€ | 4cl 6,00€</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 5 : SOFTS ÉQUITABLES (Avec El Tony Mate) -->
+        <div id="tab-softs" class="tab-pane" role="tabpanel">
+          <div class="category-header">
+            <h3><i class="fa-solid fa-glass-water text-gold"></i> Softs Équitables</h3>
+            <p>Des marques éthiques, engagées et rafraîchissantes. <em>Des carafes d'eau sont à disposition gratuitement au bar.</em></p>
+          </div>
+
+          <div class="menu-grid">
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">Jus 25cl</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">4,00 €</span>
+                  <span class="badge-hh-inline">HH : 3,50 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Jus de Fruits JUSTE</h4>
+              <p class="item-desc">Pomme, Pêche de Vigne, Poire, Tomate.</p>
+            </div>
+
+            <!-- El Tony Mate -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">Maté 33cl</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">4,50 €</span>
+                  <span class="badge-hh-inline">HH : 4,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">El Tony Mate</h4>
+              <p class="item-desc">Maté pétillant naturel et énergisant.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">Thé Glacé 33cl</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">4,00 €</span>
+                  <span class="badge-hh-inline">HH : 3,50 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">ChariTea - Thés glacés équitables</h4>
+              <p class="item-desc">Thé noir citron.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">Limonade 33cl</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">4,00 €</span>
+                  <span class="badge-hh-inline">HH : 3,50 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">LemonAid - Limonades équitables</h4>
+              <p class="item-desc">Gingembre, Citron, Fruit de la Passion.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">Cola 33cl</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">4,00 €</span>
+                  <span class="badge-hh-inline">HH : 3,50 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Community Cola - Cola équitable</h4>
+              <p class="item-desc">Avec ou sans sucre.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">Eau Gazeuse 33cl</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">3,50 €</span>
+                  <span class="badge-hh-inline">HH : 3,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">Eau gazeuse - Vals</h4>
+              <p class="item-desc">Eau minérale gazeuse naturelle.</p>
+            </div>
+
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">Sirops</span>
+                <div class="price-list-vertical">
+                  <div class="price-line">33cl : <strong>2,00 €</strong></div>
+                  <div class="price-line">50cl : <strong>3,50 €</strong></div>
+                </div>
+              </div>
+              <h4 class="item-title">Sirops à l'eau</h4>
+              <p class="item-desc">Grenadine, menthe, citron, pêche, violette, framboise, orgeat.</p>
+            </div>
+
+            <div class="menu-item-card border-gold-soft">
+              <div class="card-top">
+                <span class="beer-style-tag style-soft">Sans Alcool</span>
+                <div class="price-hh-flex">
+                  <span class="reg-price">6,50 €</span>
+                  <span class="badge-hh-inline">HH : 6,00 €</span>
+                </div>
+              </div>
+              <h4 class="item-title">VirGin Tonic & Spritz sans alcool</h4>
+              <p class="item-desc">Gin Citadelle 0.0% + tonic (sureau ou concombre) ou Spritz sans alcool.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 6 : À MANGER / PLANCHES (Prix à la ligne, sans photo pour la planche) -->
+        <div id="tab-food" class="tab-pane" role="tabpanel">
+          <div class="category-header">
+            <h3><i class="fa-solid fa-cheese text-gold"></i> À Manger / Planches</h3>
+            <p>Charcuteries, fromages, camembert rôti, croque-monsieur et pizzas cuites sur place.</p>
+          </div>
+
+          <div class="menu-grid">
+            <!-- Planche (sans photo, prix à la ligne) -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-food">Planche Apéro</span>
+                <div class="price-list-vertical">
+                  <div class="price-line">Petite : <strong>12,00 €</strong></div>
+                  <div class="price-line">Grande : <strong>16,00 €</strong></div>
+                </div>
+              </div>
+              <h4 class="item-title">Planche à partager ou non</h4>
+              <p class="item-desc">Charcuterie (porc) x3, Fromage x3, pain frais.</p>
+            </div>
+
+            <!-- Camembert Rôti -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-food">Chaud & Fondant</span>
+                <div class="price-single"><strong>9,00 €</strong></div>
+              </div>
+              <h4 class="item-title">Camembert rôti</h4>
+              <p class="item-desc">Topping amandes concassées et miel. Servi avec pain croustillant.</p>
+            </div>
+
+            <!-- Pizzas -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-food">Cuite sur place</span>
+                <div class="price-single"><strong>15,00 €</strong></div>
+              </div>
+              <h4 class="item-title">Pizzas artisanales cuites sur place</h4>
+              <p class="item-desc">
+                Recettes savoureuses :
+                <br>• Chèvre - Miel - Sauce tomate - Mozza
+                <br>• Jambon - Champignon - Sauce tomate - Mozza
+                <br>• Chorizo - Poivrons - Sauce tomate - Mozza
+              </p>
+            </div>
+
+            <!-- Croque-Monsieur -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-food">Gourmand</span>
+                <div class="price-single"><strong>6,00 €</strong></div>
+              </div>
+              <h4 class="item-title">Croque monsieur (possibilité végétarien)</h4>
+              <p class="item-desc">Pesto / Jambon (porc) ou champignon / Comté.</p>
+            </div>
+
+            <!-- Saucisson -->
+            <div class="menu-item-card">
+              <div class="card-top">
+                <span class="beer-style-tag style-food">Tradition</span>
+                <div class="price-single"><strong>6,00 €</strong></div>
+              </div>
+              <h4 class="item-title">Saucisson</h4>
+              <p class="item-desc">Saucisson sec entier servi sur planche.</p>
+            </div>
+          </div>
+
+          <div class="allergen-note">
+            <i class="fa-solid fa-circle-info"></i>
+            <span><em>Origines des charcuteries : France et Espagne. Carte des allergènes à disposition au comptoir.</em></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZONE 7 : PRIVATISATION & MEZZANINE (Photos mezzanine et salle mises à jour) -->
+  <section id="privatisation" class="section privatisation-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge"><i class="fa-solid fa-champagne-glasses"></i> PRIVATISATIONS & ÉVÉNEMENTS</span>
+        <h2 class="section-title">Fêtez Vos Événements au BOB !</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">
+          Anniversaires, afterworks, pots de départ ou soirées d'entreprise : nous mettons nos espaces et nos tireuses à votre disposition.
+        </p>
+      </div>
+
+      <div class="privatisation-grid">
+        <!-- Option 1 : Mezzanine (avec photo mezzanine) -->
+        <div class="priv-card">
+          <div class="priv-card-media" onclick="openLightbox('assets/images/mezzanine.webp', 'Espace Mezzanine cosy du BOB (jusqu\'à 15 personnes)')">
+            <img src="assets/images/mezzanine.webp" alt="Espace mezzanine bar BOB Lyon" loading="lazy" width="600" height="400">
+            <div class="priv-badge-capa">
+              <i class="fa-solid fa-user-group"></i> Jusqu'à 15 personnes
+            </div>
+          </div>
+          <div class="priv-card-body">
+            <span class="priv-tag">Espace Cosy & Intimiste</span>
+            <h3>La Mezzanine Privative</h3>
+            <p>
+              Perchée en surplomb de la salle principale, notre mezzanine vous offre un cocon privilégié entre amis ou collègues tout en profitant de l'ambiance chaleureuse du bar.
+            </p>
+            <ul class="priv-features">
+              <li><i class="fa-solid fa-check text-gold"></i> Espace semi-privatif cosy avec canapés et tables</li>
+              <li><i class="fa-solid fa-check text-gold"></i> Idéal pour anniversaires en petit comité & afterworks</li>
+              <li><i class="fa-solid fa-check text-gold"></i> Service de planches apéro & boissons sur-mesure</li>
+              <li><i class="fa-solid fa-check text-gold"></i> Réservation facile & gratuite via Privateaser</li>
+            </ul>
+            <div class="priv-card-footer">
+              <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-block">
+                <i class="fa-solid fa-calendar-check"></i> Réserver la Mezzanine
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Option 2 : Privatisation Totale (avec photo salle et 4 arguments demandés) -->
+        <div class="priv-card priv-card-featured">
+          <div class="priv-card-media" onclick="openLightbox('assets/images/salle.webp', 'Privatisation globale de la salle du BOB (jusqu\'à 70 personnes)')">
+            <img src="assets/images/salle.webp" alt="Privatisation totale du bar BOB Lyon" loading="lazy" width="600" height="400">
+            <div class="priv-badge-capa badge-gold">
+              <i class="fa-solid fa-champagne-glasses"></i> Jusqu'à 70 personnes
+            </div>
+          </div>
+          <div class="priv-card-body">
+            <span class="priv-tag">Exclusivité Totale</span>
+            <h3>Privatisation Complète du Bar</h3>
+            <p>
+              Offrez-vous le BOB rien que pour vos convives ! Une privatisation intégrale sur demande avec barman dédié, système sonore personnalisable et formules boissons & food adaptées.
+            </p>
+            <ul class="priv-features">
+              <li><i class="fa-solid fa-check text-gold"></i> Devis sur mesure selon votre événement et vos envies</li>
+              <li><i class="fa-solid fa-check text-gold"></i> Système sonore / playlist musicale entièrement libre</li>
+              <li><i class="fa-solid fa-check text-gold"></i> Buffets de planches, camemberts rôtis & pizzas chaudes</li>
+              <li><i class="fa-solid fa-check text-gold"></i> 9 tireuses pression & barman dédié pour tout le groupe</li>
+            </ul>
+            <div class="priv-card-footer">
+              <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="btn btn-gold btn-block">
+                <i class="fa-solid fa-champagne-glasses"></i> Privatiser sur Privateaser
+              </a>
+              <span class="direct-contact-hint">ou contactez-nous au <strong>06 22 89 95 10</strong></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZONE 8 : NOS BRASSERIES & PARTENAIRES -->
+  <section id="partenaires" class="section partenaires-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge"><i class="fa-solid fa-handshake"></i> ARTISANS & FOURNISSEURS</span>
+        <h2 class="section-title">Nos Brasseries & Partenaires Locaux</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">
+          Parce que le BOB ne serait rien sans ses brasseurs et producteurs adorés, nous mettons fièrement à l'honneur celles et ceux qui font la richesse de nos verres !
+        </p>
+      </div>
+
+      <div class="partenaires-grid">
+        <!-- Partner 1 -->
+        <div class="partner-card">
+          <div class="partner-logo-box">
+            <i class="fa-solid fa-beer-mug-empty partner-icon"></i>
+          </div>
+          <h4>Brasserie Brewlab</h4>
+          <p class="partner-loc">Villeurbanne / Métropole de Lyon</p>
+          <p class="partner-desc">Créateurs de recettes houblonnées audacieuses et explosives (Miami Weiss, Amazone IPA, Voodoo NEIPA, Yakuza DIPA).</p>
+        </div>
+
+        <!-- Partner 2 -->
+        <div class="partner-card">
+          <div class="partner-logo-box">
+            <i class="fa-solid fa-mountain partner-icon"></i>
+          </div>
+          <h4>La Canute Lyonnaise</h4>
+          <p class="partner-loc">Croix-Rousse, Lyon</p>
+          <p class="partner-desc">La brasserie emblématique des Canuts et de nos pentes. Bières authentiques et attachées à l'histoire locale lyonnaise (La Gerland...).</p>
+        </div>
+
+        <!-- Partner 3 -->
+        <div class="partner-card">
+          <div class="partner-logo-box">
+            <i class="fa-solid fa-flask partner-icon"></i>
+          </div>
+          <h4>Brasserie Les Danaïdes</h4>
+          <p class="partner-loc">Région Auvergne-Rhône-Alpes</p>
+          <p class="partner-desc">Des recettes de caractère d'une grande finesse, des bières brunes profondes (Saison Noire) aux bières acidulées (Magma Mango).</p>
+        </div>
+
+        <!-- Partner 4 -->
+        <div class="partner-card">
+          <div class="partner-logo-box">
+            <i class="fa-solid fa-apple-whole partner-icon"></i>
+          </div>
+          <h4>Maison Mauret</h4>
+          <p class="partner-loc">France</p>
+          <p class="partner-desc">Pionniers du cidre artisanal contemporain, 100% pur jus français, frais, pétillant et sans artifices.</p>
+        </div>
+
+        <!-- Partner 5 -->
+        <div class="partner-card">
+          <div class="partner-logo-box">
+            <i class="fa-solid fa-wine-bottle partner-icon"></i>
+          </div>
+          <h4>Vignerons Bio & Engagés</h4>
+          <p class="partner-loc">Vallée du Rhône, Cévennes, Bourgogne</p>
+          <p class="partner-desc">Domaines Rémi Pouizin, Villa Pous, Terres Secrètes... Des vins respectueux de la terre et du vivant.</p>
+        </div>
+
+        <!-- Partner 6 -->
+        <div class="partner-card">
+          <div class="partner-logo-box">
+            <i class="fa-solid fa-leaf partner-icon"></i>
+          </div>
+          <h4>LemonAid & ChariTea</h4>
+          <p class="partner-loc">Commerce Équitable</p>
+          <p class="partner-desc">Boissons bio et équitables dont chaque bouteille finance des projets sociaux dans les pays de production.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZONE 9 : ACCÈS, HORAIRES & CONTACT -->
+  <section id="contact" class="section contact-section">
+    <div class="container">
+      <div class="section-header text-center">
+        <span class="section-badge"><i class="fa-solid fa-location-dot"></i> INFOS PRATIQUES</span>
+        <h2 class="section-title">Nous Trouver & Nous Contacter</h2>
+        <div class="section-divider"></div>
+        <p class="section-subtitle">
+          Rendez-vous au 12 rue Imbert Colomès dans les mythiques Pentes de la Croix-Rousse à Lyon.
+        </p>
+      </div>
+
+      <div class="contact-layout-grid">
+        <!-- Left: Details & Hours -->
+        <div class="contact-info-block">
+          <div class="info-block-card">
+            <h3><i class="fa-solid fa-map-location-dot text-gold"></i> Adresse & Transports</h3>
+            <p class="address-text">
+              <strong>BOB - Blonde ou Brune</strong><br>
+              12 rue Imbert Colomès<br>
+              69001 LYON — Pentes de la Croix-Rousse
+            </p>
+
+            <div class="transport-pills">
+              <span class="transport-pill"><i class="fa-solid fa-train-subway"></i> Métro C : Croix-Paquet ou Croix-Rousse</span>
+              <span class="transport-pill"><i class="fa-solid fa-train-subway"></i> Métro A : Hôtel de Ville (8 min à pied)</span>
+              <span class="transport-pill"><i class="fa-solid fa-bus"></i> Bus S6 / S12 / C13</span>
+            </div>
+
+            <div class="mt-3">
+              <a href="https://goo.gl/maps/MY7jRcQqQhJo7zKR6" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-sm">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> Ouvrir dans Google Maps
+              </a>
+            </div>
+          </div>
+
+          <div class="info-block-card mt-4">
+            <h3><i class="fa-regular fa-clock text-gold"></i> Horaires Détaillés</h3>
+            <table class="hours-table">
+              <tbody>
+                <tr id="row-tuesday">
+                  <td><strong>Mardi</strong></td>
+                  <td class="text-right">17h00 — 01h00</td>
+                </tr>
+                <tr id="row-wednesday">
+                  <td><strong>Mercredi</strong></td>
+                  <td class="text-right">17h00 — 01h00</td>
+                </tr>
+                <tr id="row-thursday">
+                  <td><strong>Jeudi</strong></td>
+                  <td class="text-right">17h00 — 01h00</td>
+                </tr>
+                <tr id="row-friday">
+                  <td><strong>Vendredi</strong></td>
+                  <td class="text-right">17h00 — 01h00</td>
+                </tr>
+                <tr id="row-saturday">
+                  <td><strong>Samedi</strong></td>
+                  <td class="text-right">16h00 — 01h00</td>
+                </tr>
+                <tr id="row-sunday" class="row-closed">
+                  <td>Dimanche</td>
+                  <td class="text-right"><em>Fermé</em></td>
+                </tr>
+                <tr id="row-monday" class="row-closed">
+                  <td>Lundi</td>
+                  <td class="text-right"><em>Fermé</em></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="info-block-card mt-4">
+            <h3><i class="fa-solid fa-phone text-gold"></i> Téléphone & E-mail</h3>
+            <div class="contact-links-list">
+              <a href="tel:0622899510" class="contact-btn-link"><i class="fa-solid fa-phone text-gold"></i> 06 22 89 95 10 (Quentin)</a>
+              <a href="tel:0623422661" class="contact-btn-link"><i class="fa-solid fa-phone text-gold"></i> 06 23 42 26 61 (Margot)</a>
+              <a href="mailto:boblyon@outlook.fr" class="contact-btn-link"><i class="fa-solid fa-envelope text-gold"></i> boblyon@outlook.fr</a>
+            </div>
+
+            <div class="social-links-row mt-3">
+              <a href="https://www.instagram.com/leboblyon/" target="_blank" rel="noopener noreferrer" class="social-circle-btn" aria-label="Instagram @leboblyon">
+                <i class="fa-brands fa-instagram"></i>
+              </a>
+              <a href="https://www.facebook.com/profile.php?id=100083176527737" target="_blank" rel="noopener noreferrer" class="social-circle-btn" aria-label="Facebook BOB Lyon">
+                <i class="fa-brands fa-facebook"></i>
+              </a>
+              <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="social-circle-btn" aria-label="Privateaser Réservation">
+                <i class="fa-solid fa-calendar-check"></i>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Interactive Map Embed -->
+        <div class="contact-map-block">
+          <div class="map-wrapper">
+            <iframe 
+              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2782.9737158434863!2d4.831075176840748!3d45.77095037108083!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47f4eb017c60e3ef%3A0xe54e3fa386927a42!2s12%20Rue%20Imbert%20Colom%C3%A8s%2C%2069001%20Lyon!5e0!3m2!1sfr!2sfr!4v1700000000000!5m2!1sfr!2sfr" 
+              width="100%" 
+              height="100%" 
+              style="border:0;" 
+              allowfullscreen="" 
+              loading="lazy" 
+              referrerpolicy="no-referrer-when-downgrade"
+              title="Carte localisation BOB - Blonde ou Brune Lyon">
+            </iframe>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ZONE 10 : FOOTER -->
+  <footer class="site-footer">
+    <div class="container">
+      <div class="footer-top">
+        <div class="footer-col footer-brand">
+          <a href="#hero" class="footer-logo-link" aria-label="Accueil BOB">
+            <img src="assets/logos/BOB LOGO B.svg" alt="BOB Lyon Logo" class="footer-logo-svg" width="60" height="60">
+          </a>
+          <p class="footer-tagline">
+            Bar à bières artisanales, vins bio, planches & pizzas aux cœur des Pentes de la Croix-Rousse.
+          </p>
+          <div class="footer-socials">
+            <a href="https://www.instagram.com/leboblyon/" target="_blank" rel="noopener" aria-label="Instagram @leboblyon"><i class="fa-brands fa-instagram"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=100083176527737" target="_blank" rel="noopener" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+            <a href="mailto:boblyon@outlook.fr" aria-label="Email"><i class="fa-solid fa-envelope"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-col">
+          <h4>Navigation</h4>
+          <ul class="footer-nav">
+            <li><a href="#hero">Accueil</a></li>
+            <li><a href="#histoire">L'Esprit BOB & Équipe</a></li>
+            <li><a href="#carte">La Carte</a></li>
+            <li><a href="#privatisation">Privatisation & Mezzanine</a></li>
+            <li><a href="#partenaires">Nos Brasseries</a></li>
+            <li><a href="#contact">Horaires & Localisation</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>Réservations & Événements</h4>
+          <p class="footer-text">
+            Réservez une table ou la mezzanine pour votre groupe :
+          </p>
+          <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm mb-3">
+            <i class="fa-solid fa-calendar-check"></i> Réserver sur Privateaser
+          </a>
+          <p class="footer-contact-small">
+            <i class="fa-solid fa-phone text-gold"></i> 06 22 89 95 10 / 06 23 42 26 61<br>
+            <i class="fa-solid fa-location-dot text-gold"></i> 12 rue Imbert Colomès, 69001 LYON
+          </p>
+        </div>
+      </div>
+
+      <div class="footer-moderation">
+        <p><i class="fa-solid fa-triangle-exclamation"></i> L'abus d'alcool est dangereux pour la santé, à consommer avec modération. Carte des allergènes disponible au comptoir sur demande.</p>
+      </div>
+
+      <div class="footer-bottom">
+        <div class="footer-copy">
+          © 2026 BOB - BLONDE OU BRUNE • 12 rue Imbert Colomès 69001 LYON • Tous droits réservés.
+        </div>
+        <div class="footer-meta">
+          <span class="version-badge"><i class="fa-solid fa-code-branch"></i> v1.1.1</span>
+          <span class="footer-badge">Fait avec <i class="fa-solid fa-heart text-gold"></i> dans les Pentes de la Croix-Rousse</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- MOBILE FLOATING ACTION BAR (Thumb Zone UX) -->
+  <div class="mobile-floating-bar" aria-label="Actions rapides mobile">
+    <a href="#carte" class="floating-btn">
+      <i class="fa-solid fa-beer-mug-empty"></i>
+      <span>La Carte</span>
+    </a>
+    <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="floating-btn floating-btn-primary">
+      <i class="fa-solid fa-calendar-check"></i>
+      <span>Réserver</span>
+    </a>
+    <a href="https://goo.gl/maps/MY7jRcQqQhJo7zKR6" target="_blank" rel="noopener noreferrer" class="floating-btn">
+      <i class="fa-solid fa-location-dot"></i>
+      <span>Y Aller</span>
+    </a>
+    <a href="tel:0622899510" class="floating-btn">
+      <i class="fa-solid fa-phone"></i>
+      <span>Appeler</span>
+    </a>
+  </div>
+
+  <!-- LIGHTBOX MODAL FOR PHOTOS -->
+  <div id="lightbox-modal" class="lightbox-modal" aria-hidden="true">
+    <div class="lightbox-backdrop" onclick="closeLightbox()"></div>
+    <div class="lightbox-content">
+      <button class="lightbox-close" onclick="closeLightbox()" aria-label="Fermer la vue agrandie">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <img id="lightbox-img" src="" alt="Agrandissement photo BOB">
+      <div id="lightbox-caption" class="lightbox-caption"></div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script src="script.js"></script>
+</body>
+</html>
