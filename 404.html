@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Redirection - BOB Blonde ou Brune</title>
+  <script>
+    // Intelligent URL redirector for old Google Sites links & QR codes
+    const path = window.location.pathname.toLowerCase();
+    if (path.includes('carte')) {
+      window.location.replace('/#carte');
+    } else if (path.includes('reserv')) {
+      window.location.replace('https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune');
+    } else if (path.includes('partenaire')) {
+      window.location.replace('/#partenaires');
+    } else if (path.includes('bob') || path.includes('histoire')) {
+      window.location.replace('/#histoire');
+    } else {
+      window.location.replace('/');
+    }
+  </script>
+</head>
+<body style="background:#0e0e10; color:#fff; font-family:sans-serif; text-align:center; padding-top:20vh;">
+  <p>Redirection en cours vers le site BOB...</p>
+  <p><a href="/" style="color:#ffd15b;">Cliquez ici si la redirection ne démarre pas.</a></p>
+</body>
+</html>
