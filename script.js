@@ -233,11 +233,18 @@ function initStickyHeader() {
   const header = document.getElementById('main-header');
   if (!header) return;
 
+  let ticking = false;
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 40) {
-      header.classList.add('scrolled');
-    } else {
-      header.classList.remove('scrolled');
+    if (!ticking) {
+      window.requestAnimationFrame(() => {
+        if (window.scrollY > 30) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+        ticking = false;
+      });
+      ticking = true;
     }
   }, { passive: true });
 }
