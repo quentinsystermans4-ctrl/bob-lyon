@@ -1226,23 +1226,37 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 4px;
 }
 
-/* Tabs */
+/* Sticky Category Tabs */
 .carte-tabs-wrapper {
-  margin: 2.5rem 0 3rem;
+  position: sticky;
+  top: 60px;
+  z-index: 70;
+  margin: 1.5rem 0 2.5rem;
   display: flex;
   justify-content: center;
+  background: rgba(14, 14, 16, 0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
 
 .carte-tabs {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.45rem;
   background-color: var(--color-bg-card);
-  padding: 0.4rem;
+  padding: 0.35rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--color-border);
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
   max-width: 100%;
+}
+
+.carte-tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab-btn {
@@ -2447,10 +2461,17 @@ h1, h2, h3, h4, h5, h6 {
   .hero-actions {
     flex-direction: column;
     width: 100%;
+    gap: 0.85rem;
   }
 
   .hero-actions .btn {
     width: 100%;
+    white-space: normal;
+    padding: 0.85rem 1.15rem;
+    font-size: clamp(0.92rem, 3.8vw, 1.05rem);
+    line-height: 1.3;
+    text-align: center;
+    justify-content: center;
   }
 
   .mosaic-gallery {
@@ -2475,14 +2496,23 @@ h1, h2, h3, h4, h5, h6 {
     grid-template-columns: 1fr;
   }
 
+  .carte-tabs-wrapper {
+    top: 56px;
+    margin: 1rem -0.75rem 2rem;
+    padding: 0.45rem 0.5rem;
+  }
+
   .carte-tabs {
-    border-radius: var(--radius-lg);
-    padding: 0.3rem;
+    border-radius: var(--radius-full);
+    padding: 0.25rem;
+    gap: 0.35rem;
+    width: 100%;
   }
 
   .tab-btn {
     padding: 0.55rem 0.9rem;
-    font-size: 0.85rem;
+    font-size: 0.84rem;
+    flex-shrink: 0;
   }
 
   .footer-bottom {

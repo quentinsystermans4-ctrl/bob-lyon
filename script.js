@@ -140,6 +140,7 @@ function initLiveScheduleStatus() {
 function initCarteTabs() {
   const tabBtns = document.querySelectorAll('.tab-btn');
   const tabPanes = document.querySelectorAll('.tab-pane');
+  const tabsWrapper = document.querySelector('.carte-tabs-wrapper');
 
   tabBtns.forEach(btn => {
     btn.addEventListener('click', () => {
@@ -153,6 +154,9 @@ function initCarteTabs() {
       btn.classList.add('active');
       btn.setAttribute('aria-selected', 'true');
 
+      // Center active tab in horizontal scroll (for mobile swipe)
+      btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+
       // Update pane active state
       tabPanes.forEach(pane => {
         pane.classList.remove('active');
@@ -160,6 +164,17 @@ function initCarteTabs() {
       const activePane = document.getElementById(targetId);
       if (activePane) {
         activePane.classList.add('active');
+      }
+
+      // If user is scrolled below the sticky bar, smoothly scroll to top of carte category
+      if (tabsWrapper) {
+        const wrapperRect = tabsWrapper.getBoundingClientRect();
+        if (wrapperRect.top < 65) {
+          const carteSection = document.getElementById('carte');
+          const headerHeight = document.getElementById('main-header')?.offsetHeight || 60;
+          const targetY = (carteSection?.offsetTop || 0) + 120 - headerHeight;
+          window.scrollTo({ top: targetY, behavior: 'smooth' });
+        }
       }
     });
   });
