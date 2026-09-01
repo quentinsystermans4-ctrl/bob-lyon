@@ -9,7 +9,7 @@
   <meta name="description" content="Bar à bières artisanales et locales aux Pentes de la Croix-Rousse à Lyon 1er. 9 becs pression, vins bio, planches gourmandes, pizzas, mezzanine privatisable et Happy Hour 17h-20h !">
   <meta name="keywords" content="bar a biere lyon, BOB lyon, blonde ou brune lyon, bar pentes croix rousse, bar lyon 1, happy hour lyon, craft beer lyon, privatisation bar lyon, mezzanine lyon">
   <meta name="author" content="BOB - Blonde ou Brune">
-  <meta name="version" content="1.3.4">
+  <meta name="version" content="1.3.5">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#121214">
 
@@ -92,57 +92,60 @@
 </head>
 <body class="bg-dark text-light font-body antialiased">
 
-  <!-- ZONE 1 : Top Announcement Bar -->
-  <div class="top-banner">
-    <div class="container banner-content">
-      <div class="banner-left">
-        <span class="badge-pulse"><i class="fa-solid fa-bolt"></i> HAPPY HOUR</span>
-        <span class="banner-text">Tous les jours de <strong>17h à 20h</strong> sur les bières, softs & cocktails !</span>
-      </div>
-      <div class="banner-right">
-        <div id="live-status-pill" class="status-pill">
-          <span class="status-dot"></span>
-          <span id="live-status-text">Calcul des horaires...</span>
+  <!-- STICKY TOP GROUP : Zone 1 (Top Banner) + Zone 2 (Header) fixes ensemble au scroll -->
+  <div id="sticky-top-group" class="sticky-top-group">
+    <!-- ZONE 1 : Top Announcement Bar -->
+    <div class="top-banner">
+      <div class="container banner-content">
+        <div class="banner-left">
+          <span class="badge-pulse"><i class="fa-solid fa-bolt"></i> HAPPY HOUR</span>
+          <span class="banner-text">Tous les jours de <strong>17h à 20h</strong> sur les bières, softs & cocktails !</span>
+        </div>
+        <div class="banner-right">
+          <div id="live-status-pill" class="status-pill">
+            <span class="status-dot"></span>
+            <span id="live-status-text">Calcul des horaires...</span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- ZONE 2 : Header / Navigation -->
-  <header id="main-header" class="site-header">
-    <div class="container header-container">
-      <!-- Logo BOB (Logo emblème agrandi comme en zone 3) -->
-      <a href="#hero" class="brand-logo" aria-label="Accueil BOB - Blonde ou Brune">
-        <img src="assets/logos/BOB LOGO B.svg" alt="BOB - Blonde ou Brune Lyon" class="logo-header-svg" width="68" height="68">
-      </a>
-
-      <!-- Desktop Nav Links -->
-      <nav class="desktop-nav" aria-label="Navigation principale">
-        <ul class="nav-list">
-          <li><a href="#hero" class="nav-link active"><i class="fa-solid fa-house"></i> Accueil</a></li>
-          <li><a href="#histoire" class="nav-link"><i class="fa-solid fa-heart"></i> L'Esprit BOB</a></li>
-          <li><a href="#carte" class="nav-link"><i class="fa-solid fa-beer-mug-empty"></i> La Carte</a></li>
-          <li><a href="#privatisation" class="nav-link"><i class="fa-solid fa-champagne-glasses"></i> Privatisation</a></li>
-          <li><a href="#avis" class="nav-link"><i class="fa-solid fa-star"></i> Avis</a></li>
-          <li><a href="#partenaires" class="nav-link"><i class="fa-solid fa-handshake"></i> Partenaires</a></li>
-          <li><a href="#contact" class="nav-link"><i class="fa-solid fa-location-dot"></i> Accès & Contact</a></li>
-        </ul>
-      </nav>
-
-      <!-- Header Action Buttons -->
-      <div class="header-actions">
-        <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm btn-glow">
-          <i class="fa-solid fa-calendar-check"></i>
-          <span>Réserver</span>
+    <!-- ZONE 2 : Header / Navigation -->
+    <header id="main-header" class="site-header">
+      <div class="container header-container">
+        <!-- Logo BOB (Logo emblème agrandi comme en zone 3) -->
+        <a href="#hero" class="brand-logo" aria-label="Accueil BOB - Blonde ou Brune">
+          <img src="assets/logos/BOB LOGO B.svg" alt="BOB - Blonde ou Brune Lyon" class="logo-header-svg" width="68" height="68">
         </a>
-        <button id="mobile-menu-toggle" class="mobile-toggle" aria-label="Ouvrir le menu de navigation" aria-expanded="false">
-          <span class="hamburger-bar"></span>
-          <span class="hamburger-bar"></span>
-          <span class="hamburger-bar"></span>
-        </button>
+
+        <!-- Desktop Nav Links -->
+        <nav class="desktop-nav" aria-label="Navigation principale">
+          <ul class="nav-list">
+            <li><a href="#hero" class="nav-link active"><i class="fa-solid fa-house"></i> Accueil</a></li>
+            <li><a href="#histoire" class="nav-link"><i class="fa-solid fa-heart"></i> L'Esprit BOB</a></li>
+            <li><a href="#carte" class="nav-link"><i class="fa-solid fa-beer-mug-empty"></i> La Carte</a></li>
+            <li><a href="#privatisation" class="nav-link"><i class="fa-solid fa-champagne-glasses"></i> Privatisation</a></li>
+            <li><a href="#avis" class="nav-link"><i class="fa-solid fa-star"></i> Avis</a></li>
+            <li><a href="#partenaires" class="nav-link"><i class="fa-solid fa-handshake"></i> Partenaires</a></li>
+            <li><a href="#contact" class="nav-link"><i class="fa-solid fa-location-dot"></i> Accès & Contact</a></li>
+          </ul>
+        </nav>
+
+        <!-- Header Action Buttons -->
+        <div class="header-actions">
+          <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" target="_blank" rel="noopener noreferrer" class="btn btn-primary btn-sm btn-glow">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>Réserver</span>
+          </a>
+          <button id="mobile-menu-toggle" class="mobile-toggle" aria-label="Ouvrir le menu de navigation" aria-expanded="false">
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+            <span class="hamburger-bar"></span>
+          </button>
+        </div>
       </div>
-    </div>
-  </header>
+    </header>
+  </div>
 
   <!-- Mobile Drawer Menu -->
   <div id="mobile-drawer" class="mobile-drawer" aria-hidden="true">
@@ -1574,7 +1577,7 @@
           © 2026 BOB - BLONDE OU BRUNE • 12 rue Imbert Colomès 69001 LYON • Tous droits réservés.
         </div>
         <div class="footer-meta">
-          <span class="version-badge"><i class="fa-solid fa-code-branch"></i> v1.3.4</span>
+          <span class="version-badge"><i class="fa-solid fa-code-branch"></i> v1.3.5</span>
           <span class="footer-badge">Fait avec <i class="fa-solid fa-heart text-gold"></i> dans les Pentes de la Croix-Rousse</span>
         </div>
       </div>

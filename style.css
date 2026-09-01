@@ -43,6 +43,7 @@
   /* Layout & Spacing */
   --header-height: 80px;
   --banner-height: 42px;
+  --total-sticky-height: 122px;
   --container-max-width: 1240px;
   --radius-sm: 8px;
   --radius-md: 14px;
@@ -249,8 +250,24 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* --------------------------------------------------------------------------
-   4. TOP ANNOUNCEMENT BANNER
+   4. STICKY TOP GROUP (Zone 1 + Zone 2 fixes ensemble au scroll)
    -------------------------------------------------------------------------- */
+.sticky-top-group {
+  position: sticky;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 100;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  transition: box-shadow 0.25s ease;
+}
+
+.sticky-top-group.scrolled {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+/* TOP ANNOUNCEMENT BANNER */
 .top-banner {
   background: linear-gradient(90deg, #18181c 0%, #222019 50%, #18181c 100%);
   border-bottom: 1px solid rgba(255, 209, 91, 0.2);
@@ -344,24 +361,21 @@ h1, h2, h3, h4, h5, h6 {
    5. SITE HEADER & NAVIGATION
    -------------------------------------------------------------------------- */
 .site-header {
-  position: sticky;
-  top: 0;
-  left: 0;
+  position: relative;
   width: 100%;
-  background-color: rgba(14, 14, 16, 0.88);
+  background-color: rgba(14, 14, 16, 0.94);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--color-border);
   z-index: 100;
-  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
   -webkit-transform: translateZ(0);
   transform: translateZ(0);
   will-change: background-color, border-color;
 }
 
 .site-header.scrolled {
-  background-color: rgba(14, 14, 16, 0.96);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  background-color: rgba(14, 14, 16, 0.98);
   border-bottom-color: rgba(255, 209, 91, 0.25);
 }
 
@@ -1234,7 +1248,7 @@ h1, h2, h3, h4, h5, h6 {
 /* Sticky Category Tabs */
 .carte-tabs-wrapper {
   position: sticky;
-  top: var(--header-height, 80px);
+  top: var(--total-sticky-height, 122px);
   z-index: 70;
   margin: 1.5rem 0 2.5rem;
   display: flex;
@@ -2429,6 +2443,8 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 860px) {
   :root {
     --header-height: 64px;
+    --banner-height: 40px;
+    --total-sticky-height: 104px;
   }
 
   .header-container {
@@ -2453,7 +2469,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .carte-tabs-wrapper {
-    top: 64px;
+    top: var(--total-sticky-height, 104px);
   }
 
   .mobile-floating-bar {
@@ -2469,6 +2485,8 @@ h1, h2, h3, h4, h5, h6 {
 @media (max-width: 640px) {
   :root {
     --header-height: 62px;
+    --banner-height: 36px;
+    --total-sticky-height: 98px;
   }
 
   .header-container {
@@ -2476,13 +2494,35 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .top-banner {
-    font-size: 0.78rem;
+    font-size: 0.76rem;
+    padding: 0.35rem 0;
   }
   
   .banner-content {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.35rem;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+
+  .banner-left {
+    gap: 0.4rem;
+  }
+
+  .banner-text {
+    display: none;
+  }
+
+  .badge-pulse {
+    font-size: 0.72rem;
+    padding: 0.18rem 0.5rem;
+    white-space: nowrap;
+  }
+
+  .status-pill {
+    font-size: 0.74rem;
+    padding: 0.18rem 0.55rem;
   }
 
   .hero-actions {
@@ -2524,7 +2564,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .carte-tabs-wrapper {
-    top: 62px;
+    top: var(--total-sticky-height, 98px);
     margin: 1rem -0.75rem 2rem;
     padding: 0.45rem 0.5rem;
   }

@@ -169,9 +169,10 @@ function initCarteTabs() {
       // If user is scrolled below the sticky bar, smoothly scroll to top of carte category
       if (tabsWrapper) {
         const wrapperRect = tabsWrapper.getBoundingClientRect();
-        if (wrapperRect.top < 65) {
+        const topGroup = document.getElementById('sticky-top-group');
+        const headerHeight = topGroup ? topGroup.offsetHeight : (document.getElementById('main-header')?.offsetHeight || 100);
+        if (wrapperRect.top < headerHeight + 15) {
           const carteSection = document.getElementById('carte');
-          const headerHeight = document.getElementById('main-header')?.offsetHeight || 60;
           const targetY = (carteSection?.offsetTop || 0) + 120 - headerHeight;
           window.scrollTo({ top: targetY, behavior: 'smooth' });
         }
@@ -230,17 +231,20 @@ function initMobileDrawer() {
    4. STICKY HEADER EFFECT
    -------------------------------------------------------------------------- */
 function initStickyHeader() {
+  const stickyGroup = document.getElementById('sticky-top-group') || document.getElementById('main-header');
   const header = document.getElementById('main-header');
-  if (!header) return;
+  if (!stickyGroup) return;
 
   let ticking = false;
   window.addEventListener('scroll', () => {
     if (!ticking) {
       window.requestAnimationFrame(() => {
-        if (window.scrollY > 30) {
-          header.classList.add('scrolled');
+        if (window.scrollY > 20) {
+          stickyGroup.classList.add('scrolled');
+          if (header) header.classList.add('scrolled');
         } else {
-          header.classList.remove('scrolled');
+          stickyGroup.classList.remove('scrolled');
+          if (header) header.classList.remove('scrolled');
         }
         ticking = false;
       });
