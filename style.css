@@ -1228,8 +1228,8 @@ h1, h2, h3, h4, h5, h6 {
 
 .events-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.15rem;
   margin-top: 2.5rem;
 }
 
@@ -1237,7 +1237,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--color-bg-card);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-lg);
-  padding: 1.75rem 1.5rem;
+  padding: 1.4rem 1.15rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -1269,57 +1269,57 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .event-icon-box {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--radius-md);
   background: rgba(255, 209, 91, 0.12);
   border: 1px solid rgba(255, 209, 91, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.35rem;
+  font-size: 1.25rem;
   color: var(--color-gold);
-  margin-bottom: 1.15rem;
+  margin-bottom: 1rem;
 }
 
 .event-timing {
   display: inline-block;
-  font-size: 0.76rem;
+  font-size: 0.72rem;
   font-family: var(--font-heading);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: var(--color-gold);
   font-weight: 700;
-  margin-bottom: 0.35rem;
+  margin-bottom: 0.3rem;
 }
 
 .event-title {
-  font-size: 1.18rem;
+  font-size: 1.05rem;
   font-family: var(--font-heading);
   font-weight: 700;
-  margin-bottom: 0.65rem;
+  margin-bottom: 0.5rem;
   color: var(--color-text-primary);
-  line-height: 1.3;
+  line-height: 1.25;
 }
 
 .event-desc {
-  font-size: 0.88rem;
+  font-size: 0.83rem;
   color: var(--color-text-secondary);
-  line-height: 1.5;
-  margin-bottom: 1.25rem;
+  line-height: 1.45;
+  margin-bottom: 1rem;
   flex: 1;
 }
 
 .event-footer {
   border-top: 1px solid rgba(255, 255, 255, 0.06);
-  padding-top: 0.75rem;
+  padding-top: 0.65rem;
 }
 
 .event-tag {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.78rem;
+  gap: 0.35rem;
+  font-size: 0.74rem;
   color: var(--color-text-muted);
   font-weight: 600;
 }
@@ -2716,6 +2716,10 @@ h1, h2, h3, h4, h5, h6 {
 
   .privatisation-grid {
     grid-template-columns: 1fr;
+  }
+
+  .events-grid {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   }
 
   .carte-tabs-wrapper {
