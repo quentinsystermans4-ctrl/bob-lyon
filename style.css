@@ -1217,6 +1217,114 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /* --------------------------------------------------------------------------
+   10bis. ÉVÉNEMENTS & ANIMATIONS SECTION
+   -------------------------------------------------------------------------- */
+.evenements-section {
+  background: linear-gradient(180deg, rgba(14, 14, 16, 0.9) 0%, rgba(22, 22, 28, 0.95) 50%, rgba(14, 14, 16, 0.9) 100%);
+  position: relative;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.event-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 1.75rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.event-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, var(--color-gold), transparent);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.event-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 209, 91, 0.4);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 18px rgba(255, 209, 91, 0.12);
+}
+
+.event-card:hover::before {
+  opacity: 1;
+}
+
+.event-icon-box {
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  background: rgba(255, 209, 91, 0.12);
+  border: 1px solid rgba(255, 209, 91, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.35rem;
+  color: var(--color-gold);
+  margin-bottom: 1.15rem;
+}
+
+.event-timing {
+  display: inline-block;
+  font-size: 0.76rem;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-gold);
+  font-weight: 700;
+  margin-bottom: 0.35rem;
+}
+
+.event-title {
+  font-size: 1.18rem;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  margin-bottom: 0.65rem;
+  color: var(--color-text-primary);
+  line-height: 1.3;
+}
+
+.event-desc {
+  font-size: 0.88rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  margin-bottom: 1.25rem;
+  flex: 1;
+}
+
+.event-footer {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 0.75rem;
+}
+
+.event-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
    11. LA CARTE INTERACTIVE SECTION
    -------------------------------------------------------------------------- */
 .carte-section {
@@ -1435,6 +1543,99 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+
+/* Flight Dégustation Banner */
+.flight-banner-card {
+  background: linear-gradient(135deg, rgba(255, 209, 91, 0.12) 0%, rgba(26, 26, 32, 0.95) 50%, rgba(255, 209, 91, 0.06) 100%);
+  border: 1px solid rgba(255, 209, 91, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 209, 91, 0.08);
+  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.flight-banner-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--color-gold);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 209, 91, 0.18);
+}
+
+.flight-banner-content {
+  flex: 1;
+}
+
+.flight-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.flight-title {
+  font-size: 1.3rem;
+  font-family: var(--font-heading);
+  color: var(--color-gold);
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+}
+
+.flight-desc {
+  font-size: 0.92rem;
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+.flight-price-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 209, 91, 0.12);
+  border: 1px solid rgba(255, 209, 91, 0.35);
+  padding: 0.85rem 1.4rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+  min-width: 140px;
+  flex-shrink: 0;
+}
+
+.flight-price-label {
+  font-size: 0.75rem;
+  font-family: var(--font-heading);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.flight-price-val {
+  font-size: 1.85rem;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  color: var(--color-gold);
+  line-height: 1.1;
+  margin: 0.15rem 0;
+}
+
+.flight-price-sub {
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+}
+
+.badge-guest {
+  background: linear-gradient(135deg, #f97316 0%, #ea580c 100%) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(251, 146, 60, 0.6) !important;
+  box-shadow: 0 0 10px rgba(249, 115, 22, 0.4);
 }
 
 .card-top {
@@ -2606,6 +2807,25 @@ h1, h2, h3, h4, h5, h6 {
 
   .menu-grid {
     grid-template-columns: 1fr;
+  }
+
+  .events-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .flight-banner-card {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1.25rem;
+    gap: 1rem;
+  }
+
+  .flight-price-box {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 0.6rem 1rem;
+    min-width: 0;
   }
 
   .avis-grid {
