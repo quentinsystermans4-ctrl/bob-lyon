@@ -1451,6 +1451,13 @@ h1, h2, h3, h4, h5, h6 {
   gap: 0.4rem;
 }
 
+.item-badge-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+}
+
 .beer-style-tag {
   font-family: var(--font-heading);
   font-size: 0.75rem;
