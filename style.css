@@ -1477,6 +1477,48 @@ h1, h2, h3, h4, h5, h6 {
 .style-cocktail { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(125, 211, 252, 0.4); }
 .style-soft { background: rgba(45, 212, 191, 0.2); color: #5eead4; border: 1px solid rgba(94, 234, 212, 0.4); }
 .style-food { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); }
+.style-veggie { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); }
+.style-veggie-light { background: rgba(16, 185, 129, 0.12); color: #a7f3d0; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+/* Encart Accords Mets-Boissons */
+.food-pairing {
+  margin-top: 0.85rem;
+  padding: 0.55rem 0.85rem;
+  background: rgba(255, 209, 91, 0.05);
+  border: 1px dashed rgba(255, 209, 91, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  transition: all var(--transition-fast);
+}
+
+.menu-item-card:hover .food-pairing {
+  background: rgba(255, 209, 91, 0.08);
+  border-color: rgba(255, 209, 91, 0.4);
+}
+
+.pairing-label {
+  font-family: var(--font-heading);
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-gold);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.pairing-text {
+  color: var(--color-text-secondary);
+  line-height: 1.35;
+}
+
+.pairing-text strong {
+  color: var(--color-text-primary);
+}
 
 .origin-tag {
   font-size: 0.75rem;

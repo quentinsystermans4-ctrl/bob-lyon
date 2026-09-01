@@ -9,7 +9,7 @@
   <meta name="description" content="Bar à bières artisanales et locales aux Pentes de la Croix-Rousse à Lyon 1er. 9 becs pression, vins bio, planches gourmandes, pizzas, mezzanine privatisable et Happy Hour 17h-20h !">
   <meta name="keywords" content="bar a biere lyon, BOB lyon, blonde ou brune lyon, bar pentes croix rousse, bar lyon 1, happy hour lyon, craft beer lyon, privatisation bar lyon, mezzanine lyon">
   <meta name="author" content="BOB - Blonde ou Brune">
-  <meta name="version" content="1.3.5">
+  <meta name="version" content="1.3.6">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#121214">
 
@@ -1068,7 +1068,7 @@
           </div>
         </div>
 
-        <!-- TAB 6 : À MANGER / PLANCHES (Prix à la ligne, sans photo pour la planche) -->
+        <!-- TAB 6 : À MANGER / PLANCHES (Accords Mets & Végé mis en avant) -->
         <div id="tab-food" class="tab-pane" role="tabpanel">
           <div class="category-header">
             <h3><i class="fa-solid fa-cheese text-gold"></i> À Manger / Planches</h3>
@@ -1079,49 +1079,79 @@
             <!-- Planche (sans photo, prix à la ligne) -->
             <div class="menu-item-card">
               <div class="card-top">
-                <span class="beer-style-tag style-food">Planche Apéro</span>
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-food">Planche Apéro</span>
+                  <span class="beer-style-tag style-veggie-light">🌱 Option Fromages</span>
+                </div>
                 <div class="price-list-vertical">
                   <div class="price-line">Petite : <strong>12,00 €</strong></div>
                   <div class="price-line">Grande : <strong>16,00 €</strong></div>
                 </div>
               </div>
               <h4 class="item-title">Planche à partager (ou non)</h4>
-              <p class="item-desc">Charcuterie (porc) x3, Fromage x3, pain frais.</p>
+              <p class="item-desc">Charcuterie (porc) x3, Fromage x3, pain frais. <em>(Option 100% Fromages pour les végétariens sur simple demande !)</em></p>
+              <div class="food-pairing">
+                <span class="pairing-label"><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> Accord suggéré :</span>
+                <span class="pairing-text">🍺 <strong>IPA houblonnée</strong> ou 🍷 <strong>Côtes-du-Rhône Bio</strong></span>
+              </div>
             </div>
 
-            <!-- Camembert Rôti -->
+            <!-- Camembert Rôti (100% Végétarien) -->
             <div class="menu-item-card">
               <div class="card-top">
-                <span class="beer-style-tag style-food">Chaud & Fondant</span>
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-food">Chaud & Fondant</span>
+                  <span class="beer-style-tag style-veggie">🌱 100% Végétarien</span>
+                </div>
                 <div class="price-single"><strong>9,00 €</strong></div>
               </div>
               <h4 class="item-title">Camembert rôti</h4>
               <p class="item-desc">Topping amandes concassées et miel. Servi avec pain croustillant.</p>
+              <div class="food-pairing">
+                <span class="pairing-label"><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> Accord suggéré :</span>
+                <span class="pairing-text">🍺 <strong>Blanche artisanale</strong> ou 🍷 <strong>Blanc Terres Secrètes</strong></span>
+              </div>
             </div>
 
             <!-- Pizzas -->
             <div class="menu-item-card">
               <div class="card-top">
-                <span class="beer-style-tag style-food">Cuite sur place</span>
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-food">Cuite sur place</span>
+                  <span class="beer-style-tag style-veggie-light">🌱 Option Végé</span>
+                </div>
                 <div class="price-single"><strong>15,00 €</strong></div>
               </div>
               <h4 class="item-title">Pizzas artisanales cuites sur place</h4>
               <p class="item-desc">
                 Recettes savoureuses :
-                <br>• Chèvre - Miel - Sauce tomate - Mozza
-                <br>• Jambon - Champignon - Sauce tomate - Mozza
-                <br>• Chorizo - Poivrons - Sauce tomate - Mozza
+                <br>• <strong class="text-gold">🌱 Chèvre - Miel</strong> - Sauce tomate - Mozza
+                <br>• <strong>Jambon - Champignon</strong> - Sauce tomate - Mozza
+                <br>• <strong>Chorizo - Poivrons</strong> - Sauce tomate - Mozza
               </p>
+              <div class="food-pairing">
+                <span class="pairing-label"><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> Accord suggéré :</span>
+                <span class="pairing-text">🍺 <strong>Blonde dorée / Ambrée</strong> ou 🍷 <strong>Rosé Brume Saline</strong></span>
+              </div>
             </div>
 
             <!-- Croque-Monsieur -->
             <div class="menu-item-card">
               <div class="card-top">
-                <span class="beer-style-tag style-food">Gourmand</span>
+                <div class="item-badge-row">
+                  <span class="beer-style-tag style-food">Gourmand</span>
+                  <span class="beer-style-tag style-veggie">🌱 Version Végé dispo</span>
+                </div>
                 <div class="price-single"><strong>6,00 €</strong></div>
               </div>
-              <h4 class="item-title">Croque monsieur (possibilité végétarien)</h4>
-              <p class="item-desc">Pesto / Jambon (porc) ou champignon / Comté.</p>
+              <h4 class="item-title">Croque-monsieur</h4>
+              <p class="item-desc">
+                Au choix : Pesto & Comté avec <strong>Jambon (porc)</strong> ou <strong class="text-gold">🌱 Champignons poêlés</strong>.
+              </p>
+              <div class="food-pairing">
+                <span class="pairing-label"><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> Accord suggéré :</span>
+                <span class="pairing-text">🍺 <strong>Bière Blonde légère</strong> ou 🍷 <strong>Blanc Chardonnay</strong></span>
+              </div>
             </div>
 
             <!-- Saucisson -->
@@ -1132,6 +1162,10 @@
               </div>
               <h4 class="item-title">Saucisson</h4>
               <p class="item-desc">Saucisson sec entier servi sur planche.</p>
+              <div class="food-pairing">
+                <span class="pairing-label"><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> Accord suggéré :</span>
+                <span class="pairing-text">🍺 <strong>Ambrée de caractère</strong> ou 🍷 <strong>Pot de Rouge lyonnais</strong></span>
+              </div>
             </div>
           </div>
 
@@ -1577,7 +1611,7 @@
           © 2026 BOB - BLONDE OU BRUNE • 12 rue Imbert Colomès 69001 LYON • Tous droits réservés.
         </div>
         <div class="footer-meta">
-          <span class="version-badge"><i class="fa-solid fa-code-branch"></i> v1.3.5</span>
+          <span class="version-badge"><i class="fa-solid fa-code-branch"></i> v1.3.6</span>
           <span class="footer-badge">Fait avec <i class="fa-solid fa-heart text-gold"></i> dans les Pentes de la Croix-Rousse</span>
         </div>
       </div>
