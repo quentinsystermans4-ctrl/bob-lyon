@@ -1,0 +1,1963 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agenda & Pense-Bête Événements | BOB - Blonde ou Brune</title>
+  
+  <!-- Polices Google : Josefin Sans & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Permanent+Marker&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --bg-dark: #121214;
+      --bg-card: #18181c;
+      --bg-card-hover: #222228;
+      --bg-accent: #26262d;
+      --gold: #d4af37;
+      --gold-light: #f3cf65;
+      --gold-dark: #b89326;
+      --amber: #f59e0b;
+      --text-light: #f8fafc;
+      --text-muted: #94a3b8;
+      --border-color: #2e2e38;
+      --radius-sm: 8px;
+      --radius-md: 14px;
+      --radius-lg: 20px;
+      --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.4), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
+      --font-title: 'Josefin Sans', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-chalk: 'Caveat', cursive;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      font-family: var(--font-body);
+      line-height: 1.5;
+      min-height: 100vh;
+      padding-bottom: 60px;
+    }
+
+    /* Top Bar */
+    .top-header {
+      background: #18181c;
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(12px);
+    }
+
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 0;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-logo-img {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: var(--gold);
+      padding: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .brand-text h1 {
+      font-family: var(--font-title);
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      letter-spacing: 0.5px;
+    }
+
+    .brand-text p {
+      font-size: 0.8rem;
+      color: var(--gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .header-pills {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pill-info {
+      background: rgba(212, 175, 55, 0.1);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: var(--gold-light);
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pill-info.hh {
+      background: rgba(245, 158, 11, 0.15);
+      border-color: rgba(245, 158, 11, 0.4);
+      color: var(--amber);
+    }
+
+    /* Sub-header / Toolbar */
+    .toolbar-section {
+      background: linear-gradient(180deg, #18181c 0%, #121214 100%);
+      padding: 24px 0 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .view-tabs {
+      display: flex;
+      gap: 10px;
+      background: var(--bg-accent);
+      padding: 6px;
+      border-radius: var(--radius-md);
+      max-width: fit-content;
+      margin-bottom: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 10px 20px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      color: #fff;
+    }
+
+    .tab-btn.active {
+      background: var(--gold);
+      color: #0f0f12;
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.35);
+    }
+
+    /* Filters row */
+    .filter-bar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .filter-btn {
+      background: #1e1e24;
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .filter-btn:hover {
+      background: #282832;
+      color: #fff;
+    }
+
+    .filter-btn.active {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    /* Print & Action Controls */
+    .action-controls {
+      display: flex;
+      gap: 10px;
+      margin-left: auto;
+    }
+
+    .btn-action {
+      background: #2a2a34;
+      color: #fff;
+      border: 1px solid var(--border-color);
+      padding: 8px 16px;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-action:hover {
+      background: #353542;
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    .btn-action.btn-gold {
+      background: var(--gold);
+      color: #121214;
+      border-color: var(--gold);
+    }
+    .btn-action.btn-gold:hover {
+      background: var(--gold-light);
+    }
+
+    /* Main Container */
+    .main-content {
+      padding: 30px 0;
+    }
+
+    .view-panel {
+      display: none;
+    }
+
+    .view-panel.active {
+      display: block;
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       VUE 1 : PANNEAUX & ARDOISES DU BAR (Prêt à recopier à la craie)
+       ========================================================================== */
+    .board-intro {
+      background: #1a1a20;
+      border-left: 4px solid var(--gold);
+      padding: 16px 20px;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .board-intro p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .weeks-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+    }
+
+    .chalkboard-card {
+      background: #0f1013;
+      border: 6px solid #2b2518;
+      border-radius: 12px;
+      box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.8), var(--shadow-card);
+      padding: 24px 20px;
+      position: relative;
+      color: #f1f5f9;
+      font-family: var(--font-body);
+    }
+
+    .chalkboard-card::before {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      border: 1px dashed rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      pointer-events: none;
+    }
+
+    .chalk-header {
+      text-align: center;
+      border-bottom: 2px solid rgba(212, 175, 55, 0.4);
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+    }
+
+    .chalk-badge {
+      font-family: var(--font-chalk);
+      font-size: 1.4rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .chalk-title {
+      font-family: var(--font-title);
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #fff;
+      margin-top: 2px;
+    }
+
+    .chalk-hours-notice {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .chalk-days-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chalk-day-item {
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      border-left: 3px solid transparent;
+      transition: background 0.2s;
+    }
+
+    .chalk-day-item.highlight-quiz {
+      border-left-color: #8b5cf6;
+      background: rgba(139, 92, 246, 0.08);
+    }
+
+    .chalk-day-item.highlight-echecs {
+      border-left-color: var(--gold);
+      background: rgba(212, 175, 55, 0.08);
+    }
+
+    .chalk-day-item.highlight-match {
+      border-left-color: #3b82f6;
+      background: rgba(59, 130, 246, 0.08);
+    }
+
+    .chalk-day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .chalk-day-name {
+      font-weight: 800;
+      font-size: 0.95rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chalk-day-hours {
+      font-size: 0.75rem;
+      color: var(--gold-light);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+
+    .chalk-event-line {
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 3px;
+    }
+
+    .chalk-event-time {
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 0.85rem;
+      min-width: 48px;
+    }
+
+    .chalk-event-text {
+      flex: 1;
+    }
+
+    .chalk-event-tag {
+      font-size: 0.7rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 700;
+      text-transform: uppercase;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+
+    .tag-quiz { background: #8b5cf6; color: #fff; }
+    .tag-echecs { background: var(--gold); color: #111; }
+    .tag-foot { background: #2563eb; color: #fff; }
+    .tag-rugby { background: #dc2626; color: #fff; }
+    .tag-moto { background: #ea580c; color: #fff; }
+    .tag-f1 { background: #e11d48; color: #fff; }
+
+    .chalk-footer {
+      margin-top: 18px;
+      padding-top: 12px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.15);
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .chalk-footer strong {
+      color: var(--gold);
+    }
+
+    /* ==========================================================================
+       VUE 2 : PENSE-BÊTE & STORIES INSTAGRAM (Copie en 1-Clic)
+       ========================================================================== */
+    .insta-intro {
+      background: linear-gradient(90deg, rgba(225, 48, 108, 0.15), rgba(131, 58, 180, 0.15));
+      border: 1px solid rgba(225, 48, 108, 0.3);
+      padding: 16px 20px;
+      border-radius: var(--radius-md);
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .insta-intro-text {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .insta-icon {
+      font-size: 2rem;
+      background: -webkit-linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .story-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 24px;
+    }
+
+    .story-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: var(--shadow-card);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .story-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+    }
+
+    .story-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .story-type-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(225, 48, 108, 0.15);
+      color: #ff6584;
+      border: 1px solid rgba(225, 48, 108, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .story-title {
+      font-family: var(--font-title);
+      font-size: 1.25rem;
+      color: #fff;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+
+    .story-preview-box {
+      background: #0d0d10;
+      border: 1px solid #282832;
+      border-radius: var(--radius-md);
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: #f1f5f9;
+      white-space: pre-wrap;
+      position: relative;
+    }
+
+    .story-stickers-tip {
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .story-stickers-tip strong {
+      color: var(--amber);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+
+    .btn-copy-story {
+      background: linear-gradient(135deg, #e1306c 0%, #c13584 100%);
+      color: #fff;
+      border: none;
+      padding: 12px 18px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+      box-shadow: 0 4px 15px rgba(225, 48, 108, 0.3);
+    }
+
+    .btn-copy-story:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(225, 48, 108, 0.45);
+      background: linear-gradient(135deg, #f03e7a 0%, #cf3d91 100%);
+    }
+
+    .btn-copy-story.copied {
+      background: #10b981;
+      box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+    }
+
+    /* ==========================================================================
+       VUE 3 : CALENDRIER COMPLET INTERACTIF
+       ========================================================================== */
+    .calendar-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .calendar-timeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .cal-day-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .cal-day-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(212, 175, 55, 0.4);
+    }
+
+    .cal-day-card.closed {
+      opacity: 0.45;
+      background: #141418;
+      border-style: dashed;
+    }
+
+    .cal-day-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .cal-date-title {
+      font-size: 1rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .cal-hours-tag {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gold-light);
+    }
+
+    .cal-events-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .cal-event-pill {
+      background: #22222a;
+      border: 1px solid #32323e;
+      border-radius: var(--radius-sm);
+      padding: 8px 10px;
+      font-size: 0.82rem;
+    }
+
+    .cal-event-pill.type-quiz { border-left: 3px solid #8b5cf6; }
+    .cal-event-pill.type-echecs { border-left: 3px solid var(--gold); }
+    .cal-event-pill.type-foot { border-left: 3px solid #3b82f6; }
+    .cal-event-pill.type-rugby { border-left: 3px solid #ef4444; }
+    .cal-event-pill.type-motosport { border-left: 3px solid #f97316; }
+
+    .cal-event-time {
+      font-weight: 800;
+      color: var(--gold);
+      font-size: 0.78rem;
+    }
+
+    .cal-event-desc {
+      color: #f1f5f9;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* Modal Form / Add Event */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.8);
+      z-index: 200;
+      backdrop-filter: blur(6px);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-card {
+      background: #18181c;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      width: 100%;
+      max-width: 520px;
+      padding: 24px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-title {
+      font-family: var(--font-title);
+      font-size: 1.3rem;
+      color: #fff;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.2rem;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+    }
+
+    .form-control {
+      width: 100%;
+      background: #22222a;
+      border: 1px solid var(--border-color);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      color: #fff;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--gold);
+    }
+
+    /* Toast Notification */
+    .toast-pill {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #10b981;
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+      z-index: 300;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .toast-pill.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    /* ==========================================================================
+       PRINT STYLES : Pour imprimer l'ardoise en A4 propre
+       ========================================================================== */
+    @media print {
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 0;
+      }
+
+      .top-header, .toolbar-section, .btn-copy-story, .btn-action, .filter-bar, .view-tabs, .modal-overlay, .toast-pill {
+        display: none !important;
+      }
+
+      .view-panel {
+        display: block !important;
+      }
+
+      #panel-stories, #panel-calendar {
+        display: none !important;
+      }
+
+      .chalkboard-card {
+        background: #ffffff !important;
+        color: #000000 !important;
+        border: 2px solid #000 !important;
+        box-shadow: none !important;
+        page-break-inside: avoid;
+        margin-bottom: 20px;
+      }
+
+      .chalk-badge, .chalk-title, .chalk-day-name, .chalk-event-time {
+        color: #000000 !important;
+      }
+
+      .chalk-day-item {
+        background: #f8fafc !important;
+        border-left: 3px solid #000 !important;
+      }
+
+      .chalk-event-tag {
+        border: 1px solid #000;
+        color: #000 !important;
+        background: #eee !important;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .view-tabs {
+        width: 100%;
+        overflow-x: auto;
+      }
+      .tab-btn {
+        padding: 8px 14px;
+        font-size: 0.82rem;
+        white-space: nowrap;
+      }
+      .weeks-grid, .story-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP HEADER -->
+  <header class="top-header">
+    <div class="container">
+      <div class="header-content">
+        <div class="brand-group">
+          <div class="brand-logo-img">
+            <i class="fa-solid fa-beer-mug-empty" style="color: #121214; font-size: 1.4rem;"></i>
+          </div>
+          <div class="brand-text">
+            <h1>BOB — Blonde ou Brune 🍻</h1>
+            <p>Agenda & Pense-Bête Événements (Septembre)</p>
+          </div>
+        </div>
+
+        <div class="header-pills">
+          <span class="pill-info"><i class="fa-regular fa-clock"></i> Mar-Ven : 17h00 - 01h00 | Sam : 16h00 - 01h00</span>
+          <span class="pill-info hh"><i class="fa-solid fa-bolt"></i> Happy Hour : 17h00 - 20h00</span>
+          <span class="pill-info" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171;">
+            <i class="fa-solid fa-ban"></i> Dim & Lun : Fermé
+          </span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- TOOLBAR : VUES & FILTRES -->
+  <section class="toolbar-section">
+    <div class="container">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+        
+        <!-- Onglets Vues -->
+        <div class="view-tabs" role="tablist">
+          <button class="tab-btn active" onclick="switchView('boards', this)">
+            <i class="fa-solid fa-clipboard-list"></i> 📋 Panneaux & Ardoises
+          </button>
+          <button class="tab-btn" onclick="switchView('stories', this)">
+            <i class="fa-brands fa-instagram"></i> 📱 Pense-Bête Stories Insta
+          </button>
+          <button class="tab-btn" onclick="switchView('calendar', this)">
+            <i class="fa-solid fa-calendar-days"></i> 🗓️ Calendrier Mensuel
+          </button>
+        </div>
+
+        <!-- Boutons d'actions -->
+        <div class="action-controls">
+          <button class="btn-action" onclick="window.print()">
+            <i class="fa-solid fa-print"></i> Imprimer l'Ardoise
+          </button>
+          <button class="btn-action btn-gold" onclick="openAddModal()">
+            <i class="fa-solid fa-plus"></i> Ajouter un Event
+          </button>
+        </div>
+      </div>
+
+      <!-- Barre de filtres par catégorie -->
+      <div class="filter-bar">
+        <span style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase;">Filtrer :</span>
+        <button class="filter-btn active" onclick="filterCategory('all', this)">Tous les events</button>
+        <button class="filter-btn" onclick="filterCategory('echecs', this)">♟️ Tournois Échecs</button>
+        <button class="filter-btn" onclick="filterCategory('quiz', this)">🧠 Quiz du BOB</button>
+        <button class="filter-btn" onclick="filterCategory('foot', this)">⚽ Football (OL, PSG, PL, LDC)</button>
+        <button class="filter-btn" onclick="filterCategory('rugby', this)">🏉 Rugby (LOU / Top 14)</button>
+        <button class="filter-btn" onclick="filterCategory('motosport', this)">🏎️ F1 & MotoGP (Samedi)</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+    <div class="container">
+
+      <!-- ====================================================================
+           VUE 1 : PANNEAUX & ARDOISES DU BAR
+           ==================================================================== -->
+      <section id="panel-boards" class="view-panel active">
+        <div class="board-intro">
+          <div>
+            <h3 style="font-family: var(--font-title); font-size: 1.15rem; color: #fff; margin-bottom: 2px;">
+              📝 Format Synthétique pour vos Panneaux & Ardoises en Bois
+            </h3>
+            <p>Textes clairs et lisibles calibrés pour être recopiés à la craie dans la salle et sur la mezzanine.</p>
+          </div>
+          <button class="btn-action" onclick="copyAllBoardsText()">
+            <i class="fa-regular fa-copy"></i> Copier tout le texte des ardoises
+          </button>
+        </div>
+
+        <div class="weeks-grid">
+
+          <!-- SEMAINE 1 -->
+          <div class="chalkboard-card" data-cats="quiz,foot,rugby,echecs,motosport">
+            <div class="chalk-header">
+              <span class="chalk-badge">Semaine 01</span>
+              <h2 class="chalk-title">01 au 05 Septembre</h2>
+              <div class="chalk-hours-notice">Ouvert Mar-Ven 17h-01h | Sam 16h-01h (HH 17h-20h)</div>
+            </div>
+
+            <div class="chalk-days-list">
+              <div class="chalk-day-item">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-beer-mug-empty text-gold"></i> Mardi 01/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">17h00</span>
+                  <span class="chalk-event-text">Happy Hour & Fléchettes en libre accès</span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-dice text-gold"></i> Mercredi 02/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">17h00</span>
+                  <span class="chalk-event-text">Soirée Craft Beer & Jeux de société</span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-quiz">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-brain" style="color: #a78bfa;"></i> Jeudi 03/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">20h30</span>
+                  <span class="chalk-event-text"><strong>LE GRAND QUIZ DU BOB #1</strong> (Culture G, Blind-test & Lots) <span class="chalk-event-tag tag-quiz">Quiz</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-match">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-futbol" style="color: #60a5fa;"></i> Vendredi 04/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">20h45</span>
+                  <span class="chalk-event-text"><strong>Ligue 1 : PSG vs AS MONACO</strong> (+ OL vs Auxerre) <span class="chalk-event-tag tag-foot">Foot</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-echecs">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-chess-knight text-gold"></i> Samedi 05/09</span>
+                  <span class="chalk-day-hours">16h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">16h00</span>
+                  <span class="chalk-event-text">F1 Qualifs GP Italie & MotoGP <span class="chalk-event-tag tag-f1">F1</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">17h00</span>
+                  <span class="chalk-event-text"><strong>TOURNOI D'ÉCHECS (&lt; 1000 ELO)</strong> avec Chessbar <span class="chalk-event-tag tag-echecs">Échecs</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">19h05</span>
+                  <span class="chalk-event-text"><strong>Top 14 (J1) : LOU RUGBY vs ASM CLERMONT</strong> <span class="chalk-event-tag tag-rugby">Rugby</span></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="chalk-footer">
+              ⚡ <strong>Happy Hour 17h-20h</strong> • Dimanche & Lundi Fermé
+            </div>
+          </div>
+
+          <!-- SEMAINE 2 -->
+          <div class="chalkboard-card" data-cats="foot,rugby,echecs,motosport">
+            <div class="chalk-header">
+              <span class="chalk-badge">Semaine 02</span>
+              <h2 class="chalk-title">08 au 12 Septembre</h2>
+              <div class="chalk-hours-notice">Ouvert Mar-Ven 17h-01h | Sam 16h-01h (HH 17h-20h)</div>
+            </div>
+
+            <div class="chalk-days-list">
+              <div class="chalk-day-item highlight-match">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-trophy" style="color: #60a5fa;"></i> Mardi 08/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">21h00</span>
+                  <span class="chalk-event-text"><strong>Ligue des Champions : Lille OSC vs Real Betis</strong> <span class="chalk-event-tag tag-foot">LDC</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-match">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-trophy" style="color: #60a5fa;"></i> Mercredi 09/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">21h00</span>
+                  <span class="chalk-event-text"><strong>Ligue des Champions : PSG vs Slovan Bratislava</strong> <span class="chalk-event-tag tag-foot">LDC</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-shield-halved text-gold"></i> Jeudi 10/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">21h00</span>
+                  <span class="chalk-event-text">Ligue Europa / Grande Soirée Européenne <span class="chalk-event-tag tag-foot">Foot</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-match">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-futbol" style="color: #60a5fa;"></i> Vendredi 11/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">20h45</span>
+                  <span class="chalk-event-text"><strong>Ligue 1 : Choc du Vendredi Soir</strong> <span class="chalk-event-tag tag-foot">Ligue 1</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-echecs">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-chess-knight text-gold"></i> Samedi 12/09</span>
+                  <span class="chalk-day-hours">16h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">16h00</span>
+                  <span class="chalk-event-text">MotoGP : Qualifs & Sprint GP Saint-Marin (Misano) <span class="chalk-event-tag tag-moto">Moto</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">17h00</span>
+                  <span class="chalk-event-text"><strong>TOURNOI D'ÉCHECS (&lt; 1000 ELO)</strong> avec Chessbar <span class="chalk-event-tag tag-echecs">Échecs</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">18h30</span>
+                  <span class="chalk-event-text"><strong>Premier League : Grand Choc Anglais (Tottenham - Arsenal)</strong> <span class="chalk-event-tag tag-foot">PL</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">21h05</span>
+                  <span class="chalk-event-text"><strong>Top 14 : Grand Match du Samedi Soir</strong> <span class="chalk-event-tag tag-rugby">Rugby</span></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="chalk-footer">
+              ⚡ <strong>Happy Hour 17h-20h</strong> • 9 Becs Pression & Pizzas
+            </div>
+          </div>
+
+          <!-- SEMAINE 3 -->
+          <div class="chalkboard-card" data-cats="quiz,foot,rugby,echecs,motosport">
+            <div class="chalk-header">
+              <span class="chalk-badge">Semaine 03</span>
+              <h2 class="chalk-title">15 au 19 Septembre</h2>
+              <div class="chalk-hours-notice">Ouvert Mar-Ven 17h-01h | Sam 16h-01h (HH 17h-20h)</div>
+            </div>
+
+            <div class="chalk-days-list">
+              <div class="chalk-day-item highlight-match">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-trophy" style="color: #60a5fa;"></i> Mardi 15 & Mercredi 16/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">21h00</span>
+                  <span class="chalk-event-text"><strong>Ligue des Champions : Soirées Européennes</strong> <span class="chalk-event-tag tag-foot">LDC</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-quiz">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-brain" style="color: #a78bfa;"></i> Jeudi 17/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">20h30</span>
+                  <span class="chalk-event-text"><strong>LE GRAND QUIZ DU BOB #2</strong> (Pop Culture, Séries & Ciné) <span class="chalk-event-tag tag-quiz">Quiz</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-match">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-futbol" style="color: #60a5fa;"></i> Vendredi 18/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">20h45</span>
+                  <span class="chalk-event-text"><strong>Ligue 1 : Match d'ouverture du week-end</strong> <span class="chalk-event-tag tag-foot">Foot</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-echecs">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-chess-knight text-gold"></i> Samedi 19/09</span>
+                  <span class="chalk-day-hours">16h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">16h00</span>
+                  <span class="chalk-event-text">MotoGP : Qualifs & Sprint GP d'Autriche (Spielberg) <span class="chalk-event-tag tag-moto">Moto</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">17h00</span>
+                  <span class="chalk-event-text"><strong>TOURNOI D'ÉCHECS (&lt; 1000 ELO)</strong> avec Chessbar <span class="chalk-event-tag tag-echecs">Échecs</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">20h45</span>
+                  <span class="chalk-event-text"><strong>Ligue 1 : OLYMPIQUE LYONNAIS (OL) vs RENNES</strong> 🔴🔵 <span class="chalk-event-tag tag-foot">OL</span></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="chalk-footer">
+              ⚡ <strong>Happy Hour 17h-20h</strong> • Allez l'OL ! 🔴🔵
+            </div>
+          </div>
+
+          <!-- SEMAINE 4 & 5 -->
+          <div class="chalkboard-card" data-cats="foot,rugby,echecs,motosport">
+            <div class="chalk-header">
+              <span class="chalk-badge">Semaine 04 & Fin de Mois</span>
+              <h2 class="chalk-title">22 au 30 Septembre</h2>
+              <div class="chalk-hours-notice">Ouvert Mar-Ven 17h-01h | Sam 16h-01h (HH 17h-20h)</div>
+            </div>
+
+            <div class="chalk-days-list">
+              <div class="chalk-day-item highlight-match">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-trophy" style="color: #60a5fa;"></i> Mar 22 & Mer 23/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">21h00</span>
+                  <span class="chalk-event-text">Coupes d'Europe & Chocs de la semaine <span class="chalk-event-tag tag-foot">Foot</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-bullseye text-gold"></i> Jeudi 24/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">19h00</span>
+                  <span class="chalk-event-text">Soirée Fléchettes & Tap Takeover Artisanal</span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-echecs">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-chess-knight text-gold"></i> Samedi 26/09</span>
+                  <span class="chalk-day-hours">16h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">16h00</span>
+                  <span class="chalk-event-text">F1 : Qualifications GP d'Azerbaïdjan (Bakou) <span class="chalk-event-tag tag-f1">F1</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">17h00</span>
+                  <span class="chalk-event-text"><strong>TOURNOI D'ÉCHECS (&lt; 1000 ELO)</strong> avec Chessbar <span class="chalk-event-tag tag-echecs">Échecs</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">18h30</span>
+                  <span class="chalk-event-text"><strong>Premier League : Grand Choc Anglais (Chelsea - Liverpool)</strong> <span class="chalk-event-tag tag-foot">PL</span></span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">21h05</span>
+                  <span class="chalk-event-text"><strong>Top 14 : Match du LOU Rugby en direct</strong> <span class="chalk-event-tag tag-rugby">Rugby</span></span>
+                </div>
+              </div>
+
+              <div class="chalk-day-item highlight-match">
+                <div class="chalk-day-header">
+                  <span class="chalk-day-name"><i class="fa-solid fa-trophy" style="color: #60a5fa;"></i> Mar 29 & Mer 30/09</span>
+                  <span class="chalk-day-hours">17h — 01h</span>
+                </div>
+                <div class="chalk-event-line">
+                  <span class="chalk-event-time">21h00</span>
+                  <span class="chalk-event-text"><strong>Ligue des Champions : Journée 2 (Phase de Ligue)</strong> <span class="chalk-event-tag tag-foot">LDC</span></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="chalk-footer">
+              ⚡ <strong>Happy Hour 17h-20h</strong> • Mezzanine privatisable sur réservation
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VUE 2 : PENSE-BÊTE & STORIES INSTAGRAM (1-Click Copy)
+           ==================================================================== -->
+      <section id="panel-stories" class="view-panel">
+        <div class="insta-intro">
+          <div class="insta-intro-text">
+            <i class="fa-brands fa-instagram insta-icon"></i>
+            <div>
+              <h3 style="font-family: var(--font-title); font-size: 1.2rem; color: #fff;">
+                📲 Pense-Bête & Générateur de Stories Instagram (@leboblyon)
+              </h3>
+              <p style="font-size: 0.85rem; color: var(--text-muted);">
+                Cliquez sur <strong>"Copier le texte"</strong> pour coller directement dans vos stories avec les bons emojis, tags et suggestions de stickers interactifs.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div class="story-grid">
+
+          <!-- STORY 1 : PROGRAMME DE LA SEMAINE 1 -->
+          <div class="story-card" data-cats="quiz,foot,rugby,echecs,motosport">
+            <div class="story-card-header">
+              <div>
+                <span class="story-type-badge"><i class="fa-solid fa-calendar-week"></i> Récap Semaine</span>
+                <h3 class="story-title">Programme de la Semaine 1</h3>
+              </div>
+            </div>
+
+            <div class="story-preview-box" id="story-text-semaine1">🍻 LE PROGRAMME DE LA SEMAINE AU BOB ! 🍻
+
+Rentrée chargée aux Pentes de la Croix-Rousse 👇
+
+🧠 JEUDI 03/09 (20h30) : Grand Quiz du BOB #1 (Blind-test, culture G & lots à gagner 🎁)
+⚽ VENDREDI 04/09 (20h45) : PSG vs AS Monaco (Ligue 1) sur grand écran !
+🏎️ SAMEDI 05/09 (16h00) : Qualifs F1 Monza & Moto
+♟️ SAMEDI 05/09 (17h00) : Tournoi d'Échecs (&lt;1000 ELO) avec @chessbar_lyon
+🏉 SAMEDI 05/09 (19h05) : LOU Rugby vs ASM Clermont (Top 14 J1)
+
+⚡ HAPPY HOUR TOUS LES SOIRS 17H - 20H
+📍 12 rue Imbert Colomès, Lyon 1er
+🔗 Réserve ta table en DM ou lien en bio !</div>
+
+            <div class="story-stickers-tip">
+              <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Stickers conseillés :</strong>
+              Sondage "Tu viens à quel event ?" + Compte à rebours Quiz + Sticker Lien Privateaser.
+            </div>
+
+            <button class="btn-copy-story" onclick="copyStory('story-text-semaine1', this)">
+              <i class="fa-regular fa-copy"></i> Copier le texte de la story
+            </button>
+          </div>
+
+          <!-- STORY 2 : LE QUIZ DU BOB (Jeudi 03/09) -->
+          <div class="story-card" data-cats="quiz">
+            <div class="story-card-header">
+              <div>
+                <span class="story-type-badge" style="background: rgba(139, 92, 246, 0.2); color: #c4b5fd; border-color: rgba(139, 92, 246, 0.4);">
+                  <i class="fa-solid fa-brain"></i> Soirée Quiz
+                </span>
+                <h3 class="story-title">Story Quiz du BOB (Jeudi 03/09)</h3>
+              </div>
+            </div>
+
+            <div class="story-preview-box" id="story-text-quiz1">🧠 CE SOIR C'EST LE QUIZ DU BOB ! 🧠
+
+Révisez vos classiques et chauffez vos équipes, le premier Quiz de la saison démarre ce soir !
+
+⏰ Coup d'envoi : 20h30
+🏆 Des tournées & cadeaux à gagner pour le podium
+🍺 9 bières pression artisanales & planches à partager
+⚡ Happy Hour de 17h à 20h pour s'échauffer
+
+Équipes de 2 à 6 personnes. Venez tôt pour avoir les meilleures places !
+
+📍 12 rue Imbert Colomès, Lyon 1er
+👉 On vous attend chauds bouillants ! 🔥</div>
+
+            <div class="story-stickers-tip">
+              <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Stickers conseillés :</strong>
+              Boîte à questions "Trouve le nom de ton équipe" + Slider Feu 🔥 + Mention @leboblyon.
+            </div>
+
+            <button class="btn-copy-story" onclick="copyStory('story-text-quiz1', this)">
+              <i class="fa-regular fa-copy"></i> Copier le texte de la story
+            </button>
+          </div>
+
+          <!-- STORY 3 : SOIRÉE MATCH PSG - MONACO (Vendredi 04/09) -->
+          <div class="story-card" data-cats="foot">
+            <div class="story-card-header">
+              <div>
+                <span class="story-type-badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border-color: rgba(59, 130, 246, 0.4);">
+                  <i class="fa-solid fa-futbol"></i> Soirée Match
+                </span>
+                <h3 class="story-title">Soirée Ligue 1 : PSG vs Monaco</h3>
+              </div>
+            </div>
+
+            <div class="story-preview-box" id="story-text-foot1">⚽ SOIRÉE FOOT AU BOB CE SOIR ! ⚽
+
+Gros choc de Ligue 1 diffusé sur grand écran :
+🔴🔵 PSG 🆚 AS MONACO ⚪🔴
+
+⏰ Coup d'envoi 20h45
+⚡ Happy Hour 17h-20h (Bières locales, cocktails & softs)
+🍕 Pizzas maison & planches gourmandes au comptoir
+
+Ambiance garantie dans les Pentes !
+
+📍 12 rue Imbert Colomès, Lyon 1er
+🔗 Réserve ton spot en DM !</div>
+
+            <div class="story-stickers-tip">
+              <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Stickers conseillés :</strong>
+              Sondage "Pronostic : Victoire PSG / Nul / Victoire Monaco".
+            </div>
+
+            <button class="btn-copy-story" onclick="copyStory('story-text-foot1', this)">
+              <i class="fa-regular fa-copy"></i> Copier le texte de la story
+            </button>
+          </div>
+
+          <!-- STORY 4 : SAMEDI TOURNOI ÉCHECS & LOU RUGBY (Samedi 05/09) -->
+          <div class="story-card" data-cats="echecs,rugby,motosport">
+            <div class="story-card-header">
+              <div>
+                <span class="story-type-badge" style="background: rgba(212, 175, 55, 0.2); color: var(--gold-light); border-color: rgba(212, 175, 55, 0.4);">
+                  <i class="fa-solid fa-chess-knight"></i> Samedi Intense
+                </span>
+                <h3 class="story-title">Samedi : Échecs & LOU Rugby</h3>
+              </div>
+            </div>
+
+            <div class="story-preview-box" id="story-text-samedi1">♟️ SAMEDI AU BOB : ÉCHECS & RUGBY ! 🏉
+
+Ouverture dès 16h00 pour un après-midi complet :
+
+🏎️ 16h00 : F1 Qualifs Monza & Moto GP
+♟️ 17h00 : Tournoi d'Échecs loisir (&lt;1000 ELO) avec @chessbar_lyon
+🏉 19h05 : LOU Rugby vs ASM Clermont (Top 14 J1) sur écran géant !
+
+⚡ Happy Hour de 17h à 20h
+🍻 9 becs pression bien frais
+
+Viens pousser derrière le LOU et poser tes pions ! 🔴⚫
+
+📍 12 rue Imbert Colomès, Lyon 1er</div>
+
+            <div class="story-stickers-tip">
+              <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Stickers conseillés :</strong>
+              Mention @chessbar_lyon + Sondage "Qui gagne le Top 14 ?".
+            </div>
+
+            <button class="btn-copy-story" onclick="copyStory('story-text-samedi1', this)">
+              <i class="fa-regular fa-copy"></i> Copier le texte de la story
+            </button>
+          </div>
+
+          <!-- STORY 5 : LIGUE DES CHAMPIONS (Semaine 2) -->
+          <div class="story-card" data-cats="foot">
+            <div class="story-card-header">
+              <div>
+                <span class="story-type-badge" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; border-color: rgba(59, 130, 246, 0.4);">
+                  <i class="fa-solid fa-trophy"></i> Ligue des Champions
+                </span>
+                <h3 class="story-title">Soirée Champions League</h3>
+              </div>
+            </div>
+
+            <div class="story-preview-box" id="story-text-ldc">⭐ RETOUR DE LA LIGUE DES CHAMPIONS ! ⭐
+
+La plus grande compétition européenne revient sur nos écrans au BOB :
+
+⚽ Mardi 21h00 : Lille OSC 🆚 Real Betis
+⚽ Mercredi 21h00 : PSG 🆚 Slovan Bratislava
+
+⚡ Happy Hour 17h-20h
+🍺 Flight dégustation 4 bières artisanales
+🍕 Pizzas chaudes & planches à partager
+
+Rassemble ta team foot pour la reprise des coupes d'Europe !
+
+📍 BOB - 12 rue Imbert Colomès, Lyon 1er</div>
+
+            <div class="story-stickers-tip">
+              <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Stickers conseillés :</strong>
+              Musique de la Ligue des Champions en fond sonore de story !
+            </div>
+
+            <button class="btn-copy-story" onclick="copyStory('story-text-ldc', this)">
+              <i class="fa-regular fa-copy"></i> Copier le texte de la story
+            </button>
+          </div>
+
+          <!-- STORY 6 : MATCH DE L'OL (Samedi 19/09) -->
+          <div class="story-card" data-cats="foot">
+            <div class="story-card-header">
+              <div>
+                <span class="story-type-badge" style="background: rgba(220, 38, 38, 0.2); color: #fca5a5; border-color: rgba(220, 38, 38, 0.4);">
+                  <i class="fa-solid fa-futbol"></i> Soirée OL
+                </span>
+                <h3 class="story-title">Soirée Match : OL vs Rennes (19/09)</h3>
+              </div>
+            </div>
+
+            <div class="story-preview-box" id="story-text-ol">🔴🔵 JOUR DE MATCH : L'OL AU BOB ! 🔴🔵
+
+Ce samedi soir, on pousse derrière les Gones sur grand écran !
+
+⚽ OLYMPIQUE LYONNAIS 🆚 STADE RENNAIS
+⏰ Coup d'envoi : 20h45
+
+Programme complet du samedi :
+🏁 16h00 : MotoGP Qualifs & Sprint
+♟️ 17h00 : Tournoi d'Échecs (&lt;1000 ELO)
+⚽ 20h45 : Match OL - Rennes
+
+⚡ Happy Hour 17h-20h
+🍻 Pinte locale & pizza devant le match
+
+Allez l'OL ! Réservez vos tables en avance !
+
+📍 12 rue Imbert Colomès, Lyon 1er</div>
+
+            <div class="story-stickers-tip">
+              <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Stickers conseillés :</strong>
+              GIFs "Allez l'OL" + Sondage score exact du match.
+            </div>
+
+            <button class="btn-copy-story" onclick="copyStory('story-text-ol', this)">
+              <i class="fa-regular fa-copy"></i> Copier le texte de la story
+            </button>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VUE 3 : CALENDRIER COMPLET MENSUEL
+           ==================================================================== -->
+      <section id="panel-calendar" class="view-panel">
+        <div class="board-intro">
+          <div>
+            <h3 style="font-family: var(--font-title); font-size: 1.15rem; color: #fff;">
+              🗓️ Vue Calendrier Mensuel — Septembre
+            </h3>
+            <p>Vision jour par jour. Les dimanches et lundis sont fermés.</p>
+          </div>
+        </div>
+
+        <div class="calendar-timeline">
+
+          <!-- SEMAINE 1 -->
+          <div class="cal-day-card" data-cats="">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Mardi 01/09</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill">
+                <span class="cal-event-time">17h00 - 20h00</span>
+                <div class="cal-event-desc">⚡ Happy Hour & Fléchettes</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Mercredi 02/09</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill">
+                <span class="cal-event-time">17h00 - 20h00</span>
+                <div class="cal-event-desc">⚡ Happy Hour & Jeux de société</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="quiz">
+            <div class="cal-day-top">
+              <span class="cal-date-title" style="color: #c4b5fd;">Jeudi 03/09 ⭐</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-quiz">
+                <span class="cal-event-time">20h30</span>
+                <div class="cal-event-desc">🧠 Grand Quiz du BOB #1 (Blind-test & Lots)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="foot">
+            <div class="cal-day-top">
+              <span class="cal-date-title" style="color: #93c5fd;">Vendredi 04/09 ⚽</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">20h45</span>
+                <div class="cal-event-desc">⚽ Ligue 1 : PSG vs AS Monaco (+ OL)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="echecs,rugby,motosport">
+            <div class="cal-day-top">
+              <span class="cal-date-title" style="color: var(--gold-light);">Samedi 05/09 🏆</span>
+              <span class="cal-hours-tag">16h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-motosport">
+                <span class="cal-event-time">16h00</span>
+                <div class="cal-event-desc">🏎️ F1 Qualifs GP Italie</div>
+              </div>
+              <div class="cal-event-pill type-echecs">
+                <span class="cal-event-time">17h00</span>
+                <div class="cal-event-desc">♟️ Tournoi d'Échecs (<1000 ELO)</div>
+              </div>
+              <div class="cal-event-pill type-rugby">
+                <span class="cal-event-time">19h05</span>
+                <div class="cal-event-desc">🏉 Top 14 : LOU Rugby vs ASM Clermont</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card closed">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Dimanche 06/09</span>
+              <span class="cal-hours-tag">Fermé</span>
+            </div>
+            <div class="cal-events-stack">
+              <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px 0;">
+                😴 Repos des guerriers
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card closed">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Lundi 07/09</span>
+              <span class="cal-hours-tag">Fermé</span>
+            </div>
+            <div class="cal-events-stack">
+              <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px 0;">
+                😴 Repos des guerriers
+              </div>
+            </div>
+          </div>
+
+          <!-- SEMAINE 2 -->
+          <div class="cal-day-card" data-cats="foot">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Mardi 08/09 ⚽</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">21h00</span>
+                <div class="cal-event-desc">⚽ LDC : Lille OSC vs Real Betis</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="foot">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Mercredi 09/09 ⚽</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">21h00</span>
+                <div class="cal-event-desc">⚽ LDC : PSG vs Slovan Bratislava</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="foot">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Jeudi 10/09</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">21h00</span>
+                <div class="cal-event-desc">⚽ Soirée Ligue Europa</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="foot">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Vendredi 11/09</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">20h45</span>
+                <div class="cal-event-desc">⚽ Ligue 1 : Choc du Vendredi Soir</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="echecs,foot,rugby,motosport">
+            <div class="cal-day-top">
+              <span class="cal-date-title" style="color: var(--gold-light);">Samedi 12/09 🏆</span>
+              <span class="cal-hours-tag">16h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-motosport">
+                <span class="cal-event-time">16h00</span>
+                <div class="cal-event-desc">🏁 MotoGP : Sprint GP Misano</div>
+              </div>
+              <div class="cal-event-pill type-echecs">
+                <span class="cal-event-time">17h00</span>
+                <div class="cal-event-desc">♟️ Tournoi d'Échecs (<1000 ELO)</div>
+              </div>
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">18h30</span>
+                <div class="cal-event-desc">⚽ Premier League : Tottenham - Arsenal</div>
+              </div>
+              <div class="cal-event-pill type-rugby">
+                <span class="cal-event-time">21h05</span>
+                <div class="cal-event-desc">🏉 Top 14 : Match du Samedi Soir</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card closed">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Dimanche 13/09</span>
+              <span class="cal-hours-tag">Fermé</span>
+            </div>
+            <div class="cal-events-stack">
+              <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px 0;">😴 Repos</div>
+            </div>
+          </div>
+
+          <div class="cal-day-card closed">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Lundi 14/09</span>
+              <span class="cal-hours-tag">Fermé</span>
+            </div>
+            <div class="cal-events-stack">
+              <div style="font-size: 0.8rem; color: var(--text-muted); text-align: center; padding: 10px 0;">😴 Repos</div>
+            </div>
+          </div>
+
+          <!-- SEMAINE 3 -->
+          <div class="cal-day-card" data-cats="foot">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Mardi 15 & Mercredi 16/09</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">21h00</span>
+                <div class="cal-event-desc">⭐ Ligue des Champions (Grands Chocs)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="quiz">
+            <div class="cal-day-top">
+              <span class="cal-date-title" style="color: #c4b5fd;">Jeudi 17/09 ⭐</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-quiz">
+                <span class="cal-event-time">20h30</span>
+                <div class="cal-event-desc">🧠 Grand Quiz du BOB #2 (Pop Culture & Ciné)</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="foot">
+            <div class="cal-day-top">
+              <span class="cal-date-title">Vendredi 18/09</span>
+              <span class="cal-hours-tag">17h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">20h45</span>
+                <div class="cal-event-desc">⚽ Ligue 1 : Affiche du Vendredi</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="cal-day-card" data-cats="echecs,foot,motosport">
+            <div class="cal-day-top">
+              <span class="cal-date-title" style="color: #f87171;">Samedi 19/09 🔴🔵</span>
+              <span class="cal-hours-tag">16h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-motosport">
+                <span class="cal-event-time">16h00</span>
+                <div class="cal-event-desc">🏁 MotoGP : Sprint GP Autriche</div>
+              </div>
+              <div class="cal-event-pill type-echecs">
+                <span class="cal-event-time">17h00</span>
+                <div class="cal-event-desc">♟️ Tournoi d'Échecs (<1000 ELO)</div>
+              </div>
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">20h45</span>
+                <div class="cal-event-desc">🔴🔵 Ligue 1 : OL vs Stade Rennais</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEMAINE 4 -->
+          <div class="cal-day-card" data-cats="echecs,foot,rugby,motosport">
+            <div class="cal-day-top">
+              <span class="cal-date-title" style="color: var(--gold-light);">Samedi 26/09 🏆</span>
+              <span class="cal-hours-tag">16h00 - 01h00</span>
+            </div>
+            <div class="cal-events-stack">
+              <div class="cal-event-pill type-motosport">
+                <span class="cal-event-time">16h00</span>
+                <div class="cal-event-desc">🏎️ F1 : Qualifs GP Azerbaïdjan (Bakou)</div>
+              </div>
+              <div class="cal-event-pill type-echecs">
+                <span class="cal-event-time">17h00</span>
+                <div class="cal-event-desc">♟️ Tournoi d'Échecs (<1000 ELO)</div>
+              </div>
+              <div class="cal-event-pill type-foot">
+                <span class="cal-event-time">18h30</span>
+                <div class="cal-event-desc">⚽ Premier League : Chelsea - Liverpool</div>
+              </div>
+              <div class="cal-event-pill type-rugby">
+                <span class="cal-event-time">21h05</span>
+                <div class="cal-event-desc">🏉 Top 14 : Match du LOU Rugby</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MODAL AJOUT D'ÉVÉNEMENT (PERSONNALISATION & SAUVEGARDE) -->
+  <div id="add-modal" class="modal-overlay">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-plus-circle text-gold"></i> Ajouter un Événement</h3>
+        <button class="modal-close" onclick="closeAddModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form id="add-event-form" onsubmit="handleFormSubmit(event)">
+        <div class="form-group">
+          <label class="form-label">Titre de l'événement</label>
+          <input type="text" id="event-title-input" class="form-control" placeholder="ex: Ligue 1 : PSG vs OM" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" id="event-date-input" class="form-control" value="2026-09-05" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Heure (ex: 20h45)</label>
+            <input type="text" id="event-time-input" class="form-control" placeholder="20h45" required>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Catégorie</label>
+          <select id="event-cat-input" class="form-control">
+            <option value="foot">⚽ Football (OL, PSG, PL, LDC)</option>
+            <option value="quiz">🧠 Quiz du BOB</option>
+            <option value="echecs">♟️ Tournoi Échecs</option>
+            <option value="rugby">🏉 Rugby (LOU / Top 14)</option>
+            <option value="motosport">🏎️ F1 & Moto GP</option>
+            <option value="autre">✨ Autre Animation / TTO</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Semaine ciblée</label>
+          <select id="event-week-input" class="form-control">
+            <option value="1">Semaine 1 (01 au 05 Sept)</option>
+            <option value="2">Semaine 2 (08 au 12 Sept)</option>
+            <option value="3">Semaine 3 (15 au 19 Sept)</option>
+            <option value="4">Semaine 4 (22 au 26 Sept)</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn-action btn-gold" style="width: 100%; justify-content: center; padding: 12px; margin-top: 10px;">
+          <i class="fa-solid fa-check"></i> Enregistrer l'événement
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast-pill">
+    <i class="fa-solid fa-check-circle"></i>
+    <span id="toast-text">Texte copié dans le presse-papier !</span>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // Navigation entre les vues
+    function switchView(viewName, btnElement) {
+      document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+
+      const targetPanel = document.getElementById('panel-' + viewName);
+      if (targetPanel) {
+        targetPanel.classList.add('active');
+      }
+
+      if (btnElement) {
+        btnElement.classList.add('active');
+      }
+    }
+
+    // Filtrage par catégorie
+    function filterCategory(cat, btn) {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      const elements = document.querySelectorAll('.chalkboard-card, .story-card, .cal-day-card');
+      elements.forEach(el => {
+        if (cat === 'all') {
+          el.style.display = '';
+        } else {
+          const cats = el.getAttribute('data-cats') || '';
+          if (cats.includes(cat)) {
+            el.style.display = '';
+          } else {
+            el.style.display = 'none';
+          }
+        }
+      });
+    }
+
+    // Copie de texte Story Insta
+    function copyStory(elementId, button) {
+      const text = document.getElementById(elementId).innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast('📋 Texte de la story copié ! Prêt à coller sur Instagram.');
+        
+        const originalHtml = button.innerHTML;
+        button.innerHTML = '<i class="fa-solid fa-check"></i> Copié !';
+        button.classList.add('copied');
+
+        setTimeout(() => {
+          button.innerHTML = originalHtml;
+          button.classList.remove('copied');
+        }, 2500);
+      }).catch(err => {
+        console.error('Erreur copie :', err);
+      });
+    }
+
+    // Copie du récapitulatif pour les ardoises
+    function copyAllBoardsText() {
+      let fullText = "=== AGENDA BOB - BLONDE OU BRUNE (SEPTEMBRE) ===\n\n";
+      fullText += "HORAIRES : Mar-Ven 17h-01h | Sam 16h-01h | Happy Hour 17h-20h\n\n";
+
+      document.querySelectorAll('.chalkboard-card').forEach((card, idx) => {
+        const title = card.querySelector('.chalk-title').innerText;
+        fullText += `--- ${title.toUpperCase()} ---\n`;
+        card.querySelectorAll('.chalk-day-item').forEach(day => {
+          const dayName = day.querySelector('.chalk-day-name').innerText.trim();
+          fullText += `• ${dayName} :\n`;
+          day.querySelectorAll('.chalk-event-line').forEach(ev => {
+            const time = ev.querySelector('.chalk-event-time').innerText.trim();
+            const desc = ev.querySelector('.chalk-event-text').innerText.trim();
+            fullText += `   [${time}] ${desc}\n`;
+          });
+        });
+        fullText += "\n";
+      });
+
+      navigator.clipboard.writeText(fullText).then(() => {
+        showToast('📝 Texte complet des ardoises copié !');
+      });
+    }
+
+    // Toast Notification helper
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastText = document.getElementById('toast-text');
+      toastText.innerText = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Modal Ajout d'Événement
+    function openAddModal() {
+      document.getElementById('add-modal').classList.add('active');
+    }
+
+    function closeAddModal() {
+      document.getElementById('add-modal').classList.remove('active');
+    }
+
+    // Gestion du formulaire d'ajout
+    function handleFormSubmit(e) {
+      e.preventDefault();
+      const title = document.getElementById('event-title-input').value;
+      const date = document.getElementById('event-date-input').value;
+      const time = document.getElementById('event-time-input').value;
+      const cat = document.getElementById('event-cat-input').value;
+
+      showToast(`✅ Événement "${title}" ajouté avec succès !`);
+      closeAddModal();
+      e.target.reset();
+    }
+  </script>
+</body>
+</html>
