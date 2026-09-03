@@ -1685,6 +1685,8 @@ h1, h2, h3, h4, h5, h6 {
 .style-cocktail { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(125, 211, 252, 0.4); }
 .style-soft { background: rgba(45, 212, 191, 0.2); color: #5eead4; border: 1px solid rgba(94, 234, 212, 0.4); }
 .style-food { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.4); }
+.style-bouteille { background: rgba(255, 209, 91, 0.2); color: var(--color-gold); border: 1px solid rgba(255, 209, 91, 0.4); }
+.style-canette { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(125, 211, 252, 0.4); }
 .style-veggie { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.45); }
 .style-veggie-light { background: rgba(16, 185, 129, 0.12); color: #a7f3d0; border: 1px solid rgba(16, 185, 129, 0.3); }
 
