@@ -9,7 +9,7 @@
   <meta name="description" content="Bar à bières artisanales et locales aux Pentes de la Croix-Rousse à Lyon 1er. 9 becs pression, vins bio, planches gourmandes, pizzas, mezzanine privatisable et Happy Hour 17h-20h !">
   <meta name="keywords" content="bar a biere lyon, BOB lyon, blonde ou brune lyon, bar pentes croix rousse, bar lyon 1, happy hour lyon, craft beer lyon, privatisation bar lyon, mezzanine lyon">
   <meta name="author" content="BOB - Blonde ou Brune">
-  <meta name="version" content="1.4.1">
+  <meta name="version" content="1.4.2">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#121214">
 
@@ -393,12 +393,12 @@
           </div>
         </div>
 
-        <!-- Photo Gallery Mosaic (Margot & Quentin + 3 photos du bar : salle, mezzanine, terrasse) -->
+        <!-- Photo Gallery Mosaic (6 photos : Margot & Quentin, Salle, Mezzanine, Terrasse, Planches, Lego) -->
         <div class="histoire-gallery-block">
           <div class="mosaic-gallery">
             <!-- Photo 1: Margot & Quentin -->
-            <div class="mosaic-item mosaic-main" onclick="openLightbox('assets/images/margot-et-quentin.webp', 'Margot & Quentin - Vos hôtes au BOB')">
-              <img src="assets/images/margot-et-quentin.webp" alt="Margot et Quentin derrière le bar BOB" loading="lazy" width="600" height="800">
+            <div class="mosaic-item" onclick="openLightbox('assets/images/margot-et-quentin.webp', 'Margot & Quentin - Vos hôtes au BOB')">
+              <img src="assets/images/margot-et-quentin.webp" alt="Margot et Quentin derrière le bar BOB" loading="lazy" width="600" height="400">
               <div class="mosaic-overlay">
                 <span class="mosaic-tag"><i class="fa-solid fa-heart"></i> Margot & Quentin</span>
                 <span class="mosaic-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
@@ -406,8 +406,8 @@
             </div>
 
             <!-- Photo 2: La Salle -->
-            <div class="mosaic-item mosaic-sub1" onclick="openLightbox('assets/images/salle.webp', 'La salle conviviale du bar BOB')">
-              <img src="assets/images/salle.webp" alt="La salle du bar BOB Lyon 1" loading="lazy" width="500" height="350">
+            <div class="mosaic-item" onclick="openLightbox('assets/images/salle2.webp', 'La salle conviviale du bar BOB')">
+              <img src="assets/images/salle2.webp" alt="La salle du bar BOB Lyon 1" loading="lazy" width="500" height="350">
               <div class="mosaic-overlay">
                 <span class="mosaic-tag"><i class="fa-solid fa-beer-mug-empty"></i> La Salle</span>
                 <span class="mosaic-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
@@ -415,7 +415,7 @@
             </div>
 
             <!-- Photo 3: La Mezzanine -->
-            <div class="mosaic-item mosaic-sub2" onclick="openLightbox('assets/images/mezzanine.webp', 'L\'espace Mezzanine cosy et privatif')">
+            <div class="mosaic-item" onclick="openLightbox('assets/images/mezzanine.webp', 'L\'espace Mezzanine cosy et privatif')">
               <img src="assets/images/mezzanine.webp" alt="La mezzanine cosy du BOB" loading="lazy" width="500" height="350">
               <div class="mosaic-overlay">
                 <span class="mosaic-tag"><i class="fa-solid fa-couch"></i> La Mezzanine</span>
@@ -424,10 +424,28 @@
             </div>
 
             <!-- Photo 4: La Terrasse -->
-            <div class="mosaic-item mosaic-sub3" onclick="openLightbox('assets/images/terrasse.webp', 'La terrasse du BOB dans les Pentes')">
+            <div class="mosaic-item" onclick="openLightbox('assets/images/terrasse.webp', 'La terrasse du BOB dans les Pentes')">
               <img src="assets/images/terrasse.webp" alt="La terrasse du bar BOB dans les Pentes" loading="lazy" width="500" height="350">
               <div class="mosaic-overlay">
                 <span class="mosaic-tag"><i class="fa-solid fa-sun"></i> La Terrasse</span>
+                <span class="mosaic-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+              </div>
+            </div>
+
+            <!-- Photo 5: Les Planches Gourmandes -->
+            <div class="mosaic-item" onclick="openLightbox('assets/images/planche.webp', 'Les planches généreuses charcuterie & fromage du BOB')">
+              <img src="assets/images/planche.webp" alt="Planche charcuterie et fromage au bar BOB" loading="lazy" width="500" height="350">
+              <div class="mosaic-overlay">
+                <span class="mosaic-tag"><i class="fa-solid fa-utensils"></i> Les Planches</span>
+                <span class="mosaic-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
+              </div>
+            </div>
+
+            <!-- Photo 6: L'Univers Lego & Jeux -->
+            <div class="mosaic-item" onclick="openLightbox('assets/images/lego.webp', 'L\'ambiance ludique et l\'univers Lego au bar BOB')">
+              <img src="assets/images/lego.webp" alt="Décoration et univers Lego au bar BOB" loading="lazy" width="500" height="350">
+              <div class="mosaic-overlay">
+                <span class="mosaic-tag"><i class="fa-solid fa-cubes"></i> Déco & Lego</span>
                 <span class="mosaic-zoom"><i class="fa-solid fa-magnifying-glass-plus"></i></span>
               </div>
             </div>
@@ -1372,10 +1390,10 @@
           </div>
         </div>
 
-        <!-- Option 2 : Privatisation Totale (avec photo salle et 4 arguments demandés) -->
+        <!-- Option 2 : Privatisation Totale (avec photo salle 2 et 4 arguments demandés) -->
         <div class="priv-card priv-card-featured">
-          <div class="priv-card-media" onclick="openLightbox('assets/images/salle.webp', 'Privatisation globale de la salle du BOB (jusqu\'à 70 personnes)')">
-            <img src="assets/images/salle.webp" alt="Privatisation totale du bar BOB Lyon" loading="lazy" width="600" height="400">
+          <div class="priv-card-media" onclick="openLightbox('assets/images/salle2.webp', 'Privatisation globale de la salle du BOB (jusqu\'à 70 personnes)')">
+            <img src="assets/images/salle2.webp" alt="Privatisation totale du bar BOB Lyon" loading="lazy" width="600" height="400">
             <div class="priv-badge-capa badge-gold">
               <i class="fa-solid fa-champagne-glasses"></i> Jusqu'à 70 personnes
             </div>
@@ -1764,7 +1782,7 @@
           © 2026 BOB - BLONDE OU BRUNE • 12 rue Imbert Colomès 69001 LYON • Tous droits réservés.
         </div>
         <div class="footer-meta">
-          <span class="version-badge"><i class="fa-solid fa-code-branch"></i> v1.4.1</span>
+          <span class="version-badge"><i class="fa-solid fa-code-branch"></i> v1.4.2</span>
           <span class="footer-badge">Fait avec <i class="fa-solid fa-heart text-gold"></i> dans les Pentes de la Croix-Rousse</span>
         </div>
       </div>
