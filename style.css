@@ -1154,13 +1154,19 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
   border: 1px solid var(--color-border);
   box-shadow: var(--shadow-md);
-  transition: transform var(--transition-normal), border-color var(--transition-normal);
+  transition: transform var(--transition-normal), border-color var(--transition-normal), box-shadow var(--transition-normal);
   height: 210px;
 }
 
 .mosaic-item:hover {
   transform: scale(1.02);
   border-color: var(--color-gold);
+  box-shadow: var(--shadow-lg);
+}
+
+.mosaic-item:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
 }
 
 .mosaic-item img {
@@ -1184,6 +1190,7 @@ h1, h2, h3, h4, h5, h6 {
   padding: 1rem;
   opacity: 0.95;
   transition: opacity var(--transition-fast);
+  pointer-events: none;
 }
 
 .mosaic-tag {
@@ -1192,6 +1199,7 @@ h1, h2, h3, h4, h5, h6 {
   font-weight: 700;
   color: var(--color-text-primary);
   background: rgba(0, 0, 0, 0.65);
+  -webkit-backdrop-filter: blur(6px);
   backdrop-filter: blur(6px);
   padding: 0.25rem 0.65rem;
   border-radius: var(--radius-full);
@@ -2621,6 +2629,7 @@ h1, h2, h3, h4, h5, h6 {
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.92);
+  -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
 }
 
@@ -2632,6 +2641,12 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   flex-direction: column;
   align-items: center;
+  transform: scale(0.96);
+  transition: transform var(--transition-normal);
+}
+
+.lightbox-modal.open .lightbox-content {
+  transform: scale(1);
 }
 
 .lightbox-content img {
@@ -2653,10 +2668,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .lightbox-close {
   position: absolute;
-  top: -45px;
+  top: -48px;
   right: 0;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
@@ -2664,12 +2679,15 @@ h1, h2, h3, h4, h5, h6 {
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background var(--transition-fast);
+  transition: background var(--transition-fast), transform var(--transition-fast);
 }
 
-.lightbox-close:hover {
+.lightbox-close:hover,
+.lightbox-close:focus-visible {
   background: var(--color-gold);
   color: var(--color-text-dark);
+  outline: 2px solid #fff;
+  outline-offset: 2px;
 }
 
 /* --------------------------------------------------------------------------
@@ -2803,19 +2821,52 @@ h1, h2, h3, h4, h5, h6 {
   }
 
   .mosaic-overlay {
-    padding: 0.6rem;
+    padding: 0.55rem;
   }
 
   .mosaic-tag {
-    font-size: 0.72rem;
+    font-size: clamp(0.66rem, 2.5vw, 0.74rem);
     padding: 0.2rem 0.45rem;
     gap: 0.25rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: calc(100% - 30px);
   }
 
   .mosaic-zoom {
-    width: 26px;
-    height: 26px;
-    font-size: 0.75rem;
+    width: 24px;
+    height: 24px;
+    font-size: 0.72rem;
+    flex-shrink: 0;
+  }
+
+  /* Lightbox Mobile Safe Areas & Touch Target */
+  .lightbox-modal {
+    padding: 1rem;
+    padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .lightbox-content img {
+    max-height: 72vh;
+  }
+
+  .lightbox-caption {
+    font-size: 0.92rem;
+    margin-top: 0.75rem;
+  }
+
+  .lightbox-close {
+    position: fixed;
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    right: calc(12px + env(safe-area-inset-right, 0px));
+    width: 44px;
+    height: 44px;
+    z-index: 1010;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   .menu-grid {

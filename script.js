@@ -290,6 +290,7 @@ function initScrollSpy() {
    6. LIGHTBOX MODAL FOR PHOTOS
    -------------------------------------------------------------------------- */
 let activeLightboxModal = null;
+let lastFocusedElement = null;
 
 function initLightbox() {
   activeLightboxModal = document.getElementById('lightbox-modal');
@@ -300,19 +301,36 @@ function initLightbox() {
       closeLightbox();
     }
   });
+
+  // Keyboard navigation (Enter / Space) for accessible photo triggers
+  document.querySelectorAll('.mosaic-item, .priv-card-media').forEach((item) => {
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        item.click();
+      }
+    });
+  });
 }
 
 window.openLightbox = function(imageSrc, captionText) {
   const modal = document.getElementById('lightbox-modal');
   const img = document.getElementById('lightbox-img');
   const caption = document.getElementById('lightbox-caption');
+  const closeBtn = modal ? modal.querySelector('.lightbox-close') : null;
+
+  lastFocusedElement = document.activeElement;
 
   if (modal && img) {
     img.src = imageSrc;
+    img.alt = captionText || 'Photo agrandie du BOB';
     if (caption) caption.textContent = captionText || '';
     modal.classList.add('open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.style.overflow = 'hidden';
+    if (closeBtn) {
+      setTimeout(() => closeBtn.focus(), 50);
+    }
   }
 };
 
@@ -322,5 +340,8 @@ window.closeLightbox = function() {
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden', 'true');
     document.body.style.overflow = '';
+    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+      lastFocusedElement.focus();
+    }
   }
 };
