@@ -114,6 +114,11 @@
           <div class="kpi-label"><i class="fa-solid fa-list-check"></i> Total</div>
         </div>
       </div>
+
+      <!-- Alertes multi-lots à confirmer (ex: pâtes à pizza proches DLC) -->
+      <div id="multi-lot-alerts" class="multi-lot-alerts hidden">
+        <!-- Rendu dynamique en JS -->
+      </div>
     </header>
 
     <!-- Filtres par catégorie -->
@@ -174,31 +179,10 @@
           </div>
         </div>
 
-        <!-- Date de DLC -->
-        <div class="form-group">
-          <label class="form-label">
-            <i class="fa-regular fa-calendar-days text-gold"></i> Date Limite de Consommation (DLC)
-          </label>
-          <input type="date" id="input-dlc-date" class="form-input-date" required>
-        </div>
-
-        <!-- Raccourcis de dates rapides -->
-        <div class="quick-days-selector">
-          <span class="selector-label">Raccourcis rapides :</span>
-          <div class="days-chips">
-            <button type="button" class="chip-btn" onclick="addDaysToDate(3)">+3 jours</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(5)">+5 jours</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(7)">+7 jours</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(10)">+10 jours</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(14)">+2 sem</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(30)">+1 mois</button>
-          </div>
-        </div>
-
-        <!-- Photo de l'étiquette (Capture Appareil Photo) -->
+        <!-- Photo de l'étiquette avec OCR Détection Automatique -->
         <div class="form-group photo-section">
           <label class="form-label">
-            <i class="fa-solid fa-camera text-gold"></i> Photo de l'étiquette / Traçabilité
+            <i class="fa-solid fa-camera text-gold"></i> Photo étiquette & Détection automatique
           </label>
           
           <div id="photo-preview-box" class="photo-preview-box hidden">
@@ -213,15 +197,70 @@
             <span>Prendre en photo l'étiquette</span>
             <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handlePhotoUpload(event)">
           </label>
-          <small class="photo-hint">Compresse l'image pour un chargement instantané sans saturer la mémoire.</small>
+          
+          <!-- Statut de l'analyse OCR -->
+          <div id="ocr-status-box" class="ocr-status-box hidden">
+            <div id="ocr-loading" class="ocr-loading">
+              <i class="fa-solid fa-wand-magic-sparkles fa-spin text-gold"></i>
+              <span>Lecture intelligente de la date et du lot...</span>
+            </div>
+            <div id="ocr-success" class="ocr-success hidden">
+              <i class="fa-solid fa-circle-check text-green"></i>
+              <span id="ocr-success-text">Informations détectées !</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Type de conservation : DLC vs DLUO -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fa-solid fa-tag text-gold"></i> Type de date
+          </label>
+          <div class="type-choice-grid">
+            <label class="type-card active" id="label-type-dlc">
+              <input type="radio" name="conservationType" value="DLC" checked onchange="toggleConservationType('DLC')">
+              <div class="type-card-body">
+                <strong>🔴 DLC</strong>
+                <span>À consommer jusqu'au (impératif)</span>
+              </div>
+            </label>
+            <label class="type-card" id="label-type-dluo">
+              <input type="radio" name="conservationType" value="DLUO" onchange="toggleConservationType('DLUO')">
+              <div class="type-card-body">
+                <strong>🔵 DLUO / DDM</strong>
+                <span>De préférence avant (souple)</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Date d'échéance -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fa-regular fa-calendar-days text-gold"></i> <span id="label-date-title">Date Limite de Consommation (DLC)</span>
+          </label>
+          <input type="date" id="input-dlc-date" class="form-input-date" required>
+        </div>
+
+        <!-- Raccourcis de dates rapides -->
+        <div class="quick-days-selector">
+          <span class="selector-label">Raccourcis rapides :</span>
+          <div class="days-chips">
+            <button type="button" class="chip-btn" onclick="addDaysToDate(3)">+3j</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(5)">+5j</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(7)">+7j</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(10)">+10j</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(14)">+14j</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(30)">+1 mois</button>
+          </div>
         </div>
 
         <!-- Notes / N° de lot fournisseur (Optionnel) -->
         <div class="form-group">
           <label class="form-label">
-            <i class="fa-regular fa-note-sticky text-gold"></i> N° de lot ou Note (Optionnel)
+            <i class="fa-solid fa-barcode text-gold"></i> N° de lot ou Note
           </label>
-          <input type="text" id="input-lot-note" class="form-input-text" placeholder="Ex: Ouvert ce midi, paquet 2/3...">
+          <input type="text" id="input-lot-note" class="form-input-text" placeholder="Ex: Lot L24-098, paquet 1/2...">
         </div>
 
       </div>
@@ -314,6 +353,9 @@
 
   <!-- Canvas caché pour compression d'image ultra-légère -->
   <canvas id="compress-canvas" style="display:none;"></canvas>
+
+  <!-- Tesseract.js pour reconnaissance OCR locale dans le navigateur -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
   <!-- Script JS de l'application -->
   <script src="app.js"></script>

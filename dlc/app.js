@@ -1,6 +1,6 @@
 /**
  * BOB • Suivi des DLC & Traçabilité Hygiène
- * Logique principale de l'application
+ * Logique principale avec OCR d'étiquette, distinction DLC/DLUO et alertes multi-lots
  */
 
 // =============================================================================
@@ -50,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
   checkPinAuth();
   renderProducts();
   updateKpiCounts();
+  renderMultiLotAlerts();
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
@@ -90,6 +91,7 @@ function initStorage() {
 function saveProductsToStorage() {
   localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
   updateKpiCounts();
+  renderMultiLotAlerts();
 }
 
 function updateLiveDate() {
@@ -166,7 +168,6 @@ function validatePin() {
     clearPin();
   } else {
     document.getElementById('pin-error').classList.remove('hidden');
-    // Vibration tactile si supportée
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
     setTimeout(() => {
       clearPin();
@@ -199,11 +200,6 @@ function updateBarPin() {
 // 4. CALCULS DES DLC & CODES COULEURS
 // =============================================================================
 
-/**
- * Calcule le nombre de jours restants jusqu'à la DLC
- * @param {string} dlcDateStr Format YYYY-MM-DD
- * @returns {number} Nombre de jours (positif = futur, 0 = aujourd'hui, négatif = passé)
- */
 function getDaysRemaining(dlcDateStr) {
   if (!dlcDateStr) return null;
   const today = new Date();
@@ -217,12 +213,6 @@ function getDaysRemaining(dlcDateStr) {
   return Math.round(diffTime / (1000 * 60 * 60 * 24));
 }
 
-/**
- * Détermine le statut visuel d'une DLC :
- * - Rouge : <= 0 jour
- * - Orange : 1 à 7 jours
- * - Vert : > 7 jours
- */
 function getStatusFromDays(days) {
   if (days === null || days === undefined) return 'none';
   if (days <= 0) return 'red';
@@ -230,9 +220,6 @@ function getStatusFromDays(days) {
   return 'green';
 }
 
-/**
- * Récupère le statut global d'un produit (basé sur le lot le plus urgent)
- */
 function getProductStatus(product) {
   if (!product.batches || product.batches.length === 0) return 'none';
   let minDays = Infinity;
@@ -271,7 +258,6 @@ function renderProducts() {
     if (statusPriority[statusA] !== statusPriority[statusB]) {
       return statusPriority[statusA] - statusPriority[statusB];
     }
-    // Si même statut, trier par DLC la plus proche
     const minDaysA = a.batches && a.batches.length > 0 ? Math.min(...a.batches.map(b => getDaysRemaining(b.dlc))) : 9999;
     const minDaysB = b.batches && b.batches.length > 0 ? Math.min(...b.batches.map(b => getDaysRemaining(b.dlc))) : 9999;
     return minDaysA - minDaysB;
@@ -316,13 +302,16 @@ function renderProducts() {
         const badgeClass = `badge-${status}`;
         const formattedDate = formatDateFr(batch.dlc);
         const statusText = getStatusBadgeText(days);
+        const typeBadge = (batch.type || 'DLC') === 'DLC' 
+          ? `<span class="badge-type-dlc">DLC</span>` 
+          : `<span class="badge-type-dluo">DLUO</span>`;
 
         html += `
           <div class="batch-row">
             <div class="batch-left">
               <span class="batch-status-badge ${badgeClass}">${statusText}</span>
               <div class="batch-meta">
-                <strong>${formattedDate}</strong>
+                <strong>${typeBadge} ${formattedDate}</strong>
                 ${prod.batches.length > 1 ? `<span style="font-size:0.68rem; color:var(--color-gold); margin-left:4px;">(Lot ${index + 1})</span>` : ''}
                 ${batch.note ? `<span class="batch-note"><i class="fa-regular fa-note-sticky"></i> ${escapeHtml(batch.note)}</span>` : ''}
               </div>
@@ -371,6 +360,88 @@ function updateKpiCounts() {
   document.getElementById('count-total').textContent = products.length;
 }
 
+// =============================================================================
+// 6. ALERTES MULTI-LOTS & CONFIRMATION DE CONSOMMATION
+// =============================================================================
+
+function renderMultiLotAlerts() {
+  const container = document.getElementById('multi-lot-alerts');
+  if (!container) return;
+
+  const alerts = [];
+  products.forEach(prod => {
+    if (prod.batches && prod.batches.length > 1) {
+      // Produit avec stock multiple (ex: plusieurs paquets de pâtes à pizza)
+      prod.batches.forEach((batch, idx) => {
+        const days = getDaysRemaining(batch.dlc);
+        const snoozeKey = 'snooze_lot_' + batch.id;
+        // Alerte si le lot arrive à échéance (≤ 7 jours) et pas encore confirmé aujourd'hui
+        if (days !== null && days <= 7 && !sessionStorage.getItem(snoozeKey)) {
+          alerts.push({
+            productId: prod.id,
+            productName: prod.name,
+            batchId: batch.id,
+            lotNum: idx + 1,
+            days: days,
+            dateStr: formatDateFr(batch.dlc),
+            type: batch.type || 'DLC'
+          });
+        }
+      });
+    }
+  });
+
+  if (alerts.length === 0) {
+    container.classList.add('hidden');
+    container.innerHTML = '';
+    return;
+  }
+
+  let html = '';
+  alerts.forEach(item => {
+    const isExpired = item.days <= 0;
+    const timeText = isExpired
+      ? `<strong style="color:var(--status-red);">${item.days === 0 ? "aujourd'hui" : Math.abs(item.days) + 'j de retard'}</strong>`
+      : `dans <strong>${item.days} jour(s)</strong> (${item.dateStr})`;
+
+    html += `
+      <div class="multi-lot-alert-card">
+        <div class="alert-card-header">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+          <span>Vérification Stock Multi-Lots</span>
+        </div>
+        <div class="alert-card-question">
+          Le <strong>Lot ${item.lotNum}</strong> de <strong>${item.productName}</strong> (${item.type} ${item.dateStr}) arrive à échéance ${timeText}. A-t-il été consommé au bar ?
+        </div>
+        <div class="alert-card-actions">
+          <button class="btn-confirm-consumed" onclick="confirmBatchConsumed('${item.productId}', '${item.batchId}')">
+            <i class="fa-solid fa-check"></i> Oui, lot terminé
+          </button>
+          <button class="btn-keep-stock" onclick="snoozeBatchAlert('${item.batchId}')">
+            Non, encore en stock
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+  container.classList.remove('hidden');
+}
+
+function confirmBatchConsumed(productId, batchId) {
+  const prod = products.find(p => p.id === productId);
+  if (!prod || !prod.batches) return;
+  prod.batches = prod.batches.filter(b => b.id !== batchId);
+  saveProductsToStorage();
+  renderProducts();
+}
+
+function snoozeBatchAlert(batchId) {
+  sessionStorage.setItem('snooze_lot_' + batchId, 'true');
+  renderMultiLotAlerts();
+}
+
 function switchCategory(cat) {
   currentFilterCategory = cat;
   document.querySelectorAll('.category-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -407,7 +478,7 @@ function formatDateFr(isoDate) {
 }
 
 // =============================================================================
-// 6. MODALE SAISIE DLC (REMPLACER vs 2e LOT)
+// 7. MODALE SAISIE DLC & CONSERVATION (DLC vs DLUO)
 // =============================================================================
 
 function openDlcModal(productId) {
@@ -418,13 +489,17 @@ function openDlcModal(productId) {
   document.getElementById('modal-product-name').textContent = prod.name;
   document.getElementById('modal-category').textContent = getCategoryLabel(prod.category);
   
-  // Date par défaut : aujourd'hui ou dans 7 jours
+  // Date par défaut : aujourd'hui + 7 jours
   const defaultDate = new Date();
   defaultDate.setDate(defaultDate.getDate() + 7);
   document.getElementById('input-dlc-date').value = defaultDate.toISOString().split('T')[0];
   
-  // Reset champs
+  // Type par défaut : DLC
+  toggleConservationType('DLC');
+
+  // Reset champs & OCR
   document.getElementById('input-lot-note').value = '';
+  resetOcrStatus();
   removePhoto();
 
   // Gestion du choix Remplacement vs 2e Lot
@@ -443,6 +518,7 @@ function closeDlcModal() {
   document.getElementById('dlc-modal').classList.add('hidden');
   activeEditingProductId = null;
   removePhoto();
+  resetOcrStatus();
 }
 
 function toggleBatchAction(action) {
@@ -451,6 +527,21 @@ function toggleBatchAction(action) {
 
   document.getElementById('label-replace').classList.toggle('active', action === 'replace');
   document.getElementById('label-add').classList.toggle('active', action === 'add');
+}
+
+function toggleConservationType(type) {
+  const radio = document.querySelector(`input[name="conservationType"][value="${type}"]`);
+  if (radio) radio.checked = true;
+
+  document.getElementById('label-type-dlc').classList.toggle('active', type === 'DLC');
+  document.getElementById('label-type-dluo').classList.toggle('active', type === 'DLUO');
+
+  const titleEl = document.getElementById('label-date-title');
+  if (titleEl) {
+    titleEl.textContent = type === 'DLC' 
+      ? "Date Limite de Consommation (DLC - impératif)" 
+      : "Date de Durabilité Minimale (DLUO - de préférence)";
+  }
 }
 
 function addDaysToDate(days) {
@@ -465,10 +556,12 @@ function saveDlc() {
 
   const dlcDate = document.getElementById('input-dlc-date').value;
   if (!dlcDate) {
-    alert('Veuillez sélectionner une date de DLC.');
+    alert('Veuillez sélectionner une date de péremption.');
     return;
   }
 
+  const typeRadio = document.querySelector('input[name="conservationType"]:checked');
+  const conservationType = typeRadio ? typeRadio.value : 'DLC';
   const note = document.getElementById('input-lot-note').value.trim();
   const actionRadio = document.querySelector('input[name="batchAction"]:checked');
   const batchAction = actionRadio ? actionRadio.value : 'replace';
@@ -476,6 +569,7 @@ function saveDlc() {
   const newBatch = {
     id: 'batch_' + Date.now(),
     dlc: dlcDate,
+    type: conservationType,
     photo: currentUploadedPhotoBase64,
     note: note,
     updatedAt: new Date().toISOString()
@@ -491,7 +585,7 @@ function saveDlc() {
     prod.batches.push(newBatch);
   }
 
-  // Trier les lots par date de DLC croissante (le plus urgent en premier)
+  // Trier les lots par date croissante
   prod.batches.sort((a, b) => new Date(a.dlc) - new Date(b.dlc));
 
   saveProductsToStorage();
@@ -511,23 +605,21 @@ function finishBatch(productId, batchId) {
 }
 
 // =============================================================================
-// 7. GESTION DES PHOTOS & COMPRESSION CANVAS
+// 8. OCR INTELLIGENT D'ÉTIQUETTE (Date, Lot, DLC vs DLUO)
 // =============================================================================
 
 function handlePhotoUpload(event) {
   const file = event.target.files[0];
   if (!file) return;
 
-  // Lecture du fichier image
   const reader = new FileReader();
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
-      // Compression via Canvas pour éviter de surcharger la mémoire
       const canvas = document.getElementById('compress-canvas');
       const ctx = canvas.getContext('2d');
 
-      const MAX_DIM = 900; // Résolution max largement suffisante pour lire l'étiquette
+      const MAX_DIM = 900;
       let width = img.width;
       let height = img.height;
 
@@ -547,7 +639,7 @@ function handlePhotoUpload(event) {
       canvas.height = height;
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Qualité JPEG 0.72 (taille finale ~80-120Ko)
+      // Compression JPEG 0.72 (~80-120Ko)
       const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
       currentUploadedPhotoBase64 = compressedDataUrl;
 
@@ -555,10 +647,135 @@ function handlePhotoUpload(event) {
       document.getElementById('img-preview').src = compressedDataUrl;
       document.getElementById('photo-preview-box').classList.remove('hidden');
       document.getElementById('btn-camera-label').classList.add('hidden');
+
+      // Lancement immédiat de l'analyse OCR intelligente
+      triggerOcrAnalysis(compressedDataUrl);
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+async function triggerOcrAnalysis(imageDataUrl) {
+  const statusBox = document.getElementById('ocr-status-box');
+  const loadingEl = document.getElementById('ocr-loading');
+  const successEl = document.getElementById('ocr-success');
+  const successText = document.getElementById('ocr-success-text');
+
+  if (!window.Tesseract) {
+    console.log('Tesseract OCR non disponible, saisie manuelle.');
+    return;
+  }
+
+  statusBox.classList.remove('hidden');
+  loadingEl.classList.remove('hidden');
+  successEl.classList.add('hidden');
+
+  try {
+    const result = await Tesseract.recognize(imageDataUrl, 'fra+eng', {
+      logger: m => {}
+    });
+
+    const rawText = result && result.data ? result.data.text : '';
+    console.log('Texte OCR brut:', rawText);
+
+    const parsed = parseOcrLabelText(rawText);
+    const detected = [];
+
+    if (parsed.date) {
+      document.getElementById('input-dlc-date').value = parsed.date;
+      detected.push(`Date : ${formatDateFr(parsed.date)}`);
+    }
+
+    if (parsed.type) {
+      toggleConservationType(parsed.type);
+      detected.push(`Type : ${parsed.type}`);
+    }
+
+    if (parsed.lot) {
+      document.getElementById('input-lot-note').value = parsed.lot;
+      detected.push(`Lot : ${parsed.lot}`);
+    }
+
+    loadingEl.classList.add('hidden');
+    if (detected.length > 0) {
+      successText.textContent = `✨ Détecté : ${detected.join(' | ')}`;
+      successEl.classList.remove('hidden');
+    } else {
+      successText.textContent = `Photo nette enregistrée. Vérifiez la date ci-dessous.`;
+      successEl.classList.remove('hidden');
+    }
+  } catch (err) {
+    console.warn('Erreur analyse OCR:', err);
+    loadingEl.classList.add('hidden');
+    successText.textContent = `Photo enregistrée. Vous pouvez ajuster les champs manuellement.`;
+    successEl.classList.remove('hidden');
+  }
+}
+
+function parseOcrLabelText(rawText) {
+  const text = rawText.replace(/\r?\n/g, ' ');
+  let date = null;
+  let type = 'DLC';
+  let lot = null;
+
+  // 1. Détection Type DLC vs DLUO
+  const lower = text.toLowerCase();
+  if (lower.includes('pref') || lower.includes('préf') || lower.includes('dluo') || lower.includes('ddm') || lower.includes('durabilite') || lower.includes('durabilité') || lower.includes('avant le')) {
+    type = 'DLUO';
+  } else if (lower.includes('jusqu') || lower.includes('dlc') || lower.includes('tard')) {
+    type = 'DLC';
+  }
+
+  // 2. Détection de Date (chiffres et mois en lettres)
+  const foundDates = [];
+  const numericDateRegex = /\b(0?[1-9]|[12][0-9]|3[01])[\/\.\-](0?[1-9]|1[012])[\/\.\-](20\d\d|\d{2})\b/g;
+  let match;
+  while ((match = numericDateRegex.exec(text)) !== null) {
+    let day = match[1].padStart(2, '0');
+    let month = match[2].padStart(2, '0');
+    let year = match[3];
+    if (year.length === 2) year = '20' + year;
+    foundDates.push(`${year}-${month}-${day}`);
+  }
+
+  const frenchMonths = {
+    'jan': '01', 'fev': '02', 'fév': '02', 'mar': '03', 'avr': '04', 'mai': '05', 'jui': '06',
+    'jul': '07', 'aou': '08', 'aoû': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12', 'déc': '12'
+  };
+  const textDateRegex = /\b(0?[1-9]|[12][0-9]|3[01])\s+([a-zA-Zàâéèêîïôûç]{3,9})\.?\s+(20\d\d|\d{2})\b/gi;
+  while ((match = textDateRegex.exec(text)) !== null) {
+    const day = match[1].padStart(2, '0');
+    const monthWord = match[2].toLowerCase().substring(0, 3);
+    let year = match[3];
+    if (year.length === 2) year = '20' + year;
+    if (frenchMonths[monthWord]) {
+      foundDates.push(`${year}-${frenchMonths[monthWord]}-${day}`);
+    }
+  }
+
+  if (foundDates.length > 0) {
+    foundDates.sort();
+    date = foundDates[foundDates.length - 1]; // Sélectionne la date la plus éloignée (expiration vs fabrication)
+  }
+
+  // 3. Détection du N° de Lot
+  const lotRegex = /(?:lot|n[°o]|l\s*[:\.]?)\s*([a-z0-9\-_]{2,15})/i;
+  const lotMatch = text.match(lotRegex);
+  if (lotMatch) {
+    lot = lotMatch[1].trim();
+  }
+
+  return { date, type, lot };
+}
+
+function resetOcrStatus() {
+  const box = document.getElementById('ocr-status-box');
+  const loading = document.getElementById('ocr-loading');
+  const success = document.getElementById('ocr-success');
+  if (box) box.classList.add('hidden');
+  if (loading) loading.classList.add('hidden');
+  if (success) success.classList.add('hidden');
 }
 
 function removePhoto() {
@@ -570,6 +787,7 @@ function removePhoto() {
   if (previewBox) previewBox.classList.add('hidden');
   if (cameraLabel) cameraLabel.classList.remove('hidden');
   if (cameraInput) cameraInput.value = '';
+  resetOcrStatus();
 }
 
 function openLightbox(photoSrc, caption) {
@@ -583,7 +801,7 @@ function closeLightbox() {
 }
 
 // =============================================================================
-// 8. ENVOI SUR LE GROUPE WHATSAPP
+// 9. ENVOI SUR LE GROUPE WHATSAPP
 // =============================================================================
 
 function shareToWhatsAppGroup() {
@@ -593,6 +811,7 @@ function shareToWhatsAppGroup() {
 
   const expiredList = [];
   const urgentList = [];
+  const multiLotCheckList = [];
   const okList = [];
   const emptyList = [];
 
@@ -602,24 +821,39 @@ function shareToWhatsAppGroup() {
       return;
     }
 
+    // Détection multi-lots à confirmer
+    if (prod.batches.length > 1) {
+      const olderBatch = prod.batches[0];
+      const olderDays = getDaysRemaining(olderBatch.dlc);
+      if (olderDays <= 7) {
+        multiLotCheckList.push(`• *${prod.name}* : Le Lot 1 (${olderBatch.type || 'DLC'} ${formatDateFr(olderBatch.dlc)}) est-il consommé pour entamer le Lot 2 ?`);
+      }
+    }
+
     prod.batches.forEach((batch, idx) => {
       const days = getDaysRemaining(batch.dlc);
       const batchLabel = prod.batches.length > 1 ? `${prod.name} (Lot ${idx + 1})` : prod.name;
       const formattedDate = formatDateFr(batch.dlc);
+      const typeStr = batch.type || 'DLC';
 
       if (days <= 0) {
-        expiredList.push(`• *${batchLabel}* : Échu le ${formattedDate} (${days === 0 ? "AUJOURD'HUI" : Math.abs(days) + 'j de retard'})`);
+        expiredList.push(`• *${batchLabel}* [${typeStr}] : Échu le ${formattedDate} (${days === 0 ? "AUJOURD'HUI" : Math.abs(days) + 'j de retard'})`);
       } else if (days <= 7) {
-        urgentList.push(`• *${batchLabel}* : dans *${days} jour(s)* (${formattedDate})`);
+        urgentList.push(`• *${batchLabel}* [${typeStr}] : dans *${days} jour(s)* (${formattedDate})`);
       } else {
         okList.push(`${prod.name} (${formattedDate})`);
       }
     });
   });
 
-  // Construction du message WhatsApp élégant
+  // Construction du message WhatsApp
   let msg = `🍺 *BOB • POINT DLC & HYGIÈNE* 🍺\n`;
   msg += `📅 _${capitalizedDate}_\n\n`;
+
+  if (multiLotCheckList.length > 0) {
+    msg += `⚠️ *À VÉRIFIER AU BAR (Multi-lots) :*\n`;
+    msg += multiLotCheckList.join('\n') + `\n\n`;
+  }
 
   if (expiredList.length > 0) {
     msg += `🔴 *PÉRIMÉ (À RETIRER D'URGENCE) :*\n`;
@@ -641,18 +875,17 @@ function shareToWhatsAppGroup() {
   }
 
   if (emptyList.length > 0) {
-    msg += `⚪ *Sans DLC renseignée :* ${emptyList.join(', ')}\n\n`;
+    msg += `⚪ *Sans DLC :* ${emptyList.join(', ')}\n\n`;
   }
 
   msg += `📲 *Mettre à jour l'outil :* https://www.boblyon.fr/dlc/`;
 
-  // Ouverture WhatsApp
   const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
   window.open(url, '_blank');
 }
 
 // =============================================================================
-// 9. AJOUT DE PRODUIT HORS-CARTE & PARAMÈTRES
+// 10. AJOUT DE PRODUIT HORS-CARTE & EXPORT
 // =============================================================================
 
 function openAddProductModal() {
@@ -686,8 +919,6 @@ function confirmAddProduct() {
   saveProductsToStorage();
   renderProducts();
   closeAddProductModal();
-
-  // Ouvre directement la modale DLC pour ce nouveau produit
   openDlcModal(newProd.id);
 }
 
@@ -701,17 +932,17 @@ function closeSettingsModal() {
 }
 
 function exportDlcReport() {
-  let csv = '\uFEFFCatégorie;Produit;Numéro Lot;Date DLC;Jours Restants;Statut;Note;Photo Présente;Dernière Mise à Jour\n';
+  let csv = '\uFEFFCatégorie;Produit;Numéro Lot;Type (DLC/DLUO);Date Limite;Jours Restants;Statut;Note/Lot Fournisseur;Photo Présente;Dernière Mise à Jour\n';
 
   products.forEach(prod => {
     if (!prod.batches || prod.batches.length === 0) {
-      csv += `"${prod.category}";"${prod.name}";"Aucun";"N/A";"N/A";"Non renseigné";"";"Non";"N/A"\n`;
+      csv += `"${prod.category}";"${prod.name}";"Aucun";"N/A";"N/A";"N/A";"Non renseigné";"";"Non";"N/A"\n`;
     } else {
       prod.batches.forEach((b, idx) => {
         const days = getDaysRemaining(b.dlc);
         const status = getStatusFromDays(days);
         const statusLabel = status === 'red' ? 'Périmé' : status === 'orange' ? 'À consommer (≤7j)' : 'Conforme (>7j)';
-        csv += `"${prod.category}";"${prod.name}";"Lot ${idx + 1}";"${b.dlc}";"${days}";"${statusLabel}";"${b.note || ''}";"${b.photo ? 'Oui' : 'Non'}";"${b.updatedAt || ''}"\n`;
+        csv += `"${prod.category}";"${prod.name}";"Lot ${idx + 1}";"${b.type || 'DLC'}";"${b.dlc}";"${days}";"${statusLabel}";"${b.note || ''}";"${b.photo ? 'Oui' : 'Non'}";"${b.updatedAt || ''}"\n`;
       });
     }
   });
