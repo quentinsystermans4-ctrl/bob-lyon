@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Food A4 | BOB - Blonde ou Brune Lyon</title>
+  
+  <!-- Polices Google : Josefin Sans & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    :root {
+      --font-heading: 'Josefin Sans', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+
+      /* Palette Dark */
+      --bg-page: #101013;
+      --bg-card: #17171d;
+      --bg-card-alt: #1e1e26;
+      --text-primary: #ffffff;
+      --text-secondary: #a6a6b8;
+      --text-muted: #78788a;
+      --color-gold: #ffd15b;
+      --color-gold-dark: #d4af37;
+      --border-color: rgba(255, 209, 91, 0.22);
+      --border-soft: rgba(255, 255, 255, 0.08);
+      --badge-bg: rgba(255, 209, 91, 0.12);
+      --badge-border: rgba(255, 209, 91, 0.35);
+      --veggie-color: #34d399;
+      --veggie-bg: rgba(16, 185, 129, 0.15);
+      --veggie-border: rgba(16, 185, 129, 0.35);
+      --hh-color: #ffd15b;
+      --hh-bg: rgba(255, 209, 91, 0.18);
+    }
+
+    body.theme-light {
+      --bg-page: #ffffff;
+      --bg-card: #f9f8f5;
+      --bg-card-alt: #f2efe9;
+      --text-primary: #181715;
+      --text-secondary: #4a4843;
+      --text-muted: #737068;
+      --color-gold: #b38600;
+      --color-gold-dark: #8c6900;
+      --border-color: rgba(179, 134, 0, 0.35);
+      --border-soft: rgba(0, 0, 0, 0.09);
+      --badge-bg: rgba(179, 134, 0, 0.1);
+      --badge-border: rgba(179, 134, 0, 0.35);
+      --veggie-color: #047857;
+      --veggie-bg: rgba(4, 120, 87, 0.12);
+      --veggie-border: rgba(4, 120, 87, 0.35);
+      --hh-color: #92400e;
+      --hh-bg: rgba(245, 158, 11, 0.18);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: #2b2b36;
+      font-family: var(--font-body);
+      color: var(--text-primary);
+      padding: 30px 15px;
+      line-height: 1.35;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .print-control-bar {
+      max-width: 210mm;
+      margin: 0 auto 25px auto;
+      background: #181820;
+      border: 1px solid rgba(255, 209, 91, 0.3);
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .control-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ffd15b;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .control-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .btn-action {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-print {
+      background: #ffd15b;
+      color: #121214;
+    }
+    .btn-print:hover { background: #ffe082; transform: translateY(-1px); }
+
+    .btn-theme-toggle {
+      background: transparent;
+      color: #ffd15b;
+      border: 1px solid #ffd15b;
+    }
+    .btn-theme-toggle:hover { background: rgba(255, 209, 91, 0.15); }
+
+    .btn-link {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      text-decoration: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-link:hover { border-color: #ffd15b; }
+
+    .a4-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      height: 297mm;
+      max-height: 297mm;
+      margin: 0 auto;
+      background-color: var(--bg-page);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 9mm 12mm 7mm 12mm;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    .a4-sheet::before {
+      content: '';
+      position: absolute;
+      inset: 4mm;
+      border: 1px solid var(--border-soft);
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    .menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 7px;
+      margin-bottom: 8px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo {
+      height: 46px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    body.theme-light .logo-dark-mode { display: none; }
+    body.theme-light .logo-light-mode { display: block; }
+    body:not(.theme-light) .logo-light-mode { display: none; }
+    body:not(.theme-light) .logo-dark-mode { display: block; }
+
+    .header-brand-title {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--color-gold);
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .header-brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .header-right { text-align: right; }
+
+    .menu-type-badge {
+      display: inline-block;
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-gold);
+    }
+
+    .hh-banner-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--hh-bg);
+      border: 1px solid var(--border-color);
+      color: var(--color-gold);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 20px;
+      margin-top: 3px;
+      text-transform: uppercase;
+    }
+
+    .food-header-banner {
+      background: var(--bg-card);
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      padding: 6px 12px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .food-header-banner p {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+    .food-header-banner strong {
+      color: var(--color-gold);
+    }
+
+    .food-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px 10px;
+    }
+
+    .food-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 7px 9px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .food-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .food-title-group { flex: 1; }
+
+    .food-title {
+      font-family: var(--font-heading);
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.15;
+    }
+
+    .food-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .badge-food {
+      font-family: var(--font-heading);
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 10px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--color-gold);
+    }
+
+    .badge-veggie {
+      font-family: var(--font-heading);
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 10px;
+      background: var(--veggie-bg);
+      border: 1px solid var(--veggie-border);
+      color: var(--veggie-color);
+    }
+
+    .food-price-box {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--color-gold);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .food-price-box .price-sub {
+      font-size: 0.63rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      display: block;
+    }
+
+    .food-desc {
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+
+    .food-pairing-box {
+      background: var(--bg-card-alt);
+      border: 1px dashed var(--border-soft);
+      border-radius: 4px;
+      padding: 2.5px 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.63rem;
+      color: var(--text-secondary);
+    }
+    .food-pairing-box strong {
+      color: var(--color-gold);
+    }
+
+    .privatisation-box-print {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin-top: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .priv-text-left h4 {
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--color-gold);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .priv-text-left p {
+      font-size: 0.64rem;
+      color: var(--text-secondary);
+    }
+
+    .priv-cta-badge {
+      font-family: var(--font-heading);
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: var(--badge-bg);
+      border: 1px solid var(--border-color);
+      color: var(--color-gold);
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    .menu-footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 4px;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.61rem;
+      color: var(--text-muted);
+    }
+
+    .footer-col-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .footer-col-left span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    @page {
+      size: A4 portrait;
+      margin: 6mm 8mm;
+    }
+
+    @media print {
+      body { background: transparent !important; padding: 0 !important; }
+      .no-print { display: none !important; }
+      .a4-sheet {
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        page-break-after: avoid;
+        break-after: avoid;
+        padding: 4mm 6mm !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-control-bar no-print">
+    <div class="control-info">
+      <i class="fa-solid fa-pizza-slice"></i>
+      <span>BOB • Menu Food & Planches A4</span>
+    </div>
+    <div class="control-buttons">
+      <a href="menu-boissons.html" class="btn-action btn-link"><i class="fa-solid fa-beer-mug-empty"></i> Voir Menu Boissons</a>
+      <button class="btn-action btn-theme-toggle" onclick="toggleTheme()">
+        <i class="fa-solid fa-circle-half-stroke"></i> <span id="theme-btn-text">Thème Clair (Éco-Encre)</span>
+      </button>
+      <button class="btn-action btn-print" onclick="window.print()">
+        <i class="fa-solid fa-print"></i> Imprimer en A4
+      </button>
+    </div>
+  </div>
+
+  <div class="a4-sheet">
+    <div>
+      <!-- En-tête Food -->
+      <div class="menu-header">
+        <div class="header-left">
+          <img src="assets/logos/BOB LOGO B.svg" alt="BOB Lyon" class="header-logo logo-dark-mode">
+          <img src="assets/logos/BOB LOGO N.svg" alt="BOB Lyon" class="header-logo logo-light-mode">
+          <div>
+            <h1 class="header-brand-title">BOB • Blonde ou Brune</h1>
+            <p class="header-brand-subtitle">Bar à Bières Artisanales & Vins Locaux • Lyon 1er Pentes</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="menu-type-badge"><i class="fa-solid fa-pizza-slice"></i> La Carte Food & Planches</span>
+          <div>
+            <span class="hh-banner-pill"><i class="fa-solid fa-utensils"></i> Cuisine Conviviale & Produits de Saison</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bannière Intro Food -->
+      <div class="food-header-banner">
+        <p>
+          Toutes nos planches et gourmandises sont préparées minute avec des <strong>produits régionaux sélectionnés</strong>. 
+          Service au comptoir pour accompagner votre pinte artisanale ou votre verre de vin bio !
+        </p>
+      </div>
+
+      <!-- Grille des 6 Plats -->
+      <div class="food-cards-grid">
+        
+        <!-- Plat 1 : La Planche du BOB -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">La Planche à Partager (ou non)</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Copieuse</span>
+                  <span class="badge-veggie">🌱 OPTION 100% FROMAGES</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                12,00 € <span class="price-sub">Petite planche</span>
+                16,00 € <span class="price-sub">Grande planche</span>
+              </div>
+            </div>
+            <p class="food-desc">
+              Charcuterie fine de qualité (porc) x3, sélection de 3 fromages affinés de région, beurre et corbeille de pain frais croustillant. 
+              <em>(Option 100% végétarienne sur simple demande au bar !)</em>
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>Amazone IPA</strong> (amertume franche et aromatique)</span>
+          </div>
+        </div>
+
+        <!-- Plat 2 : Camembert Rôti -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Le Camembert Rôti au Four</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Chaud & Fondant</span>
+                  <span class="badge-veggie">🌱 VÉGÉTARIEN</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                9,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Camembert entier rôti au four, topping généreux d'amandes concassées toastées et filet de miel doré. Servi bien chaud avec son pain croustillant à tremper.
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>Miami Weiss</strong> (douceur blanche & notes gingembre)</span>
+          </div>
+        </div>
+
+        <!-- Plat 3 : Tartinade au choix -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Tartinade au Choix</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Apéro Frais</span>
+                  <span class="badge-veggie">🌱 VÉGÉTARIEN</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                4,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Tartinade savoureuse servie avec du pain frais croustillant. Idéale pour l'apéro solo ou à combiner avec une planche ! Demandez les recettes du moment au comptoir.
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>Miami Weiss</strong> ou <strong>La Blonde</strong></span>
+          </div>
+        </div>
+
+        <!-- Plat 4 : Croque-Monsieur -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Le Croque-Monsieur</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Gourmand & Doré</span>
+                  <span class="badge-veggie">🌱 OPTION CHAMPIGNONS</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                6,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Pain de mie toasté, généreux pesto verde maison & Comté AOP gratiné au four.
+              <br><strong>Au choix :</strong> Jambon blanc traditionnel (porc) ou <strong style="color:var(--veggie-color);">🌱 Champignons</strong>.
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>La Blonde</strong> (légèreté et fraîcheur)</span>
+          </div>
+        </div>
+
+        <!-- Plat 5 : Saucisson Sec -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Le Saucisson Sec Tradition</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Terroir</span>
+                  <span class="badge-food">À Partager</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                6,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Véritable saucisson sec entier pur porc de tradition charcutière, servi sur sa planche en bois avec couteau pour découper à votre convenance entre amis.
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>La Bascule</strong> ou <strong>Saison Noire</strong></span>
+          </div>
+        </div>
+
+        <!-- Plat 6 : Pizzas Artisanales Cuites sur Place -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Pizzas Artisanales Cuites sur Place</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Croustillante</span>
+                  <span class="badge-veggie">🌱 OPTION VÉGÉ</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                15,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Cuites minute bien dorées au four. 3 recettes savoureuses :
+              <br>• <strong style="color:var(--veggie-color);">🌱 Chèvre - Miel :</strong> Sauce tomate cuisinée, Mozzarella fior di latte
+              <br>• <strong>Jambon - Champignons :</strong> Sauce tomate, Mozzarella
+              <br>• <strong>Chorizo - Poivrons :</strong> Sauce tomate, Mozzarella
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>La Blonde</strong> ou <strong>La Bascule</strong> (Ambrée)</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Encart Privatisations / Groupes -->
+      <div class="privatisation-box-print">
+        <div class="priv-text-left">
+          <h4><i class="fa-solid fa-champagne-glasses"></i> Fêtez vos événements au BOB (Anniversaires, Afterworks, Pots)</h4>
+          <p>
+            • <strong>Mezzanine privative :</strong> Jusqu'à 15 personnes (Réservation gratuite via Privateaser).
+            <br>• <strong>Privatisation totale du bar :</strong> Jusqu'à 70 personnes avec barman dédié & buffet de planches sur mesure.
+          </p>
+        </div>
+        <div class="priv-cta-badge">
+          Infos & Résas : 06 22 89 95 10
+        </div>
+      </div>
+    </div>
+
+    <!-- Pied de page Food -->
+    <div class="menu-footer">
+      <div class="footer-col-left">
+        <span><i class="fa-solid fa-heart text-gold"></i> Produits de saison & circuits courts</span>
+        <span>•</span>
+        <span><i class="fa-solid fa-circle-info text-gold"></i> Charcuteries : France & Espagne. Allergènes au bar.</span>
+        <span>•</span>
+        <span><i class="fa-solid fa-location-dot text-gold"></i> 12 rue Imbert Colomès 69001 Lyon</span>
+      </div>
+      <div>
+        <strong>boblyon.fr</strong> • Réservations Privateaser
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const body = document.body;
+      const btnText = document.getElementById('theme-btn-text');
+      body.classList.toggle('theme-light');
+      btnText.textContent = body.classList.contains('theme-light') ? 'Thème Sombre (Look Bar)' : 'Thème Clair (Éco-Encre)';
+    }
+  </script>
+</body>
+</html>

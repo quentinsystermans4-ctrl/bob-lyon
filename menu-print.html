@@ -1,0 +1,1414 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menus A4 Imprimables | BOB - Blonde ou Brune Lyon</title>
+  
+  <!-- Polices Google : Josefin Sans & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <style>
+    /* ==========================================================================
+       VARIABLES DE STYLE & DIRECTION ARTISTIQUE DU BOB
+       ========================================================================== */
+    :root {
+      --font-heading: 'Josefin Sans', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+
+      /* Palette Dark (Look Bar du Site) */
+      --bg-page: #101013;
+      --bg-card: #17171d;
+      --bg-card-alt: #1e1e26;
+      --text-primary: #ffffff;
+      --text-secondary: #a6a6b8;
+      --text-muted: #78788a;
+      --color-gold: #ffd15b;
+      --color-gold-dark: #d4af37;
+      --border-color: rgba(255, 209, 91, 0.22);
+      --border-soft: rgba(255, 255, 255, 0.08);
+      --badge-bg: rgba(255, 209, 91, 0.12);
+      --badge-border: rgba(255, 209, 91, 0.35);
+      --veggie-color: #34d399;
+      --veggie-bg: rgba(16, 185, 129, 0.15);
+      --veggie-border: rgba(16, 185, 129, 0.35);
+      --hh-color: #ffd15b;
+      --hh-bg: rgba(255, 209, 91, 0.18);
+    }
+
+    /* Thème Clair Éco-Encre (Idéal papier standard / kraft sans vider les cartouches) */
+    body.theme-light {
+      --bg-page: #ffffff;
+      --bg-card: #f9f8f5;
+      --bg-card-alt: #f2efe9;
+      --text-primary: #181715;
+      --text-secondary: #4a4843;
+      --text-muted: #737068;
+      --color-gold: #b38600;
+      --color-gold-dark: #8c6900;
+      --border-color: rgba(179, 134, 0, 0.35);
+      --border-soft: rgba(0, 0, 0, 0.09);
+      --badge-bg: rgba(179, 134, 0, 0.1);
+      --badge-border: rgba(179, 134, 0, 0.35);
+      --veggie-color: #047857;
+      --veggie-bg: rgba(4, 120, 87, 0.12);
+      --veggie-border: rgba(4, 120, 87, 0.35);
+      --hh-color: #92400e;
+      --hh-bg: rgba(245, 158, 11, 0.18);
+    }
+
+    /* Base Reset */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #2b2b36;
+      font-family: var(--font-body);
+      color: var(--text-primary);
+      padding: 30px 15px;
+      line-height: 1.35;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ==========================================================================
+       BARRE D'ACTIONS UTILISATEUR (NON IMPRIMÉE)
+       ========================================================================== */
+    .print-control-bar {
+      max-width: 210mm;
+      margin: 0 auto 25px auto;
+      background: #181820;
+      border: 1px solid rgba(255, 209, 91, 0.3);
+      border-radius: 12px;
+      padding: 15px 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .control-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #ffd15b;
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .control-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-action {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      padding: 8px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-print-all {
+      background: #ffd15b;
+      color: #121214;
+    }
+    .btn-print-all:hover {
+      background: #ffe082;
+      transform: translateY(-1px);
+    }
+
+    .btn-print-sub {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-print-sub:hover {
+      background: rgba(255, 255, 255, 0.22);
+      border-color: #ffd15b;
+    }
+
+    .btn-theme-toggle {
+      background: transparent;
+      color: #ffd15b;
+      border: 1px solid #ffd15b;
+    }
+    .btn-theme-toggle:hover {
+      background: rgba(255, 209, 91, 0.15);
+    }
+
+    /* ==========================================================================
+       FEUILLE FORMAT A4 REEL
+       ========================================================================== */
+    .a4-sheet {
+      width: 210mm;
+      min-height: 297mm;
+      height: 297mm;
+      max-height: 297mm;
+      margin: 0 auto 35px auto;
+      background-color: var(--bg-page);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 9mm 12mm 7mm 12mm;
+      box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      overflow: hidden;
+    }
+
+    /* Cadre bordure fine élégante */
+    .a4-sheet::before {
+      content: '';
+      position: absolute;
+      inset: 4mm;
+      border: 1px solid var(--border-soft);
+      border-radius: 4px;
+      pointer-events: none;
+    }
+
+    /* ==========================================================================
+       EN-TÊTE DE CARTE
+       ========================================================================== */
+    .menu-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid var(--border-color);
+      padding-bottom: 7px;
+      margin-bottom: 8px;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-logo {
+      height: 46px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    body.theme-light .logo-dark-mode {
+      display: none;
+    }
+    body.theme-light .logo-light-mode {
+      display: block;
+    }
+    body:not(.theme-light) .logo-light-mode {
+      display: none;
+    }
+    body:not(.theme-light) .logo-dark-mode {
+      display: block;
+    }
+
+    .header-brand-title {
+      font-family: var(--font-heading);
+      font-size: 1.35rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      color: var(--color-gold);
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    .header-brand-subtitle {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .header-right {
+      text-align: right;
+    }
+
+    .menu-type-badge {
+      display: inline-block;
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--color-gold);
+    }
+
+    .hh-banner-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--hh-bg);
+      border: 1px solid var(--border-color);
+      color: var(--color-gold);
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.68rem;
+      padding: 3px 8px;
+      border-radius: 20px;
+      margin-top: 3px;
+      text-transform: uppercase;
+    }
+
+    /* ==========================================================================
+       TITRES DE SECTIONS
+       ========================================================================== */
+    .section-title-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 3px;
+      margin-bottom: 5px;
+    }
+
+    .section-title-box h3 {
+      font-family: var(--font-heading);
+      font-size: 0.88rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--color-gold);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .section-hint {
+      font-size: 0.64rem;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* ==========================================================================
+       PAGE 1 : BOISSONS (LAYOUT COMPACT HAUTE PRÉCISION)
+       ========================================================================== */
+    .flight-compact-banner {
+      background: var(--bg-card);
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .flight-text {
+      font-size: 0.71rem;
+      color: var(--text-secondary);
+    }
+    .flight-text strong {
+      color: var(--color-gold);
+      font-family: var(--font-heading);
+      font-size: 0.78rem;
+    }
+
+    .flight-price {
+      font-family: var(--font-heading);
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--color-gold);
+      background: var(--badge-bg);
+      padding: 1px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--border-color);
+    }
+
+    /* Tableau des 9 Bières Pression */
+    .pressions-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 6px;
+    }
+
+    .pressions-table th {
+      font-family: var(--font-heading);
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-soft);
+      padding: 2px 4px;
+      text-align: left;
+    }
+    .pressions-table th.col-price {
+      text-align: right;
+      width: 46px;
+    }
+
+    .pressions-table tr {
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .pressions-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .pressions-table td {
+      padding: 2.5px 4px;
+      font-size: 0.72rem;
+      vertical-align: middle;
+    }
+
+    .beer-name-cell {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .beer-num {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 0.68rem;
+      color: var(--color-gold);
+      width: 13px;
+      text-align: center;
+    }
+
+    .beer-main-title {
+      font-weight: 700;
+      font-size: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    .tag-style-mini {
+      font-family: var(--font-heading);
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 10px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--color-gold);
+      white-space: nowrap;
+    }
+
+    .tag-ephemere-mini {
+      background: #ea580c;
+      color: #fff;
+      border: none;
+      font-weight: 800;
+    }
+
+    .td-price {
+      font-family: var(--font-heading);
+      font-weight: 700;
+      font-size: 0.75rem;
+      text-align: right;
+      color: var(--text-primary);
+    }
+
+    .td-price-hh {
+      font-family: var(--font-heading);
+      font-weight: 800;
+      font-size: 0.76rem;
+      text-align: right;
+      color: var(--color-gold);
+    }
+
+    /* Grille 2 colonnes pour les autres boissons */
+    .drinks-bottom-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      margin-top: 3px;
+    }
+
+    .sub-section-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border-soft);
+      border-radius: 6px;
+      padding: 5px 8px;
+    }
+
+    .sub-title {
+      font-family: var(--font-heading);
+      font-size: 0.74rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--color-gold);
+      border-bottom: 1px solid var(--border-soft);
+      padding-bottom: 2px;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .drink-item-line {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 5px;
+      padding: 2px 0;
+      border-bottom: 1px dashed var(--border-soft);
+    }
+    .drink-item-line:last-child {
+      border-bottom: none;
+    }
+
+    .drink-desc-col {
+      flex: 1;
+    }
+
+    .drink-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .drink-details {
+      font-size: 0.62rem;
+      color: var(--text-muted);
+      line-height: 1.15;
+    }
+
+    .drink-prices {
+      font-family: var(--font-heading);
+      font-size: 0.73rem;
+      font-weight: 700;
+      text-align: right;
+      white-space: nowrap;
+      color: var(--text-primary);
+    }
+
+    .price-hh-tag {
+      color: var(--color-gold);
+      font-size: 0.66rem;
+      display: block;
+    }
+
+    .chips-spiritueux {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2.5px 5px;
+      font-size: 0.62rem;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .chips-spiritueux span {
+      background: var(--bg-card-alt);
+      padding: 1px 4px;
+      border-radius: 3px;
+      border: 1px solid var(--border-soft);
+    }
+
+    /* ==========================================================================
+       PAGE 2 : FOOD & PLANCHES GOURMANDES (GRILLE AÉRÉE ÉLÉGANTE)
+       ========================================================================== */
+    .food-header-banner {
+      background: var(--bg-card);
+      border: 1px dashed var(--border-color);
+      border-radius: 6px;
+      padding: 6px 12px;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    .food-header-banner p {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+    .food-header-banner strong {
+      color: var(--color-gold);
+    }
+
+    .food-cards-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 7px 10px;
+    }
+
+    .food-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 7px 9px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: relative;
+    }
+
+    .food-card-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 3px;
+    }
+
+    .food-title-group {
+      flex: 1;
+    }
+
+    .food-title {
+      font-family: var(--font-heading);
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.15;
+    }
+
+    .food-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-top: 2px;
+    }
+
+    .badge-food {
+      font-family: var(--font-heading);
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 10px;
+      background: var(--badge-bg);
+      border: 1px solid var(--badge-border);
+      color: var(--color-gold);
+    }
+
+    .badge-veggie {
+      font-family: var(--font-heading);
+      font-size: 0.58rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 1px 5px;
+      border-radius: 10px;
+      background: var(--veggie-bg);
+      border: 1px solid var(--veggie-border);
+      color: var(--veggie-color);
+    }
+
+    .food-price-box {
+      font-family: var(--font-heading);
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--color-gold);
+      text-align: right;
+      white-space: nowrap;
+    }
+    .food-price-box .price-sub {
+      font-size: 0.63rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      display: block;
+    }
+
+    .food-desc {
+      font-size: 0.68rem;
+      color: var(--text-secondary);
+      line-height: 1.25;
+      margin-bottom: 4px;
+    }
+
+    .food-pairing-box {
+      background: var(--bg-card-alt);
+      border: 1px dashed var(--border-soft);
+      border-radius: 4px;
+      padding: 2.5px 5px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.63rem;
+      color: var(--text-secondary);
+    }
+    .food-pairing-box strong {
+      color: var(--color-gold);
+    }
+
+    /* Encart Mezzanine & Privatisation */
+    .privatisation-box-print {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 6px 10px;
+      margin-top: 7px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .priv-text-left h4 {
+      font-family: var(--font-heading);
+      font-size: 0.8rem;
+      font-weight: 800;
+      color: var(--color-gold);
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .priv-text-left p {
+      font-size: 0.64rem;
+      color: var(--text-secondary);
+    }
+
+    .priv-cta-badge {
+      font-family: var(--font-heading);
+      font-size: 0.72rem;
+      font-weight: 800;
+      background: var(--badge-bg);
+      border: 1px solid var(--border-color);
+      color: var(--color-gold);
+      padding: 3px 8px;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* ==========================================================================
+       PIED DE PAGE COMMUN A4
+       ========================================================================== */
+    .menu-footer {
+      border-top: 1px solid var(--border-color);
+      padding-top: 4px;
+      margin-top: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.61rem;
+      color: var(--text-muted);
+    }
+
+    .footer-col-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .footer-col-left span {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .footer-moderation {
+      font-style: italic;
+    }
+
+    /* ==========================================================================
+       RÈGLES D'IMPRESSION PRINT (@media print)
+       ========================================================================== */
+    @page {
+      size: A4 portrait;
+      margin: 6mm 8mm;
+    }
+
+    @media print {
+      body {
+        background: transparent !important;
+        padding: 0 !important;
+      }
+
+      .no-print {
+        display: none !important;
+      }
+
+      .a4-sheet {
+        margin: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        width: 100% !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        page-break-after: always;
+        break-after: page;
+        padding: 4mm 6mm !important;
+      }
+
+      .a4-sheet:last-of-type {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+
+      /* Classes utilitaires pour impression isolée */
+      body.print-boissons-only #sheet-food {
+        display: none !important;
+      }
+
+      body.print-food-only #sheet-boissons {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       BARRE D'ACTIONS UTILISATEUR (NON IMPRIMÉE)
+       ========================================================================== -->
+  <div class="print-control-bar no-print">
+    <div class="control-info">
+      <i class="fa-solid fa-print"></i>
+      <span>BOB • Menus A4 Prêts à Imprimer</span>
+    </div>
+    <div class="control-buttons">
+      <button class="btn-action btn-theme-toggle" onclick="toggleTheme()" title="Basculer thème sombre / clair">
+        <i class="fa-solid fa-circle-half-stroke"></i> <span id="theme-btn-text">Thème Clair (Éco-Encre)</span>
+      </button>
+      <button class="btn-action btn-print-sub" onclick="printBoissonsOnly()">
+        <i class="fa-solid fa-beer-mug-empty"></i> Imprimer Boissons (A4)
+      </button>
+      <button class="btn-action btn-print-sub" onclick="printFoodOnly()">
+        <i class="fa-solid fa-pizza-slice"></i> Imprimer Food (A4)
+      </button>
+      <button class="btn-action btn-print-all" onclick="printAll()">
+        <i class="fa-solid fa-file-pdf"></i> Imprimer Tout (2 Pages A4)
+      </button>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       FEUILLE 1 : LA CARTE DES BOISSONS (A4)
+       ========================================================================== -->
+  <div class="a4-sheet" id="sheet-boissons">
+    <div>
+      <!-- En-tête Boissons -->
+      <div class="menu-header">
+        <div class="header-left">
+          <img src="assets/logos/BOB LOGO B.svg" alt="BOB Lyon" class="header-logo logo-dark-mode">
+          <img src="assets/logos/BOB LOGO N.svg" alt="BOB Lyon" class="header-logo logo-light-mode">
+          <div>
+            <h1 class="header-brand-title">BOB • Blonde ou Brune</h1>
+            <p class="header-brand-subtitle">Bar à Bières Artisanales & Vins Locaux • Lyon 1er Pentes</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="menu-type-badge"><i class="fa-solid fa-faucet-drip"></i> La Carte des Boissons</span>
+          <div>
+            <span class="hh-banner-pill"><i class="fa-solid fa-bolt-lightning"></i> Happy Hour 17h - 20h (Mardi au Samedi)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section Pressions -->
+      <div class="section-title-box">
+        <h3><i class="fa-solid fa-faucet-drip"></i> Nos 9 Bières Pression à l'Ardoise</h3>
+        <span class="section-hint">Tirées au comptoir • Brasseries artisanales régionales • Rotation continue</span>
+      </div>
+
+      <!-- Flight Banner -->
+      <div class="flight-compact-banner">
+        <div class="flight-text">
+          <strong>⚡ LE FLIGHT DÉGUSTATION (4 x 12,5 cl) :</strong> 4 galopins au choix parmi nos 9 bières pression ! Idéal pour explorer nos styles.
+        </div>
+        <div class="flight-price">10,00 €</div>
+      </div>
+
+      <!-- Table des 9 Pressions -->
+      <table class="pressions-table">
+        <thead>
+          <tr>
+            <th>Bière & Style</th>
+            <th>Brasserie Locale</th>
+            <th>Degré</th>
+            <th class="col-price">25 cl</th>
+            <th class="col-price">50 cl</th>
+            <th class="col-price">HH 50cl</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Pression 1 -->
+          <tr>
+            <td>
+              <div class="beer-name-cell">
+                <span class="beer-num">1</span>
+                <span class="beer-main-title">La Blonde</span>
+                <span class="tag-style-mini">Blonde</span>
+              </div>
+            </td>
+            <td>Brewlab</td>
+            <td>4.0°</td>
+            <td class="td-price">3,50 €</td>
+            <td class="td-price">6,00 €</td>
+            <td class="td-price-hh">5,00 €</td>
+          </tr>
+          <!-- Pression 2 -->
+          <tr>
+            <td>
+              <div class="beer-name-cell">
+                <span class="beer-num">2</span>
+                <span class="beer-main-title">Miami Weiss</span>
+                <span class="tag-style-mini">Blanche Fruits</span>
+              </div>
+            </td>
+            <td>Brewlab</td>
+            <td>4.0°</td>
+            <td class="td-price">4,00 €</td>
+            <td class="td-price">7,00 €</td>
+            <td class="td-price-hh">6,00 €</td>
+          </tr>
+          <!-- Pression 3 -->
+          <tr>
+            <td>
+              <div class="beer-name-cell">
+                <span class="beer-num">3</span>
+                <span class="beer-main-title">Amazone IPA</span>
+                <span class="tag-style-mini">IPA Houblonnée</span>
+              </div>
+            </td>
+            <td>Brewlab</td>
+            <td>5.8°</td>
+            <td class="td-price">4,00 €</td>
+            <td class="td-price">7,00 €</td>
+            <td class="td-price-hh">6,00 €</td>
+          </tr>
+          <!-- Pression 4 -->
+          <tr>
+            <td>
+              <div class="beer-name-cell">
+                <span class="beer-num">4</span>
+                <span class="beer-main-title">Saison Noire</span>
+                <span class="tag-style-mini">Brune Caractère</span>
+              </div>
+            </td>
+            <td>Les Danaïdes</td>
+            <td>6.5°</td>
+            <td class="td-price">4,00 €</td>
+            <td class="td-price">7,50 €</td>
+            <td class="td-price-hh">6,50 €</td>
+          </tr>
+          <!-- Pression 5 -->
+          <tr>
+            <td>
+              <div class="beer-name-cell">
+                <span class="beer-num">5</span>
+                <span class="beer-main-title">La Bascule</span>
+                <span class="tag-style-mini">Ambrée Maltée</span>
+              </div>
+            </td>
+            <td>Canute Lyonnaise</td>
+            <td>5.0°</td>
+            <td class="td-price">4,00 €</td>
+            <td class="td-price">7,00 €</td>
+            <td class="td-price-hh">6,00 €</td>
+          </tr>
+          <!-- Pression 6 -->
+          <tr>
+            <td>
+              <div class="beer-name-cell">
+                <span class="beer-num">6</span>
+                <span class="beer-main-title">Voodoo</span>
+                <span class="tag-style-mini">NEIPA Juteuse</span>
+              </div>
+            </td>
+            <td>Brewlab</td>
+            <td>6.3°</td>
+            <td class="td-price">4,00 €</td>
+            <td class="td-price">7,50 €</td>
+            <td class="td-price-hh">6,50 €</td>
+          </tr>
+          <!-- Pression 7 -->
+          <tr>
+            <td>
+              <div class="beer-name-cell">
+                <span class="beer-num">7</span>
+                <span class="beer-main-title">Magma Mango</span>
+                <span class="tag-style-mini tag-ephemere-mini">🔥 Bec Éphémère</span>
+              </div>
+            </td>
+            <td>Les Danaïdes</td>
+            <td>5.5°</td>
+            <td class="td-price">4,50 €</td>
+            <td class="td-price">8,00 €</td>
+            <td class="td-price-hh">7,00 €</td>
+          </tr>
+          <!-- Pression 8 -->
+          <tr>
+            <td>
+              <div class="beer-name-cell">
+                <span class="beer-num">8</span>
+                <span class="beer-main-title">Yakuza</span>
+                <span class="tag-style-mini">Double IPA</span>
+              </div>
+            </td>
+            <td>Brewlab</td>
+            <td>7.2°</td>
+            <td class="td-price">4,50 €</td>
+            <td class="td-price">8,00 €</td>
+            <td class="td-price-hh">7,00 €</td>
+          </tr>
+          <!-- Pression 9 -->
+          <tr>
+            <td>
+              <div class="beer-name-cell">
+                <span class="beer-num">9</span>
+                <span class="beer-main-title">Le Cidre Brut</span>
+                <span class="tag-style-mini">Cidre Pur Jus</span>
+              </div>
+            </td>
+            <td>Maison Mauret</td>
+            <td>5.0°</td>
+            <td class="td-price">4,00 €</td>
+            <td class="td-price">7,00 €</td>
+            <td class="td-price-hh">6,00 €</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Grille Inférieure (Cans/Bouteilles, Vins, Cocktails, Softs) -->
+      <div class="drinks-bottom-grid">
+        <!-- Bloc 1 : Cans & Bouteilles -->
+        <div class="sub-section-box">
+          <div class="sub-title">
+            <span><i class="fa-solid fa-bottle-droplet"></i> Cans & Bouteilles</span>
+            <span style="font-size:0.58rem; color:var(--text-muted);">Sur place / Emporté</span>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">Outer Range • Canette 44cl</span>
+              <span class="drink-details">Recettes de saison houblonnées</span>
+            </div>
+            <div class="drink-prices">
+              7,00 € <span style="font-size:0.6rem; color:var(--text-muted);">(6€ à emp.)</span>
+            </div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">Les Danaïdes • Bouteille 75cl</span>
+              <span class="drink-details">Grand format de saison à partager</span>
+            </div>
+            <div class="drink-prices">
+              10,00 € <span style="font-size:0.6rem; color:var(--text-muted);">(7€ à emp.)</span>
+            </div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">La Canute Lyonnaise • 75cl</span>
+              <span class="drink-details">Bière artisanale locale de saison</span>
+            </div>
+            <div class="drink-prices">
+              10,00 € <span style="font-size:0.6rem; color:var(--text-muted);">(7€ à emp.)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Bloc 2 : Vins Bio & Régions -->
+        <div class="sub-section-box">
+          <div class="sub-title">
+            <span><i class="fa-solid fa-wine-glass"></i> Vins Bio & Vignerons</span>
+            <span style="font-size:0.58rem; color:var(--text-muted);">Verre / Bouteille</span>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">Côte du Rhône / Mâcon-Villages</span>
+              <span class="drink-details">Rouge ou Blanc • Domaine Bio</span>
+            </div>
+            <div class="drink-prices">4,00 € <span style="font-weight:400; color:var(--text-muted); font-size:0.65rem;">/ 20€</span></div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">Beaujolais (Rouge) / Viognier (Blanc)</span>
+              <span class="drink-details">Sélection vigneronne indépendante</span>
+            </div>
+            <div class="drink-prices">5,00 € <span style="font-weight:400; color:var(--text-muted); font-size:0.65rem;">/ 26€</span></div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">IGP Méditerranée (Rosé)</span>
+              <span class="drink-details">Rosé frais et fruité</span>
+            </div>
+            <div class="drink-prices">4,00 € <span style="font-weight:400; color:var(--text-muted); font-size:0.65rem;">/ 20€</span></div>
+          </div>
+        </div>
+
+        <!-- Bloc 3 : Cocktails & Mocktails -->
+        <div class="sub-section-box">
+          <div class="sub-title">
+            <span><i class="fa-solid fa-martini-glass-citrus"></i> Cocktails & Mocktails</span>
+            <span style="font-size:0.58rem; color:var(--text-muted);">HH 17h-20h</span>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">Spritz Aperol ou Campari</span>
+              <span class="drink-details">Aperol/Campari, Prosecco, soda</span>
+            </div>
+            <div class="drink-prices">8,00 € <span class="price-hh-tag">HH 7,00 €</span></div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">Mules (Moscow, London ou Dark)</span>
+              <span class="drink-details">Vodka / Gin / Rhum, Ginger Beer, citron</span>
+            </div>
+            <div class="drink-prices">9,00 € <span class="price-hh-tag">HH 8,00 €</span></div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">Porn Star Martini / Spritz St-Germain</span>
+              <span class="drink-details">Recettes création prestige</span>
+            </div>
+            <div class="drink-prices">10,00 €</div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">VirGin Tonic & Spritz sans alcool (0.0%)</span>
+              <span class="drink-details">Fraîcheur intense sans alcool</span>
+            </div>
+            <div class="drink-prices">6,50 € <span class="price-hh-tag">HH 6,00 €</span></div>
+          </div>
+        </div>
+
+        <!-- Bloc 4 : Softs & Café Frappé -->
+        <div class="sub-section-box">
+          <div class="sub-title">
+            <span><i class="fa-solid fa-glass-water"></i> Softs Équitables & Café</span>
+            <span style="font-size:0.58rem; color:var(--text-muted);">Engagés & Frais</span>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">☕ Café Frappé (Glacé au shaker)</span>
+              <span class="drink-details">Café glacé onctueux et rafraîchissant</span>
+            </div>
+            <div class="drink-prices">4,00 € <span class="price-hh-tag">HH 3,50 €</span></div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">El Tony Mate / Jus de fruits JUSTE</span>
+              <span class="drink-details">Maté énergisant vegan • Jus artisanaux 25cl</span>
+            </div>
+            <div class="drink-prices">4,00 € - 4,50 € <span class="price-hh-tag">HH dès 3,50 €</span></div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">ChariTea / LemonAid / Community Cola</span>
+              <span class="drink-details">Thés glacés & limonades bio équitables (33cl)</span>
+            </div>
+            <div class="drink-prices">4,00 € <span class="price-hh-tag">HH 3,50 €</span></div>
+          </div>
+          <div class="drink-item-line">
+            <div class="drink-desc-col">
+              <span class="drink-title">Eau Gazeuse Vals (3,50€) / Sirops à l'eau</span>
+              <span class="drink-details">Grenadine, menthe, pêche, violette... (33cl / 50cl)</span>
+            </div>
+            <div class="drink-prices">2,00 € <span style="font-weight:400; color:var(--text-muted); font-size:0.65rem;">/ 3,50€</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Ligne Spiritueux Express -->
+      <div style="margin-top:5px; background:var(--bg-card); border:1px solid var(--border-soft); border-radius:4px; padding:3px 7px;">
+        <span style="font-family:var(--font-heading); font-size:0.66rem; font-weight:800; color:var(--color-gold); text-transform:uppercase;">
+          <i class="fa-solid fa-whiskey-glass"></i> Spiritueux au Comptoir (2cl / 4cl) :
+        </span>
+        <div class="chips-spiritueux">
+          <span>Ricard / Henri Bardouin 2,50€ / 4€</span>
+          <span>Suze 4€</span>
+          <span>Limoncello 3€ / 5€</span>
+          <span>Verveine 3€ / 5€</span>
+          <span>Chartreuse 4€ / 7€</span>
+          <span>Tequila paf 3€ / 5€</span>
+          <span>Vodka / Gin / Rhum / Whisky 3€ / 5€ à 6€</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pied de page Boissons -->
+    <div class="menu-footer">
+      <div class="footer-col-left">
+        <span><i class="fa-solid fa-beer-mug-empty text-gold"></i> Service au comptoir avec le sourire</span>
+        <span>•</span>
+        <span><i class="fa-solid fa-location-dot text-gold"></i> 12 rue Imbert Colomès, 69001 Lyon</span>
+        <span>•</span>
+        <span><i class="fa-solid fa-globe text-gold"></i> boblyon.fr</span>
+      </div>
+      <div class="footer-moderation">
+        L'abus d'alcool est dangereux pour la santé, à consommer avec modération.
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       FEUILLE 2 : LA CARTE FOOD & PLANCHES (A4)
+       ========================================================================== -->
+  <div class="a4-sheet" id="sheet-food">
+    <div>
+      <!-- En-tête Food -->
+      <div class="menu-header">
+        <div class="header-left">
+          <img src="assets/logos/BOB LOGO B.svg" alt="BOB Lyon" class="header-logo logo-dark-mode">
+          <img src="assets/logos/BOB LOGO N.svg" alt="BOB Lyon" class="header-logo logo-light-mode">
+          <div>
+            <h1 class="header-brand-title">BOB • Blonde ou Brune</h1>
+            <p class="header-brand-subtitle">Bar à Bières Artisanales & Vins Locaux • Lyon 1er Pentes</p>
+          </div>
+        </div>
+        <div class="header-right">
+          <span class="menu-type-badge"><i class="fa-solid fa-pizza-slice"></i> La Carte Food & Planches</span>
+          <div>
+            <span class="hh-banner-pill"><i class="fa-solid fa-utensils"></i> Cuisine Conviviale & Produits de Saison</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bannière Intro Food -->
+      <div class="food-header-banner">
+        <p>
+          Toutes nos planches et gourmandises sont préparées minute avec des <strong>produits régionaux sélectionnés</strong>. 
+          Service au comptoir pour accompagner votre pinte artisanale ou votre verre de vin bio !
+        </p>
+      </div>
+
+      <!-- Grille des 6 Plats -->
+      <div class="food-cards-grid">
+        
+        <!-- Plat 1 : La Planche du BOB -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">La Planche à Partager (ou non)</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Copieuse</span>
+                  <span class="badge-veggie">🌱 OPTION 100% FROMAGES</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                12,00 € <span class="price-sub">Petite planche</span>
+                16,00 € <span class="price-sub">Grande planche</span>
+              </div>
+            </div>
+            <p class="food-desc">
+              Charcuterie fine de qualité (porc) x3, sélection de 3 fromages affinés de région, beurre et corbeille de pain frais croustillant. 
+              <em>(Option 100% végétarienne sur simple demande au bar !)</em>
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>Amazone IPA</strong> (amertume franche et aromatique)</span>
+          </div>
+        </div>
+
+        <!-- Plat 2 : Camembert Rôti -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Le Camembert Rôti au Four</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Chaud & Fondant</span>
+                  <span class="badge-veggie">🌱 VÉGÉTARIEN</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                9,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Camembert entier rôti au four, topping généreux d'amandes concassées toastées et filet de miel doré. Servi bien chaud avec son pain croustillant à tremper.
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>Miami Weiss</strong> (douceur blanche & notes gingembre)</span>
+          </div>
+        </div>
+
+        <!-- Plat 3 : Tartinade au choix -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Tartinade au Choix</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Apéro Frais</span>
+                  <span class="badge-veggie">🌱 VÉGÉTARIEN</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                4,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Tartinade savoureuse servie avec du pain frais croustillant. Idéale pour l'apéro solo ou à combiner avec une planche ! Demandez les recettes du moment au comptoir.
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>Miami Weiss</strong> ou <strong>La Blonde</strong></span>
+          </div>
+        </div>
+
+        <!-- Plat 4 : Croque-Monsieur -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Le Croque-Monsieur</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Gourmand & Doré</span>
+                  <span class="badge-veggie">🌱 OPTION CHAMPIGNONS</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                6,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Pain de mie toasté, généreux pesto verde maison & Comté AOP gratiné au four.
+              <br><strong>Au choix :</strong> Jambon blanc traditionnel (porc) ou <strong style="color:var(--veggie-color);">🌱 Champignons</strong>.
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>La Blonde</strong> (légèreté et fraîcheur)</span>
+          </div>
+        </div>
+
+        <!-- Plat 5 : Saucisson Sec -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Le Saucisson Sec Tradition</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Terroir</span>
+                  <span class="badge-food">À Partager</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                6,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Véritable saucisson sec entier pur porc de tradition charcutière, servi sur sa planche en bois avec couteau pour découper à votre convenance entre amis.
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>La Bascule</strong> ou <strong>Saison Noire</strong></span>
+          </div>
+        </div>
+
+        <!-- Plat 6 : Pizzas Artisanales Cuites sur Place -->
+        <div class="food-card">
+          <div>
+            <div class="food-card-top">
+              <div class="food-title-group">
+                <h4 class="food-title">Pizzas Artisanales Cuites sur Place</h4>
+                <div class="food-badge-row">
+                  <span class="badge-food">Croustillante</span>
+                  <span class="badge-veggie">🌱 OPTION VÉGÉ</span>
+                </div>
+              </div>
+              <div class="food-price-box">
+                15,00 €
+              </div>
+            </div>
+            <p class="food-desc">
+              Cuites minute bien dorées au four. 3 recettes savoureuses :
+              <br>• <strong style="color:var(--veggie-color);">🌱 Chèvre - Miel :</strong> Sauce tomate cuisinée, Mozzarella fior di latte
+              <br>• <strong>Jambon - Champignons :</strong> Sauce tomate, Mozzarella
+              <br>• <strong>Chorizo - Poivrons :</strong> Sauce tomate, Mozzarella
+            </p>
+          </div>
+          <div class="food-pairing-box">
+            <i class="fa-solid fa-beer-mug-empty text-gold"></i>
+            <span>Accord parfait : 🍺 <strong>La Blonde</strong> ou <strong>La Bascule</strong> (Ambrée)</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Encart Privatisations / Groupes -->
+      <div class="privatisation-box-print">
+        <div class="priv-text-left">
+          <h4><i class="fa-solid fa-champagne-glasses"></i> Fêtez vos événements au BOB (Anniversaires, Afterworks, Pots)</h4>
+          <p>
+            • <strong>Mezzanine privative :</strong> Jusqu'à 15 personnes (Réservation gratuite via Privateaser).
+            <br>• <strong>Privatisation totale du bar :</strong> Jusqu'à 70 personnes avec barman dédié & buffet de planches sur mesure.
+          </p>
+        </div>
+        <div class="priv-cta-badge">
+          Infos & Résas : 06 22 89 95 10
+        </div>
+      </div>
+    </div>
+
+    <!-- Pied de page Food -->
+    <div class="menu-footer">
+      <div class="footer-col-left">
+        <span><i class="fa-solid fa-heart text-gold"></i> Produits de saison & circuits courts</span>
+        <span>•</span>
+        <span><i class="fa-solid fa-circle-info text-gold"></i> Charcuteries : France & Espagne. Allergènes au bar.</span>
+        <span>•</span>
+        <span><i class="fa-solid fa-location-dot text-gold"></i> 12 rue Imbert Colomès 69001 Lyon</span>
+      </div>
+      <div>
+        <strong>boblyon.fr</strong> • Réservations Privateaser
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       SCRIPTS INTERACTIFS POUR L'IMPRESSION ET LE CHANGEMENT DE THÈME
+       ========================================================================== -->
+  <script>
+    // Bascule thème sombre / clair éco-encre
+    function toggleTheme() {
+      const body = document.body;
+      const btnText = document.getElementById('theme-btn-text');
+      
+      body.classList.toggle('theme-light');
+      
+      if (body.classList.contains('theme-light')) {
+        btnText.textContent = 'Thème Sombre (Look Bar)';
+      } else {
+        btnText.textContent = 'Thème Clair (Éco-Encre)';
+      }
+    }
+
+    // Impression Boissons seule
+    function printBoissonsOnly() {
+      document.body.classList.add('print-boissons-only');
+      document.body.classList.remove('print-food-only');
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('print-boissons-only');
+      }, 500);
+    }
+
+    // Impression Food seule
+    function printFoodOnly() {
+      document.body.classList.add('print-food-only');
+      document.body.classList.remove('print-boissons-only');
+      window.print();
+      setTimeout(() => {
+        document.body.classList.remove('print-food-only');
+      }, 500);
+    }
+
+    // Impression des deux pages A4
+    function printAll() {
+      document.body.classList.remove('print-boissons-only');
+      document.body.classList.remove('print-food-only');
+      window.print();
+    }
+  </script>
+
+</body>
+</html>
