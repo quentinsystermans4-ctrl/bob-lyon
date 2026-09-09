@@ -43,6 +43,9 @@
   <!-- Custom CSS -->
   <link rel="stylesheet" href="style.css">
 
+  <!-- Analytics (GoatCounter privacy-first, RGPD compliant, 0 cookies) -->
+  <script data-goatcounter="https://boblyon.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
   <!-- Schema.org JSON-LD for Local SEO (BarOrPub) -->
   <script type="application/ld+json">
   {
@@ -615,7 +618,7 @@
           </div>
 
           <!-- CARTE VEDETTE : FLIGHT DÉGUSTATION 4 GALOPINS -->
-          <div class="flight-banner-card">
+          <div class="flight-banner-card" id="flight-banner-container">
             <div class="flight-banner-content">
               <div class="flight-badge-group">
                 <span class="badge-pulse"><i class="fa-solid fa-beer-mug-empty"></i> FLIGHT DÉCOUVERTE</span>
@@ -633,7 +636,7 @@
             </div>
           </div>
 
-          <div class="menu-grid">
+          <div class="menu-grid" id="pressions-grid">
             <!-- Pression 1 -->
             <div class="menu-item-card">
               <div class="card-top">
@@ -842,7 +845,7 @@
             <p>Recettes artisanales et éphémères à déguster sur place ou à emporter chez vous.</p>
           </div>
 
-          <div class="menu-grid">
+          <div class="menu-grid" id="bouteilles-grid">
             <!-- Canette Outer Range (44cl) -->
             <div class="menu-item-card">
               <div class="card-top">

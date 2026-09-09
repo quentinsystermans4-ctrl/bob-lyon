@@ -8,6 +8,8 @@ echo.
 echo Connexion a GitHub et envoi de tous les fichiers...
 echo Si une fenetre apparait, cliquez sur "Sign in with your browser".
 echo.
+git add .
+git commit -m "Mise a jour site BOB : page links, analytics et carte dynamique"
 git branch -M main
 git push -u origin main
 echo.

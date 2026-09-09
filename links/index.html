@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>BOB - Blonde ou Brune | Liens utiles & Réservation</title>
+  <meta name="description" content="Tous les liens officiels du bar BOB - Blonde ou Brune aux Pentes de la Croix-Rousse à Lyon : réservation Privateaser, carte en direct, programme des événements et avis Google.">
+  <meta name="theme-color" content="#121214">
+  <link rel="canonical" href="https://www.boblyon.fr/links/">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://www.boblyon.fr/links/">
+  <meta property="og:title" content="BOB - Blonde ou Brune | Liens & Réservation">
+  <meta property="og:description" content="Réservez votre table ou mezzanine, consultez la carte des 9 pressions et suivez les événements du BOB à Lyon.">
+  <meta property="og:image" content="../assets/logos/BOB LOGO B.png">
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/svg+xml" href="../assets/logos/BOB LOGO N.svg">
+  <link rel="alternate icon" type="image/png" href="../assets/logos/BOB EMBLEME N.png">
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+  <!-- Analytics (GoatCounter privacy-first, RGPD compliant, 0 cookies) -->
+  <script data-goatcounter="https://boblyon.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+
+  <style>
+    :root {
+      --bg-dark: #121214;
+      --bg-card: #18181c;
+      --bg-card-hover: #222228;
+      --border-color: #2e2e38;
+      --gold: #ffd15b;
+      --gold-dark: #d4af37;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --font-title: 'Josefin Sans', sans-serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --radius-btn: 14px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 32px 18px 48px;
+      background-image: radial-gradient(circle at 50% 0%, rgba(255, 209, 91, 0.08) 0%, transparent 70%);
+    }
+
+    .links-wrapper {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 22px;
+    }
+
+    /* Profil Header */
+    .profile-header {
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-logo-circle {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: #18181c;
+      border: 2px solid var(--gold);
+      padding: 8px;
+      box-shadow: 0 0 24px rgba(255, 209, 91, 0.25);
+      transition: transform 0.3s ease;
+    }
+
+    .brand-logo-circle:hover {
+      transform: scale(1.05);
+    }
+
+    .brand-logo-circle img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .brand-title {
+      font-family: var(--font-title);
+      font-size: 1.65rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: #ffffff;
+    }
+
+    .brand-tagline {
+      font-size: 0.92rem;
+      color: var(--text-muted);
+      max-width: 360px;
+      line-height: 1.4;
+    }
+
+    /* Live Status Pill */
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 30px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-color);
+      margin-top: 4px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+    }
+
+    .status-dot.soon {
+      background: #f59e0b;
+      box-shadow: 0 0 8px #f59e0b;
+    }
+
+    .status-dot.closed {
+      background: #ef4444;
+      box-shadow: 0 0 8px #ef4444;
+    }
+
+    /* Links Buttons Container */
+    .links-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 6px;
+    }
+
+    .link-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      width: 100%;
+      padding: 16px 20px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-btn);
+      color: var(--text-main);
+      text-decoration: none;
+      box-shadow: var(--shadow);
+      transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .link-item:hover, .link-item:active {
+      transform: translateY(-2px);
+      background: var(--bg-card-hover);
+      border-color: rgba(255, 209, 91, 0.4);
+      box-shadow: 0 14px 28px -6px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Primary Featured Button (Privateaser) */
+    .link-item.featured {
+      background: linear-gradient(135deg, #1f1d16 0%, #292415 100%);
+      border: 1.5px solid var(--gold);
+      box-shadow: 0 10px 30px -4px rgba(255, 209, 91, 0.25);
+    }
+
+    .link-item.featured:hover {
+      background: linear-gradient(135deg, #2a261a 0%, #362f18 100%);
+      border-color: #ffe08a;
+    }
+
+    .link-item.featured .link-icon {
+      background: var(--gold);
+      color: #121214;
+    }
+
+    .link-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: var(--gold);
+      flex-shrink: 0;
+      transition: transform 0.2s ease;
+    }
+
+    .link-item:hover .link-icon {
+      transform: scale(1.08);
+    }
+
+    .link-texts {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .link-label {
+      font-family: var(--font-title);
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .link-sub {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      line-height: 1.25;
+    }
+
+    .link-arrow {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      transition: transform 0.2s ease, color 0.2s ease;
+    }
+
+    .link-item:hover .link-arrow {
+      transform: translateX(3px);
+      color: var(--gold);
+    }
+
+    .badge-featured-mini {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      background: var(--gold);
+      color: #121214;
+      font-weight: 800;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    /* Social Icons Row */
+    .social-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 10px;
+    }
+
+    .social-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #ffffff;
+      font-size: 1.2rem;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .social-btn:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--gold);
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    /* Footer */
+    .links-footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: #64748b;
+    }
+
+    .links-footer a {
+      color: var(--gold);
+      text-decoration: none;
+    }
+
+    .links-footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="links-wrapper">
+    <!-- Header -->
+    <header class="profile-header">
+      <a href="../" class="brand-logo-circle" aria-label="Accueil BOB">
+        <img src="../assets/logos/BOB LOGO B.svg" alt="BOB Lyon Logo" onerror="this.src='../assets/logos/BOB LOGO B.png'">
+      </a>
+      <h1 class="brand-title">BOB • Blonde ou Brune</h1>
+      <p class="brand-tagline">Bar à bières artisanales locales • Planches & Pizzas • Pentes de la Croix-Rousse, Lyon</p>
+      
+      <!-- Live Status Pill -->
+      <div id="live-status-pill" class="status-pill">
+        <span class="status-dot"></span>
+        <span id="live-status-text">Calcul des horaires...</span>
+      </div>
+    </header>
+
+    <!-- Navigation Action Links -->
+    <nav class="links-list" aria-label="Liens d'action rapide">
+      
+      <!-- 1. Réserver (Privateaser - Mis en valeur) -->
+      <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" 
+         target="_blank" 
+         rel="noopener noreferrer" 
+         class="link-item featured" 
+         data-track="privateaser-reservation" 
+         data-label="links_page_hero">
+        <div class="link-icon">
+          <i class="fa-solid fa-calendar-check"></i>
+        </div>
+        <div class="link-texts">
+          <div class="link-label">
+            <span>Réserver une table / Mezzanine</span>
+            <span class="badge-featured-mini">Recommandé</span>
+          </div>
+          <span class="link-sub">Réservation gratuite en ligne via Privateaser</span>
+        </div>
+        <i class="fa-solid fa-chevron-right link-arrow"></i>
+      </a>
+
+      <!-- 2. La Carte en Direct -->
+      <a href="../#carte" class="link-item" data-track="view_menu" data-label="links_page_menu">
+        <div class="link-icon">
+          <i class="fa-solid fa-beer-mug-empty"></i>
+        </div>
+        <div class="link-texts">
+          <div class="link-label">La Carte des Bières & Boissons</div>
+          <span class="link-sub">9 pressions artisanales, vins bio, planches & pizzas</span>
+        </div>
+        <i class="fa-solid fa-chevron-right link-arrow"></i>
+      </a>
+
+      <!-- 3. Événements & Animations -->
+      <a href="../#evenements" class="link-item" data-track="view_events" data-label="links_page_events">
+        <div class="link-icon">
+          <i class="fa-solid fa-calendar-days"></i>
+        </div>
+        <div class="link-texts">
+          <div class="link-label">Programme & Événements</div>
+          <span class="link-sub">Quiz, tournois d'échecs, matchs sur grand écran & fléchettes</span>
+        </div>
+        <i class="fa-solid fa-chevron-right link-arrow"></i>
+      </a>
+
+      <!-- 4. Avis Google 5 Étoiles -->
+      <a href="https://goo.gl/maps/MY7jRcQqQhJo7zKR6" 
+         target="_blank" 
+         rel="noopener noreferrer" 
+         class="link-item" 
+         data-track="google_review" 
+         data-label="links_page_review">
+        <div class="link-icon">
+          <i class="fa-solid fa-star"></i>
+        </div>
+        <div class="link-texts">
+          <div class="link-label">Laisser un avis Google (5.0 ★)</div>
+          <span class="link-sub">Un petit mot pour soutenir Quentin & Margot !</span>
+        </div>
+        <i class="fa-solid fa-chevron-right link-arrow"></i>
+      </a>
+
+      <!-- 5. Adresse & Itinéraire -->
+      <a href="https://goo.gl/maps/MY7jRcQqQhJo7zKR6" 
+         target="_blank" 
+         rel="noopener noreferrer" 
+         class="link-item" 
+         data-track="directions_maps" 
+         data-label="links_page_maps">
+        <div class="link-icon">
+          <i class="fa-solid fa-location-dot"></i>
+        </div>
+        <div class="link-texts">
+          <div class="link-label">Venir au BOB (Accès & Métro)</div>
+          <span class="link-sub">12 rue Imbert Colomès, 69001 Lyon (Croix-Paquet / Croix-Rousse)</span>
+        </div>
+        <i class="fa-solid fa-chevron-right link-arrow"></i>
+      </a>
+
+      <!-- 6. Appeler le Bar -->
+      <a href="tel:0622899510" class="link-item" data-track="phone_call" data-label="links_page_phone">
+        <div class="link-icon">
+          <i class="fa-solid fa-phone"></i>
+        </div>
+        <div class="link-texts">
+          <div class="link-label">Appeler le bar</div>
+          <span class="link-sub">Quentin : 06 22 89 95 10 • Margot : 06 23 42 26 61</span>
+        </div>
+        <i class="fa-solid fa-chevron-right link-arrow"></i>
+      </a>
+
+    </nav>
+
+    <!-- Social Row -->
+    <div class="social-row">
+      <a href="https://www.instagram.com/leboblyon/" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Instagram @leboblyon" data-track="social_instagram">
+        <i class="fa-brands fa-instagram"></i>
+      </a>
+      <a href="https://www.facebook.com/profile.php?id=100083176527737" target="_blank" rel="noopener noreferrer" class="social-btn" aria-label="Facebook BOB Lyon" data-track="social_facebook">
+        <i class="fa-brands fa-facebook"></i>
+      </a>
+      <a href="../" class="social-btn" aria-label="Site officiel BOB Lyon" data-track="site_home">
+        <i class="fa-solid fa-globe"></i>
+      </a>
+    </div>
+
+    <!-- Footer -->
+    <footer class="links-footer">
+      <p>© BOB - Blonde ou Brune • 12 rue Imbert Colomès, Lyon 1er</p>
+      <p><a href="../">www.boblyon.fr</a></p>
+    </footer>
+  </main>
+
+  <script>
+    // Live Schedule Status Logic (Heure de Paris)
+    function updateSchedule() {
+      const statusText = document.getElementById('live-status-text');
+      const statusPill = document.getElementById('live-status-pill');
+      if (!statusText || !statusPill) return;
+
+      const now = new Date();
+      const parisDate = new Date(now.toLocaleString('en-US', { timeZone: 'Europe/Paris' }));
+      const day = parisDate.getDay();
+      const hours = parisDate.getHours();
+      const mins = parisDate.getMinutes();
+      const timeInMins = hours * 60 + mins;
+
+      let message = '';
+      let dotClass = '';
+
+      if (hours < 1) {
+        if (day >= 3 && day <= 6 || day === 0) {
+          message = 'Ouvert actuellement (ferme à 01h)';
+          dotClass = '';
+        } else {
+          message = 'Fermé actuellement';
+          dotClass = 'closed';
+        }
+      } else {
+        if (day >= 2 && day <= 5) {
+          if (timeInMins >= 17 * 60) {
+            message = timeInMins < 20 * 60 ? '⚡ HAPPY HOUR en cours ! (jusqu’à 20h)' : 'Ouvert actuellement (ferme à 01h)';
+            dotClass = '';
+          } else {
+            message = 'Fermé • Ouvre aujourd’hui à 17h00';
+            dotClass = 'soon';
+          }
+        } else if (day === 6) {
+          if (timeInMins >= 16 * 60) {
+            message = (timeInMins >= 17 * 60 && timeInMins < 20 * 60) ? '⚡ HAPPY HOUR en cours !' : 'Ouvert actuellement (ferme à 01h)';
+            dotClass = '';
+          } else {
+            message = 'Fermé • Ouvre aujourd’hui à 16h00';
+            dotClass = 'soon';
+          }
+        } else {
+          message = (day === 0) ? 'Fermé le dimanche • Réouverture mardi 17h' : 'Fermé le lundi • Réouverture mardi 17h';
+          dotClass = 'closed';
+        }
+      }
+
+      statusText.textContent = message;
+      const dot = statusPill.querySelector('.status-dot');
+      if (dot) dot.className = 'status-dot ' + dotClass;
+    }
+
+    updateSchedule();
+    setInterval(updateSchedule, 60000);
+
+    // Event tracking dispatcher
+    document.querySelectorAll('[data-track]').forEach(el => {
+      el.addEventListener('click', () => {
+        const eventName = el.getAttribute('data-track');
+        const eventLabel = el.getAttribute('data-label') || el.getAttribute('href');
+        if (window.goatcounter && typeof window.goatcounter.count === 'function') {
+          window.goatcounter.count({
+            path: 'event/' + eventName,
+            title: eventLabel,
+            event: true
+          });
+        }
+        if (window.gtag && typeof window.gtag === 'function') {
+          window.gtag('event', eventName, { event_label: eventLabel });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
