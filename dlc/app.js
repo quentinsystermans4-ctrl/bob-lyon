@@ -39,6 +39,18 @@ let currentFilterStatus = 'all';
 let activeEditingProductId = null;
 let currentUploadedPhotoBase64 = null;
 let enteredPin = '';
+let db = null;
+let isApplyingCloudSnapshot = false;
+
+// Configuration officielle Google Firebase Firestore (Projet BOB DLC)
+const firebaseConfig = {
+  apiKey: "AIzaSyCH-DwoGHPujHVxsZh3FhmUJoXcijWc8zs",
+  authDomain: "bob-lyon-dlc.firebaseapp.com",
+  projectId: "bob-lyon-dlc",
+  storageBucket: "bob-lyon-dlc.firebasestorage.app",
+  messagingSenderId: "332508055011",
+  appId: "1:332508055011:web:af11466ed2fa54cf77ccd6"
+};
 
 // =============================================================================
 // 2. CYCLE DE VIE DE L'APPLICATION
@@ -51,10 +63,11 @@ document.addEventListener('DOMContentLoaded', () => {
   renderProducts();
   updateKpiCounts();
   renderMultiLotAlerts();
+  initFirebase();
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.3.0').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.4.0').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -62,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.3.0';
+const APP_VERSION = 'v1.4.0';
 
 async function forceAppUpdate() {
   if ('caches' in window) {
@@ -89,7 +102,7 @@ function initStorage() {
     localStorage.setItem(STORAGE_KEYS.PIN, '1234');
   }
 
-  // Initialisation des produits
+  // Initialisation des produits locaux
   const stored = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
   if (stored) {
     try {
@@ -105,10 +118,173 @@ function initStorage() {
   }
 }
 
+function countTotalBatches(items = products) {
+  if (!Array.isArray(items)) return 0;
+  return items.reduce((acc, p) => acc + (p.batches ? p.batches.length : 0), 0);
+}
+
+function updateCloudStatus(status, text) {
+  const badge = document.getElementById('cloud-status-badge');
+  const textEl = document.getElementById('cloud-status-text');
+  if (!badge || !textEl) return;
+  badge.className = 'cloud-status-badge ' + status;
+  textEl.textContent = text;
+}
+
+// =============================================================================
+// SYNCHRONISATION FIREBASE FIRESTORE TEMPS RÉEL
+// =============================================================================
+
+function initFirebase() {
+  if (!window.firebase) {
+    console.warn('SDK Firebase non disponible.');
+    updateCloudStatus('offline', 'Local seul');
+    return;
+  }
+
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(firebaseConfig);
+    }
+    db = firebase.firestore();
+
+    // Persistance hors-ligne pour travail en cave/réserve
+    db.enablePersistence({ synchronizeTabs: true }).catch(err => {
+      console.log('Persistance hors-ligne Firestore:', err.code);
+    });
+
+    listenToCloudInventory();
+  } catch (err) {
+    console.error('Erreur init Firebase:', err);
+    updateCloudStatus('error', 'Erreur Cloud');
+  }
+}
+
+function listenToCloudInventory() {
+  if (!db) return;
+  updateCloudStatus('connecting', 'Connexion...');
+
+  const inventoryDoc = db.collection('inventory').doc('current');
+
+  inventoryDoc.onSnapshot({ includeMetadataChanges: true }, (doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data && Array.isArray(data.products)) {
+        const cloudBatches = countTotalBatches(data.products);
+        const localBatches = countTotalBatches(products);
+
+        // Si le Cloud est vide (0 lot) et que CET appareil a de vrais lots enregistrés (ex: iPhone de Quentin),
+        // on initialise le Cloud avec les lots de cet appareil pour ne jamais rien écraser !
+        if (cloudBatches === 0 && localBatches > 0) {
+          console.log(`Cloud vierge détecté. Envoi automatique des ${localBatches} lots locaux vers le Cloud...`);
+          saveProductsToCloud(true);
+          return;
+        }
+
+        // Sinon, synchronisation temps réel depuis le cloud
+        isApplyingCloudSnapshot = true;
+        products = data.products;
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+        renderProducts();
+        updateKpiCounts();
+        renderMultiLotAlerts();
+        isApplyingCloudSnapshot = false;
+
+        const hasPendingWrites = doc.metadata.hasPendingWrites;
+        if (hasPendingWrites) {
+          updateCloudStatus('connecting', 'Synchronisation...');
+        } else {
+          updateCloudStatus('online', 'Équipe synchronisée');
+        }
+        return;
+      }
+    }
+
+    // Le document Cloud n'existe pas encore
+    const localBatches = countTotalBatches(products);
+    if (localBatches > 0) {
+      console.log(`Initialisation du document Cloud avec ${localBatches} lots locaux...`);
+      saveProductsToCloud(true);
+    } else {
+      updateCloudStatus('online', 'Cloud connecté');
+    }
+  }, (err) => {
+    console.warn('Erreur écoute temps réel Cloud:', err);
+    if (err.code === 'permission-denied') {
+      updateCloudStatus('warning', 'Règles Firebase');
+    } else {
+      updateCloudStatus('offline', 'Hors-ligne');
+    }
+  });
+}
+
+function saveProductsToCloud(silent = false) {
+  if (!db) return;
+  const inventoryDoc = db.collection('inventory').doc('current');
+  const payload = {
+    products: products,
+    updatedAt: new Date().toISOString(),
+    batchesCount: countTotalBatches(products),
+    appVersion: APP_VERSION
+  };
+
+  inventoryDoc.set(payload).then(() => {
+    updateCloudStatus('online', 'Équipe synchronisée');
+    if (!silent) {
+      console.log('Stock synchronisé sur Firestore.');
+    }
+  }).catch(err => {
+    console.warn('Erreur set Firestore:', err);
+    if (err.code === 'permission-denied') {
+      updateCloudStatus('warning', 'Règles Firebase');
+    } else {
+      updateCloudStatus('offline', 'Hors-ligne');
+    }
+  });
+}
+
+function pushLocalToCloud() {
+  if (!db) {
+    alert('Firebase non initialisé sur cet appareil.');
+    return;
+  }
+  const batches = countTotalBatches(products);
+  if (confirm(`Envoyer tout le stock de cet appareil (${products.length} produits, ${batches} lots) sur le Cloud ?\n\nTous vos collègues recevront ces données instantanément.`)) {
+    saveProductsToCloud();
+    alert('✅ Envoi réussi ! Vos collègues recevront ces données en direct.');
+    closeSettingsModal();
+  }
+}
+
+function pullCloudToLocal() {
+  if (!db) {
+    alert('Firebase non initialisé sur cet appareil.');
+    return;
+  }
+  db.collection('inventory').doc('current').get().then((doc) => {
+    if (doc.exists && doc.data() && Array.isArray(doc.data().products)) {
+      products = doc.data().products;
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      renderProducts();
+      updateKpiCounts();
+      renderMultiLotAlerts();
+      alert('✅ Données Cloud récupérées avec succès !');
+      closeSettingsModal();
+    } else {
+      alert('Aucune donnée trouvée sur le Cloud pour le moment.');
+    }
+  }).catch(err => {
+    alert('Erreur lors de la récupération Cloud : ' + (err.message || err));
+  });
+}
+
 function saveProductsToStorage() {
   localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
   updateKpiCounts();
   renderMultiLotAlerts();
+  if (!isApplyingCloudSnapshot) {
+    saveProductsToCloud();
+  }
 }
 
 function updateLiveDate() {
@@ -1174,6 +1350,59 @@ function exportDlcReport() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+// =============================================================================
+// SAUVEGARDE ET RESTAURATION LOCALE JSON
+// =============================================================================
+
+function exportBackupData() {
+  const data = {
+    app: 'BOB DLC',
+    version: APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    batchesCount: countTotalBatches(products),
+    products: products
+  };
+  const jsonStr = JSON.stringify(data, null, 2);
+  const blob = new Blob([jsonStr], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const todayIso = new Date().toISOString().split('T')[0];
+  a.href = url;
+  a.download = `BOB_DLC_SAUVEGARDE_${todayIso}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+function importBackupData(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const data = JSON.parse(e.target.result);
+      if (data && Array.isArray(data.products)) {
+        const count = countTotalBatches(data.products);
+        if (confirm(`Restaurer cette sauvegarde contenant ${data.products.length} produits (${count} lots enregistrés) ?\n\nCela mettra également à jour le Cloud pour vos collègues.`)) {
+          products = data.products;
+          saveProductsToStorage();
+          renderProducts();
+          updateKpiCounts();
+          renderMultiLotAlerts();
+          alert('✅ Sauvegarde restaurée avec succès ! Les données sont enregistrées et envoyées au Cloud.');
+          closeSettingsModal();
+        }
+      } else {
+        alert('Fichier JSON invalide (format BOB DLC non reconnu).');
+      }
+    } catch (err) {
+      alert('Erreur lors de la lecture du fichier JSON : ' + err.message);
+    }
+  };
+  reader.readAsText(file);
 }
 
 function escapeHtml(text) {
