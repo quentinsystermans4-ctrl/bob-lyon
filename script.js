@@ -10,7 +10,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initStickyHeader();
   initScrollSpy();
   initLightbox();
-  initDynamicBeers();
   initAnalyticsAndTracking();
 });
 
@@ -361,121 +360,6 @@ window.closeLightbox = function() {
     }
   }
 };
-
-/* --------------------------------------------------------------------------
-   7. CARTE DYNAMIQUE (Chargement depuis assets/data/beers.json)
-   -------------------------------------------------------------------------- */
-async function initDynamicBeers() {
-  const pressionsGrid = document.getElementById('pressions-grid');
-  const bouteillesGrid = document.getElementById('bouteilles-grid');
-  const flightContainer = document.getElementById('flight-banner-container');
-
-  if (!pressionsGrid && !bouteillesGrid) return;
-
-  try {
-    const response = await fetch('assets/data/beers.json');
-    if (!response.ok) {
-      console.info('Chargement beers.json : utilisation du rendu HTML existant.');
-      return;
-    }
-    const data = await response.json();
-
-    // 1. Rendu du Flight Découverte (si présent)
-    if (flightContainer && data.flight) {
-      const f = data.flight;
-      flightContainer.innerHTML = `
-        <div class="flight-banner-content">
-          <div class="flight-badge-group">
-            <span class="badge-pulse"><i class="fa-solid fa-beer-mug-empty"></i> ${escapeHtml(f.badge || 'FLIGHT DÉCOUVERTE')}</span>
-            <span class="beer-style-tag style-blonde">${escapeHtml(f.size || '4 x 12,5 cl')}</span>
-          </div>
-          <h4 class="flight-title">${escapeHtml(f.title)}</h4>
-          <p class="flight-desc">${f.description}</p>
-        </div>
-        <div class="flight-price-box">
-          <span class="flight-price-label">La Planche</span>
-          <span class="flight-price-val">${escapeHtml(f.price)}</span>
-          <span class="flight-price-sub">${escapeHtml(f.sub || "Au choix sur l'ardoise")}</span>
-        </div>
-      `;
-    }
-
-    // 2. Rendu des Pressions (9 becs)
-    if (pressionsGrid && Array.isArray(data.pressions)) {
-      const cardsHtml = data.pressions.map((beer, idx) => {
-        const featuredClass = beer.featured ? ' border-gold-soft' : '';
-        const badgeHtml = beer.badge 
-          ? `<span class="badge-pulse badge-guest"><i class="fa-solid fa-rotate"></i> ${escapeHtml(beer.badge)}</span>` 
-          : '';
-        const hhHtml = beer.priceHH50 ? `
-          <div class="price-hh">
-            <span class="hh-label">HH 50cl :</span>
-            <span class="hh-val">${escapeHtml(beer.priceHH50)}</span>
-          </div>` : '';
-
-        return `
-          <div class="menu-item-card${featuredClass}" id="${escapeHtml(beer.id || 'pression-' + (idx + 1))}">
-            <div class="card-top">
-              <div class="item-badge-row">
-                ${badgeHtml}
-                <span class="beer-style-tag ${escapeHtml(beer.styleClass || 'style-blonde')}">${escapeHtml(beer.style)}</span>
-                <span class="origin-tag">${escapeHtml(beer.brewery)} • ${escapeHtml(beer.abv)}</span>
-              </div>
-              <div class="price-container">
-                <div class="price-regular">
-                  <span class="price-size">25cl : <strong>${escapeHtml(beer.price25)}</strong></span>
-                  <span class="price-size">50cl : <strong>${escapeHtml(beer.price50)}</strong></span>
-                </div>
-                ${hhHtml}
-              </div>
-            </div>
-            <h4 class="item-title">${escapeHtml(beer.name)}</h4>
-            <p class="item-desc">${beer.description}</p>
-          </div>
-        `;
-      }).join('');
-
-      pressionsGrid.innerHTML = cardsHtml;
-    }
-
-    // 3. Rendu des Cans et Bouteilles
-    if (bouteillesGrid && Array.isArray(data.bouteilles)) {
-      const bouteillesHtml = data.bouteilles.map((item, idx) => {
-        return `
-          <div class="menu-item-card" id="${escapeHtml(item.id || 'bouteille-' + (idx + 1))}">
-            <div class="card-top">
-              <div class="item-badge-row">
-                <span class="beer-style-tag ${escapeHtml(item.styleClass || 'style-canette')}">${escapeHtml(item.type)}</span>
-                <span class="origin-tag">${escapeHtml(item.format)}</span>
-              </div>
-              <div class="price-list-vertical">
-                <div class="price-line">Sur place : <strong>${escapeHtml(item.priceDineIn)}</strong></div>
-                <div class="price-line">À emporter : <strong>${escapeHtml(item.priceTakeaway)}</strong></div>
-              </div>
-            </div>
-            <h4 class="item-title">${escapeHtml(item.name)}</h4>
-            <p class="item-desc">${escapeHtml(item.description)}</p>
-          </div>
-        `;
-      }).join('');
-
-      bouteillesGrid.innerHTML = bouteillesHtml;
-    }
-
-  } catch (err) {
-    console.warn('Erreur lors du chargement de la carte dynamique :', err);
-  }
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#039;');
-}
 
 /* --------------------------------------------------------------------------
    8. TRACKING ANALYTICS & CONVERSIONS (Privateaser, Appels, Maps, Social)
