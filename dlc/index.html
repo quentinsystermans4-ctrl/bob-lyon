@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v1.4.1 -->
-  <link rel="stylesheet" href="style.css?v=1.4.1">
+  <!-- Feuille de style dédiée avec cache-busting v1.5.0 -->
+  <link rel="stylesheet" href="style.css?v=1.5.0">
 </head>
 <body>
 
@@ -78,11 +78,11 @@
           <div>
             <div class="header-title-row">
               <h1>BOB • DLC & Hygiène</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.4.1</span></span>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.5.0</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
-              <span id="cloud-status-badge" class="cloud-status-badge" title="État de la synchronisation Firebase">
+              <span id="cloud-status-badge" class="cloud-status-badge" onclick="openSettingsModal()" title="Cliquer pour gérer la synchronisation Cloud">
                 <i class="fa-solid fa-cloud"></i> <span id="cloud-status-text">Connexion...</span>
               </span>
             </div>
@@ -123,6 +123,11 @@
         </div>
       </div>
 
+      <!-- Alerte critique DLC ≤ 3 jours (Alerte prioritaire J-3 pour DLC seules) -->
+      <div id="critical-dlc-alerts" class="critical-dlc-container hidden">
+        <!-- Rendu dynamique en JS -->
+      </div>
+
       <!-- Alertes multi-lots à confirmer (ex: pâtes à pizza proches DLC) -->
       <div id="multi-lot-alerts" class="multi-lot-alerts hidden">
         <!-- Rendu dynamique en JS -->
@@ -151,7 +156,7 @@
 
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.4.1</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.5.0</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
 
@@ -377,11 +382,16 @@
         <hr class="settings-divider">
 
         <div class="settings-section">
-          <h4>Export & Contrôles Hygiène</h4>
-          <p class="settings-desc">Téléchargez l'état des DLC pour les contrôles sanitaires (HACCP).</p>
-          <button type="button" class="btn-secondary" onclick="exportDlcReport()">
-            <i class="fa-solid fa-file-arrow-down"></i> Télécharger le rapport CSV
-          </button>
+          <h4>Registre & Contrôles Hygiène (HACCP)</h4>
+          <p class="settings-desc">Historique des lots archivés et rapport officiel DDPP (conservation légale 6 mois).</p>
+          <div class="settings-btn-group">
+            <button type="button" class="btn-secondary" onclick="openArchivesModal()">
+              <i class="fa-solid fa-box-archive"></i> Consulter le Registre d'Archives (<span id="archive-count-badge">0</span> lots)
+            </button>
+            <button type="button" class="btn-secondary" onclick="exportDlcReport()">
+              <i class="fa-solid fa-file-arrow-down"></i> Télécharger le rapport officiel DDPP (CSV)
+            </button>
+          </div>
         </div>
 
         <hr class="settings-divider">
@@ -398,7 +408,7 @@
 
         <div class="settings-section">
           <h4>Version & Mise à jour</h4>
-          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.4.1) si le téléphone a gardé l'ancien cache.</p>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.5.0) si le téléphone a gardé l'ancien cache.</p>
           <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
             <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
           </button>
@@ -416,6 +426,51 @@
     </div>
   </div>
 
+  <!-- MODAL 3 : Registre d'Archives HACCP -->
+  <div id="archives-modal" class="modal-overlay hidden">
+    <div class="modal-dialog modal-dialog-wide">
+      <div class="modal-header">
+        <div>
+          <span class="modal-subtitle">Conformité DDPP / Plan de Maîtrise Sanitaire</span>
+          <h3 class="modal-title">Registre d'Archives HACCP</h3>
+        </div>
+        <button class="btn-close" onclick="closeArchivesModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p class="settings-desc">Historique complet des denrées consommées ou sorties du stock au bar BOB (conservation 6 mois).</p>
+        <div id="archives-list" class="archives-list-container">
+          <!-- Rendu dynamique en JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4 : Sortie de stock / Clôture de lot -->
+  <div id="finish-modal" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <span class="modal-subtitle">Traçabilité des sorties HACCP</span>
+          <h3 class="modal-title" id="finish-modal-product-name">Clôturer ce lot</h3>
+        </div>
+        <button class="btn-close" onclick="closeFinishModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size:0.84rem;color:var(--text-secondary);margin-bottom:14px;" id="finish-modal-desc">
+          Ce lot sera archivé dans le registre sanitaire officiel du bar :
+        </p>
+        <div class="settings-btn-group">
+          <button type="button" class="btn-primary-action" onclick="confirmFinishWithReason('consumed')">
+            <i class="fa-solid fa-utensils"></i> 🍽️ Consommé au bar (Servi en planche)
+          </button>
+          <button type="button" class="btn-secondary" style="border-color:rgba(239,68,68,0.4);color:#f87171;" onclick="confirmFinishWithReason('discarded')">
+            <i class="fa-solid fa-trash-can"></i> 🗑️ Mis au rebut (Périmé ou altéré)
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Canvas caché pour compression d'image ultra-légère -->
   <canvas id="compress-canvas" style="display:none;"></canvas>
 
@@ -426,7 +481,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v1.4.1 -->
-  <script src="app.js?v=1.4.1"></script>
+  <!-- Script JS de l'application avec cache-busting v1.5.0 -->
+  <script src="app.js?v=1.5.0"></script>
 </body>
 </html>

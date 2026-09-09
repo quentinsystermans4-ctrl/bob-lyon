@@ -29,11 +29,14 @@ const STORAGE_KEYS = {
   PRODUCTS: 'bob_dlc_products_v1',
   PIN: 'bob_dlc_pin_v1',
   UNLOCKED: 'bob_dlc_unlocked_v1',
-  REMEMBER: 'bob_dlc_remember_v1'
+  REMEMBER: 'bob_dlc_remember_v1',
+  ARCHIVES: 'bob_dlc_archives_v1'
 };
 
 // État global en mémoire
 let products = [];
+let archivedBatches = [];
+let pendingFinishBatch = null;
 let currentFilterCategory = 'all';
 let currentFilterStatus = 'all';
 let activeEditingProductId = null;
@@ -63,12 +66,14 @@ document.addEventListener('DOMContentLoaded', () => {
   checkPinAuth();
   renderProducts();
   updateKpiCounts();
+  renderCriticalDlcAlerts();
   renderMultiLotAlerts();
+  updateArchiveBadge();
   initFirebase();
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.4.1').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.5.0').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -76,7 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.4.1';
+const APP_VERSION = 'v1.5.0';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -124,6 +129,19 @@ function initStorage() {
     products = [...DEFAULT_PRODUCTS];
     saveProductsToStorage();
   }
+
+  // Initialisation du registre d'archives HACCP
+  const storedArchives = localStorage.getItem(STORAGE_KEYS.ARCHIVES);
+  if (storedArchives) {
+    try {
+      archivedBatches = JSON.parse(storedArchives);
+    } catch (e) {
+      archivedBatches = [];
+    }
+  } else {
+    archivedBatches = [];
+  }
+  updateArchiveBadge();
 }
 
 function countTotalBatches(items = products) {
@@ -162,10 +180,26 @@ function initFirebase() {
     });
 
     listenToCloudInventory();
+    listenToCloudArchives();
   } catch (err) {
     console.error('Erreur init Firebase:', err);
     updateCloudStatus('error', 'Erreur Cloud');
   }
+}
+
+function listenToCloudArchives() {
+  if (!db) return;
+  db.collection('archived_batches').onSnapshot(snapshot => {
+    if (!snapshot.empty) {
+      const cloudArchives = [];
+      snapshot.forEach(doc => cloudArchives.push(doc.data()));
+      cloudArchives.sort((a, b) => new Date(b.closedAt) - new Date(a.closedAt));
+      archivedBatches = cloudArchives;
+      localStorage.setItem(STORAGE_KEYS.ARCHIVES, JSON.stringify(archivedBatches));
+      updateArchiveBadge();
+      renderArchivesList();
+    }
+  }, err => console.warn('Erreur écoute archives Cloud:', err));
 }
 
 function listenToCloudInventory() {
@@ -201,6 +235,7 @@ function listenToCloudInventory() {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
       renderProducts();
       updateKpiCounts();
+      renderCriticalDlcAlerts();
       renderMultiLotAlerts();
       isApplyingCloudSnapshot = false;
 
@@ -300,6 +335,7 @@ function pullCloudToLocal() {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
       renderProducts();
       updateKpiCounts();
+      renderCriticalDlcAlerts();
       renderMultiLotAlerts();
       alert(`✅ ${products.length} produits récupérés du Cloud !`);
       closeSettingsModal();
@@ -314,6 +350,7 @@ function pullCloudToLocal() {
 function saveProductsToStorage(specificProduct = null) {
   localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
   updateKpiCounts();
+  renderCriticalDlcAlerts();
   renderMultiLotAlerts();
   if (!isApplyingCloudSnapshot && db) {
     if (specificProduct) {
@@ -427,7 +464,7 @@ function updateBarPin() {
 }
 
 // =============================================================================
-// 4. CALCULS DES DLC & CODES COULEURS
+// 4. CALCULS DES DLC, DLUO & CODES COULEURS
 // =============================================================================
 
 function getDaysRemaining(dlcDateStr) {
@@ -443,21 +480,52 @@ function getDaysRemaining(dlcDateStr) {
   return Math.round(diffTime / (1000 * 60 * 60 * 24));
 }
 
-function getStatusFromDays(days) {
-  if (days === null || days === undefined) return 'none';
-  if (days <= 0) return 'red';
-  if (days <= 7) return 'orange';
-  return 'green';
+function getBatchStatus(batch) {
+  if (!batch || !batch.dlc) return 'none';
+  const days = getDaysRemaining(batch.dlc);
+  if (days === null) return 'none';
+  const isDLC = (batch.type || 'DLC') === 'DLC';
+
+  if (isDLC) {
+    // DLC : Date Limite de Consommation impérative (Santé / Répression des fraudes)
+    if (days <= 0) return 'red';           // Périmé sanitaire (interdiction de vente/consommation)
+    if (days <= 3) return 'critical-dlc';  // Alerte critique J-3 (Point 1 - priorité service bar)
+    if (days <= 7) return 'orange';        // À passer en priorité (≤ 7 jours)
+    return 'green';                        // Conforme (> 7 jours)
+  } else {
+    // DLUO / DDM : Date de Durabilité Minimale (Qualité organoleptique uniquement, aucun danger sanitaire)
+    if (days <= 0) return 'dluo-exceeded'; // DLUO dépassée (autorisée à la vente et consommation)
+    if (days <= 7) return 'orange-dluo';   // DLUO proche (≤ 7 jours)
+    return 'green';                        // Conforme (> 7 jours)
+  }
 }
 
 function getProductStatus(product) {
   if (!product.batches || product.batches.length === 0) return 'none';
-  let minDays = Infinity;
+  let hasRed = false;
+  let hasCriticalDlc = false;
+  let hasOrange = false;
+  let hasDluoExceeded = false;
+  let hasOrangeDluo = false;
+  let hasGreen = false;
+
   product.batches.forEach(b => {
-    const days = getDaysRemaining(b.dlc);
-    if (days !== null && days < minDays) minDays = days;
+    const s = getBatchStatus(b);
+    if (s === 'red') hasRed = true;
+    else if (s === 'critical-dlc') hasCriticalDlc = true;
+    else if (s === 'orange') hasOrange = true;
+    else if (s === 'dluo-exceeded') hasDluoExceeded = true;
+    else if (s === 'orange-dluo') hasOrangeDluo = true;
+    else if (s === 'green') hasGreen = true;
   });
-  return getStatusFromDays(minDays);
+
+  if (hasRed) return 'red';
+  if (hasCriticalDlc) return 'critical-dlc';
+  if (hasOrange) return 'orange';
+  if (hasDluoExceeded) return 'dluo-exceeded';
+  if (hasOrangeDluo) return 'orange-dluo';
+  if (hasGreen) return 'green';
+  return 'none';
 }
 
 // =============================================================================
@@ -475,18 +543,35 @@ function renderProducts() {
     }
     if (currentFilterStatus !== 'all') {
       const status = getProductStatus(p);
-      if (status !== currentFilterStatus) return false;
+      if (currentFilterStatus === 'red') {
+        if (status !== 'red') return false;
+      } else if (currentFilterStatus === 'orange') {
+        if (status !== 'orange' && status !== 'critical-dlc' && status !== 'orange-dluo') return false;
+      } else if (currentFilterStatus === 'green') {
+        if (status !== 'green') return false;
+      }
     }
     return true;
   });
 
-  // Tri automatique : Rouge en premier, puis Orange, puis Vert, puis None
-  const statusPriority = { red: 0, orange: 1, green: 2, none: 3 };
+  // Tri automatique : Rouge sanitaire en premier, puis Critique J-3, puis Orange, puis DLUO dépassée, puis Vert, puis None
+  const statusPriority = {
+    'red': 0,
+    'critical-dlc': 1,
+    'orange': 2,
+    'dluo-exceeded': 3,
+    'orange-dluo': 4,
+    'green': 5,
+    'none': 6
+  };
+
   filtered.sort((a, b) => {
     const statusA = getProductStatus(a);
     const statusB = getProductStatus(b);
-    if (statusPriority[statusA] !== statusPriority[statusB]) {
-      return statusPriority[statusA] - statusPriority[statusB];
+    const pA = statusPriority[statusA] !== undefined ? statusPriority[statusA] : 9;
+    const pB = statusPriority[statusB] !== undefined ? statusPriority[statusB] : 9;
+    if (pA !== pB) {
+      return pA - pB;
     }
     const minDaysA = a.batches && a.batches.length > 0 ? Math.min(...a.batches.map(b => getDaysRemaining(b.dlc))) : 9999;
     const minDaysB = b.batches && b.batches.length > 0 ? Math.min(...b.batches.map(b => getDaysRemaining(b.dlc))) : 9999;
@@ -530,11 +615,10 @@ function renderProducts() {
     if (hasBatches) {
       html += `<div class="batches-list">`;
       prod.batches.forEach((batch, index) => {
-        const days = getDaysRemaining(batch.dlc);
-        const status = getStatusFromDays(days);
-        const badgeClass = `badge-${status}`;
+        const batchStatus = getBatchStatus(batch);
+        const badgeClass = `badge-${batchStatus}`;
         const formattedDate = formatDateFr(batch.dlc);
-        const statusText = getStatusBadgeText(days);
+        const statusText = getStatusBadgeText(batch);
         const typeBadge = (batch.type || 'DLC') === 'DLC' 
           ? `<span class="badge-type-dlc">DLC</span>` 
           : `<span class="badge-type-dluo">DLUO</span>`;
@@ -553,7 +637,7 @@ function renderProducts() {
               ${batch.photo ? `
                 <img src="${batch.photo}" class="batch-photo-thumb" alt="Étiquette" onclick="openLightbox('${batch.photo}', '${escapeHtml(prod.name)} - Lot ${index + 1}')" title="Agrandir l'étiquette">
               ` : ''}
-              <button class="btn-batch-finish" onclick="finishBatch('${prod.id}', '${batch.id}')" title="Marquer ce lot comme consommé/terminé">
+              <button class="btn-batch-finish" onclick="finishBatch('${prod.id}', '${batch.id}')" title="Sortie de stock / Clôturer ce lot pour le registre HACCP">
                 <i class="fa-solid fa-check"></i> Terminé
               </button>
             </div>
@@ -582,20 +666,117 @@ function updateKpiCounts() {
 
   products.forEach(prod => {
     const status = getProductStatus(prod);
+    // Distinction stricte : SEULES les DLC échues (risque sanitaire) comptent dans le rouge !
     if (status === 'red') red++;
-    else if (status === 'orange') orange++;
-    else if (status === 'green') green++;
+    else if (status === 'critical-dlc' || status === 'orange' || status === 'orange-dluo') orange++;
+    else if (status === 'green' || status === 'dluo-exceeded') green++;
   });
 
-  document.getElementById('count-red').textContent = red;
-  document.getElementById('count-orange').textContent = orange;
-  document.getElementById('count-green').textContent = green;
-  document.getElementById('count-total').textContent = products.length;
+  const redEl = document.getElementById('count-red');
+  const orangeEl = document.getElementById('count-orange');
+  const greenEl = document.getElementById('count-green');
+  const totalEl = document.getElementById('count-total');
+
+  if (redEl) redEl.textContent = red;
+  if (orangeEl) orangeEl.textContent = orange;
+  if (greenEl) greenEl.textContent = green;
+  if (totalEl) totalEl.textContent = products.length;
 }
 
 // =============================================================================
-// 6. ALERTES MULTI-LOTS & CONFIRMATION DE CONSOMMATION
+// 6. ALERTES CRITIQUES DLC ≤ 3J & CONFIRMATION MULTI-LOTS
 // =============================================================================
+
+function renderCriticalDlcAlerts() {
+  const container = document.getElementById('critical-dlc-alerts');
+  if (!container) return;
+
+  const criticals = [];
+  products.forEach(prod => {
+    if (prod.batches && prod.batches.length > 0) {
+      prod.batches.forEach((batch, idx) => {
+        const isDLC = (batch.type || 'DLC') === 'DLC';
+        // RÈGLE STRICTE : Exclusion des DLUO/DDM. Uniquement les denrées sous DLC impérative.
+        if (!isDLC) return;
+
+        const days = getDaysRemaining(batch.dlc);
+        const snoozeUntil = localStorage.getItem('snooze_crit_' + batch.id);
+        const isSnoozed = snoozeUntil && Date.now() < parseInt(snoozeUntil, 10);
+
+        // Alerte critique si DLC arrive à échéance entre 0 et 3 jours (J-3, J-2, J-1, J-0)
+        if (days !== null && days <= 3 && days >= 0 && !isSnoozed) {
+          criticals.push({
+            productId: prod.id,
+            productName: prod.name,
+            batchId: batch.id,
+            lotNum: idx + 1,
+            days: days,
+            dateStr: formatDateFr(batch.dlc),
+            multiple: prod.batches.length > 1
+          });
+        }
+      });
+    }
+  });
+
+  if (criticals.length === 0) {
+    container.classList.add('hidden');
+    container.innerHTML = '';
+    return;
+  }
+
+  // Trier par urgence croissante (J-0 en premier)
+  criticals.sort((a, b) => a.days - b.days);
+
+  let itemsHtml = '';
+  criticals.forEach(item => {
+    let urgencyText = '';
+    if (item.days === 0) {
+      urgencyText = `<strong style="color:var(--status-red);">Échoit AUJOURD'HUI</strong>`;
+    } else if (item.days === 1) {
+      urgencyText = `<strong style="color:#fbbf24;">Échoit DEMAIN (J-1)</strong>`;
+    } else {
+      urgencyText = `<strong style="color:#fbbf24;">Échoit dans ${item.days} jours (J-${item.days})</strong>`;
+    }
+
+    const lotLabel = item.multiple ? ` (Lot ${item.lotNum})` : '';
+
+    itemsHtml += `
+      <div class="critical-dlc-item">
+        <div class="critical-dlc-info">
+          <span>🔥 <strong>${escapeHtml(item.productName)}</strong>${lotLabel} &bull; DLC : ${item.dateStr} &bull; ${urgencyText}</span>
+        </div>
+        <div class="critical-dlc-actions">
+          <button class="btn-critical-consumed" onclick="finishBatch('${item.productId}', '${item.batchId}')" title="Sortir du stock">
+            <i class="fa-solid fa-check"></i> Sortir du stock
+          </button>
+          <button class="btn-batch-finish" style="padding:6px 10px;" onclick="snoozeCriticalAlert('${item.batchId}')" title="Masquer l'alerte pour ce shift (12h)">
+            <i class="fa-regular fa-clock"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = `
+    <div class="critical-dlc-banner">
+      <div class="critical-dlc-header">
+        <i class="fa-solid fa-fire-flame-curved"></i>
+        <span>ALERTE DLC CRITIQUE &le; 3 JOURS (À CONSOMMER EN PRIORITÉ)</span>
+      </div>
+      <div class="critical-dlc-list">
+        ${itemsHtml}
+      </div>
+    </div>
+  `;
+  container.classList.remove('hidden');
+}
+
+function snoozeCriticalAlert(batchId) {
+  const expiry = Date.now() + 12 * 60 * 60 * 1000; // 12h de répit pour le shift
+  localStorage.setItem('snooze_crit_' + batchId, expiry.toString());
+  renderCriticalDlcAlerts();
+}
 
 function renderMultiLotAlerts() {
   const container = document.getElementById('multi-lot-alerts');
@@ -666,9 +847,15 @@ function renderMultiLotAlerts() {
 function confirmBatchConsumed(productId, batchId) {
   const prod = products.find(p => p.id === productId);
   if (!prod || !prod.batches) return;
+  const batch = prod.batches.find(b => b.id === batchId);
+  if (batch) {
+    archiveBatchRecord(prod, batch, 'consumed');
+  }
   prod.batches = prod.batches.filter(b => b.id !== batchId);
   saveProductsToStorage(prod);
   renderProducts();
+  renderCriticalDlcAlerts();
+  renderMultiLotAlerts();
   if (navigator.vibrate) navigator.vibrate(35);
 }
 
@@ -700,17 +887,52 @@ function getCategoryLabel(cat) {
   }
 }
 
-function getStatusBadgeText(days) {
-  if (days < 0) return `Périmé (${Math.abs(days)}j)`;
-  if (days === 0) return `Périme AUJOURD'HUI`;
-  if (days === 1) return `Demain (J-1)`;
-  return `Dans ${days} jours`;
+function getStatusBadgeText(batchOrDays) {
+  let days, type;
+  if (typeof batchOrDays === 'object' && batchOrDays !== null) {
+    days = getDaysRemaining(batchOrDays.dlc);
+    type = batchOrDays.type || 'DLC';
+  } else {
+    days = batchOrDays;
+    type = 'DLC';
+  }
+
+  if (type === 'DLC') {
+    if (days < 0) return `Périmé (${Math.abs(days)}j)`;
+    if (days === 0) return `Périme AUJOURD'HUI`;
+    if (days === 1) return `Demain (J-1)`;
+    if (days === 2) return `J-2 (Urgent)`;
+    if (days === 3) return `J-3 (Priorité)`;
+    return `Dans ${days} jours`;
+  } else {
+    // DLUO / DDM
+    if (days < 0) return `DLUO passée (+${Math.abs(days)}j)`;
+    if (days === 0) return `DLUO ce jour`;
+    if (days <= 7) return `DLUO dans ${days}j`;
+    return `DLUO : ${days}j`;
+  }
 }
 
 function formatDateFr(isoDate) {
   if (!isoDate) return '';
   const [y, m, d] = isoDate.split('-');
   return `${d}/${m}/${y}`;
+}
+
+function formatDateTimeFr(isoDateStr) {
+  if (!isoDateStr) return '';
+  try {
+    const d = new Date(isoDateStr);
+    return d.toLocaleDateString('fr-FR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (e) {
+    return isoDateStr;
+  }
 }
 
 // =============================================================================
@@ -829,15 +1051,141 @@ function saveDlc() {
   closeDlcModal();
 }
 
+function archiveBatchRecord(prod, batch, reason = 'consumed') {
+  const archiveItem = {
+    archiveId: 'arch_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+    productId: prod.id,
+    productName: prod.name,
+    category: prod.category,
+    batchId: batch.id,
+    dlc: batch.dlc,
+    type: batch.type || 'DLC',
+    note: batch.note || '',
+    photo: batch.photo || null,
+    reason: reason, // 'consumed' | 'discarded'
+    closedAt: new Date().toISOString()
+  };
+
+  archivedBatches.unshift(archiveItem);
+  localStorage.setItem(STORAGE_KEYS.ARCHIVES, JSON.stringify(archivedBatches));
+  updateArchiveBadge();
+
+  if (db) {
+    db.collection('archived_batches').doc(archiveItem.archiveId).set(archiveItem)
+      .catch(err => console.warn('Erreur archivage Cloud:', err));
+  }
+}
+
 function finishBatch(productId, batchId) {
   const prod = products.find(p => p.id === productId);
   if (!prod || !prod.batches) return;
+  const batch = prod.batches.find(b => b.id === batchId);
+  if (!batch) return;
 
-  if (confirm(`Confirmer que ce lot de ${prod.name} est consommé / terminé ?`)) {
-    prod.batches = prod.batches.filter(b => b.id !== batchId);
-    saveProductsToStorage(prod);
-    renderProducts();
+  pendingFinishBatch = { productId, batchId, prod, batch };
+
+  const nameEl = document.getElementById('finish-modal-product-name');
+  const descEl = document.getElementById('finish-modal-desc');
+  if (nameEl) {
+    nameEl.textContent = `${prod.name} (${batch.type || 'DLC'} ${formatDateFr(batch.dlc)})`;
   }
+  if (descEl) {
+    descEl.textContent = `Sortie de stock sanitaire. Choisissez le motif pour le registre officiel HACCP :`;
+  }
+
+  const modal = document.getElementById('finish-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeFinishModal() {
+  const modal = document.getElementById('finish-modal');
+  if (modal) modal.classList.add('hidden');
+  pendingFinishBatch = null;
+}
+
+function confirmFinishWithReason(reason) {
+  if (!pendingFinishBatch) return;
+  const { productId, batchId, prod, batch } = pendingFinishBatch;
+
+  archiveBatchRecord(prod, batch, reason);
+
+  prod.batches = prod.batches.filter(b => b.id !== batchId);
+  saveProductsToStorage(prod);
+  closeFinishModal();
+  renderProducts();
+  updateKpiCounts();
+  renderCriticalDlcAlerts();
+  renderMultiLotAlerts();
+  if (navigator.vibrate) navigator.vibrate(40);
+}
+
+function updateArchiveBadge() {
+  const el = document.getElementById('archive-count-badge');
+  if (el) el.textContent = archivedBatches.length;
+}
+
+function openArchivesModal() {
+  renderArchivesList();
+  const modal = document.getElementById('archives-modal');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeArchivesModal() {
+  const modal = document.getElementById('archives-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function renderArchivesList() {
+  const container = document.getElementById('archives-list');
+  if (!container) return;
+
+  if (!archivedBatches || archivedBatches.length === 0) {
+    container.innerHTML = `
+      <div class="archive-empty-msg">
+        <i class="fa-solid fa-box-archive" style="font-size: 2.2rem; color: var(--color-gold); margin-bottom: 12px;"></i>
+        <p>Aucun lot archivé dans le registre sanitaire pour l'instant.</p>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin-top:6px;">Dès qu'un lot actif est marqué "Terminé" ou mis au rebut, il est archivé ici pour les contrôles d'hygiène DDPP.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  archivedBatches.forEach((item) => {
+    const isConsumed = item.reason === 'consumed';
+    const tagHtml = isConsumed
+      ? `<span class="archive-tag consumed"><i class="fa-solid fa-utensils"></i> Consommé au bar</span>`
+      : `<span class="archive-tag discarded"><i class="fa-solid fa-trash-can"></i> Mis au rebut</span>`;
+
+    const closedDateFormatted = formatDateTimeFr(item.closedAt);
+    const dlcFormatted = formatDateFr(item.dlc);
+    const typeBadge = (item.type || 'DLC') === 'DLC'
+      ? `<span class="badge-type-dlc">DLC</span>`
+      : `<span class="badge-type-dluo">DLUO</span>`;
+
+    html += `
+      <div class="archive-card">
+        <div class="archive-card-left">
+          <div class="archive-card-title">${escapeHtml(item.productName)}</div>
+          <div class="archive-card-meta">
+            ${tagHtml}
+            <span>${typeBadge} : <strong>${dlcFormatted}</strong></span>
+            ${item.note ? ` &bull; <span>Lot : ${escapeHtml(item.note)}</span>` : ''}
+            <div style="margin-top:4px; color:var(--text-muted); font-size:0.7rem;">
+              <i class="fa-regular fa-calendar-check"></i> Clôturé le ${closedDateFormatted}
+            </div>
+          </div>
+        </div>
+        ${item.photo ? `
+          <div class="archive-card-right">
+            <img src="${item.photo}" class="batch-photo-thumb" alt="Étiquette" onclick="openLightbox('${item.photo}', 'Archive : ${escapeHtml(item.productName)}')" title="Voir l'étiquette">
+          </div>
+        ` : ''}
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
 }
 
 function deleteProduct(productId) {
@@ -1241,8 +1589,11 @@ function shareToWhatsAppGroup() {
   const dateStr = new Date().toLocaleDateString('fr-FR', todayOptions);
   const capitalizedDate = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
 
-  const expiredList = [];
-  const urgentList = [];
+  const expiredDlcList = [];
+  const expiredDluoList = [];
+  const criticalDlcList = []; // J-3, J-2, J-1, J-0 STRICTEMENT DLC
+  const urgentDlcList = [];   // J-4 à J-7 DLC
+  const approachingDluoList = []; // DLUO ≤ 7j
   const multiLotCheckList = [];
   const okList = [];
   const emptyList = [];
@@ -1257,23 +1608,37 @@ function shareToWhatsAppGroup() {
     if (prod.batches.length > 1) {
       const olderBatch = prod.batches[0];
       const olderDays = getDaysRemaining(olderBatch.dlc);
-      if (olderDays <= 7) {
+      if (olderDays !== null && olderDays <= 7) {
         multiLotCheckList.push(`• *${prod.name}* : Le Lot 1 (${olderBatch.type || 'DLC'} ${formatDateFr(olderBatch.dlc)}) est-il consommé pour entamer le Lot 2 ?`);
       }
     }
 
     prod.batches.forEach((batch, idx) => {
       const days = getDaysRemaining(batch.dlc);
+      if (days === null) return;
       const batchLabel = prod.batches.length > 1 ? `${prod.name} (Lot ${idx + 1})` : prod.name;
       const formattedDate = formatDateFr(batch.dlc);
-      const typeStr = batch.type || 'DLC';
+      const isDLC = (batch.type || 'DLC') === 'DLC';
 
-      if (days <= 0) {
-        expiredList.push(`• *${batchLabel}* [${typeStr}] : Échu le ${formattedDate} (${days === 0 ? "AUJOURD'HUI" : Math.abs(days) + 'j de retard'})`);
-      } else if (days <= 7) {
-        urgentList.push(`• *${batchLabel}* [${typeStr}] : dans *${days} jour(s)* (${formattedDate})`);
+      if (isDLC) {
+        if (days <= 0) {
+          expiredDlcList.push(`• 🔴 *${batchLabel}* : Échu le ${formattedDate} (${days === 0 ? "AUJOURD'HUI" : Math.abs(days) + 'j de retard'}) ⚠️ RETIRER DU SERVICE`);
+        } else if (days <= 3) {
+          criticalDlcList.push(`• 🔥 *${batchLabel}* : dans *${days} jour(s)* (${formattedDate})`);
+        } else if (days <= 7) {
+          urgentDlcList.push(`• 🟠 *${batchLabel}* : dans *${days} jour(s)* (${formattedDate})`);
+        } else {
+          okList.push(`${prod.name} (${formattedDate})`);
+        }
       } else {
-        okList.push(`${prod.name} (${formattedDate})`);
+        // DLUO / DDM (Sécurité sanitaire garantie, qualité à apprécier)
+        if (days <= 0) {
+          expiredDluoList.push(`• 🔵 *${batchLabel}* [DLUO] : Passée le ${formattedDate} (Vente autorisée - Vérifier aspect/goût)`);
+        } else if (days <= 7) {
+          approachingDluoList.push(`• 🔵 *${batchLabel}* [DLUO] : dans *${days} jour(s)* (${formattedDate})`);
+        } else {
+          okList.push(`${prod.name} [DLUO] (${formattedDate})`);
+        }
       }
     });
   });
@@ -1287,18 +1652,31 @@ function shareToWhatsAppGroup() {
     msg += multiLotCheckList.join('\n') + `\n\n`;
   }
 
-  if (expiredList.length > 0) {
-    msg += `🔴 *PÉRIMÉ (À RETIRER D'URGENCE) :*\n`;
-    msg += expiredList.join('\n') + `\n\n`;
-  } else {
-    msg += `🔴 *Périmés :* Aucun ✅\n\n`;
+  if (criticalDlcList.length > 0) {
+    msg += `🔥 *ALERTES DLC CRITIQUES (≤ 3 JOURS) :*\n`;
+    msg += criticalDlcList.join('\n') + `\n\n`;
   }
 
-  if (urgentList.length > 0) {
-    msg += `🟠 *À PASSER EN PRIORITÉ (≤ 7 jours) :*\n`;
-    msg += urgentList.join('\n') + `\n\n`;
+  if (expiredDlcList.length > 0) {
+    msg += `🔴 *DLC PÉRIMÉES (DANGER SANITAIRE - RETRAIT IMMÉDIAT) :*\n`;
+    msg += expiredDlcList.join('\n') + `\n\n`;
   } else {
-    msg += `🟠 *Urgences :* Rien sous 7 jours 👍\n\n`;
+    msg += `🔴 *DLC Périmées :* Aucune ✅\n\n`;
+  }
+
+  if (urgentDlcList.length > 0) {
+    msg += `🟠 *DLC À PASSER EN PRIORITÉ (≤ 7 jours) :*\n`;
+    msg += urgentDlcList.join('\n') + `\n\n`;
+  }
+
+  if (expiredDluoList.length > 0) {
+    msg += `ℹ️ *DLUO/DDM DÉPASSÉES (Vente autorisée) :*\n`;
+    msg += expiredDluoList.join('\n') + `\n\n`;
+  }
+
+  if (approachingDluoList.length > 0) {
+    msg += `🔵 *DLUO sous 7 jours :*\n`;
+    msg += approachingDluoList.join('\n') + `\n\n`;
   }
 
   if (okList.length > 0) {
@@ -1364,7 +1742,26 @@ function closeSettingsModal() {
 }
 
 function exportDlcReport() {
-  let csv = '\uFEFFCatégorie;Produit;Numéro Lot;Type (DLC/DLUO);Date Limite;Jours Restants;Statut;Note/Lot Fournisseur;Photo Présente;Dernière Mise à Jour\n';
+  const todayIso = new Date().toISOString().split('T')[0];
+  const nowFr = new Date().toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  let csv = '\uFEFF';
+  csv += '# =============================================================================\n';
+  csv += '# REGISTRE OFFICIEL DE TRAÇABILITÉ SANITAIRE & PLAN DE MAÎTRISE SANITAIRE (PMS)\n';
+  csv += '# Établissement : BOB • Blonde ou Brune (SARL BOB LYON)\n';
+  csv += '# Adresse : 12 rue Imbert Colomès, 69001 Lyon\n';
+  csv += `# Date et heure du relevé : ${nowFr}\n`;
+  csv += '# Règlements CE 178/2002 (Art. 18) & CE 852/2004 - Contrôle officiel DDPP\n';
+  csv += '# =============================================================================\n\n';
+
+  csv += '### 1. STOCK ACTIF DE DENRÉES ALIMENTAIRES\n';
+  csv += 'Catégorie;Produit;Numéro Lot Interne;Type (DLC/DLUO);Date Limite;Jours Restants;Statut Sanitaire;N° Lot Fabricant / Note;Photo Présente;Dernière Mise à Jour\n';
 
   products.forEach(prod => {
     if (!prod.batches || prod.batches.length === 0) {
@@ -1372,19 +1769,41 @@ function exportDlcReport() {
     } else {
       prod.batches.forEach((b, idx) => {
         const days = getDaysRemaining(b.dlc);
-        const status = getStatusFromDays(days);
-        const statusLabel = status === 'red' ? 'Périmé' : status === 'orange' ? 'À consommer (≤7j)' : 'Conforme (>7j)';
+        const status = getBatchStatus(b);
+        const isDLC = (b.type || 'DLC') === 'DLC';
+        let statusLabel = '';
+        if (isDLC) {
+          if (status === 'red') statusLabel = 'PÉRIMÉ (DANGER SANITAIRE)';
+          else if (status === 'critical-dlc') statusLabel = 'CRITIQUE (≤ 3 jours)';
+          else if (status === 'orange') statusLabel = 'À consommer (≤ 7 jours)';
+          else statusLabel = 'Conforme (> 7 jours)';
+        } else {
+          if (status === 'dluo-exceeded') statusLabel = 'DLUO dépassée (autorisé à la vente)';
+          else if (status === 'orange-dluo') statusLabel = 'DLUO proche (≤ 7 jours)';
+          else statusLabel = 'Conforme (> 7 jours)';
+        }
         csv += `"${prod.category}";"${prod.name}";"Lot ${idx + 1}";"${b.type || 'DLC'}";"${b.dlc}";"${days}";"${statusLabel}";"${b.note || ''}";"${b.photo ? 'Oui' : 'Non'}";"${b.updatedAt || ''}"\n`;
       });
     }
   });
 
+  csv += '\n### 2. REGISTRE D\'ARCHIVES DES SORTIES DE STOCK (Conservation légale 6 mois - Art. 18 CE 178/2002)\n';
+  csv += 'Date et Heure de Sortie;Motif de Sortie;Produit;Catégorie;Type (DLC/DLUO);Date Limite;N° Lot Fabricant;Photo Étiquette Archivée\n';
+
+  if (!archivedBatches || archivedBatches.length === 0) {
+    csv += '"Aucune archive pour le moment";"";"";"";"";"";"";""\n';
+  } else {
+    archivedBatches.forEach(item => {
+      const reasonLabel = item.reason === 'consumed' ? 'Consommé au bar' : 'Mis au rebut (périmé ou altéré)';
+      csv += `"${formatDateTimeFr(item.closedAt)}";"${reasonLabel}";"${item.productName}";"${item.category}";"${item.type || 'DLC'}";"${item.dlc}";"${item.note || ''}";"${item.photo ? 'Oui' : 'Non'}"\n`;
+    });
+  }
+
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const todayIso = new Date().toISOString().split('T')[0];
   a.href = url;
-  a.download = `RAPPORT_DLC_BOB_${todayIso}.csv`;
+  a.download = `RAPPORT_HACCP_BOB_${todayIso}.csv`;
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -1400,7 +1819,9 @@ function exportBackupData() {
     version: APP_VERSION,
     exportedAt: new Date().toISOString(),
     batchesCount: countTotalBatches(products),
-    products: products
+    archivesCount: archivedBatches.length,
+    products: products,
+    archivedBatches: archivedBatches
   };
   const jsonStr = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -1424,11 +1845,24 @@ function importBackupData(event) {
       const data = JSON.parse(e.target.result);
       if (data && Array.isArray(data.products)) {
         const count = countTotalBatches(data.products);
-        if (confirm(`Restaurer cette sauvegarde contenant ${data.products.length} produits (${count} lots enregistrés) ?\n\nCela mettra également à jour le Cloud pour vos collègues.`)) {
+        const archCount = Array.isArray(data.archivedBatches) ? data.archivedBatches.length : 0;
+        if (confirm(`Restaurer cette sauvegarde contenant ${data.products.length} produits (${count} lots actifs, ${archCount} archives) ?\n\nCela mettra également à jour le Cloud pour vos collègues.`)) {
           products = data.products;
+          if (Array.isArray(data.archivedBatches)) {
+            archivedBatches = data.archivedBatches;
+            localStorage.setItem(STORAGE_KEYS.ARCHIVES, JSON.stringify(archivedBatches));
+            updateArchiveBadge();
+            // Pousser les archives vers le Cloud
+            if (db) {
+              archivedBatches.forEach(arch => {
+                db.collection('archived_batches').doc(arch.archiveId).set(arch).catch(err => console.warn(err));
+              });
+            }
+          }
           saveProductsToStorage();
           renderProducts();
           updateKpiCounts();
+          renderCriticalDlcAlerts();
           renderMultiLotAlerts();
           alert('✅ Sauvegarde restaurée avec succès ! Les données sont enregistrées et envoyées au Cloud.');
           closeSettingsModal();

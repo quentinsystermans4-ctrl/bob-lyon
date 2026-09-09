@@ -267,14 +267,20 @@ body {
   align-items: center;
   gap: 5px;
   font-family: var(--font-heading);
-  font-size: 0.65rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  padding: 2px 7px;
+  padding: 4px 9px;
   border-radius: 10px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--border-soft);
   color: var(--text-muted);
+  cursor: pointer;
+  min-height: 28px;
   transition: all 0.25s ease;
+}
+
+.cloud-status-badge:active {
+  transform: scale(0.96);
 }
 
 .cloud-status-badge.online {
@@ -295,8 +301,9 @@ body {
   color: #fbbf24;
 }
 
-.cloud-status-badge.offline {
-  background: rgba(239, 68, 68, 0.12);
+.cloud-status-badge.offline,
+.cloud-status-badge.error {
+  background: rgba(239, 68, 68, 0.15);
   border-color: rgba(239, 68, 68, 0.4);
   color: #f87171;
 }
@@ -500,8 +507,17 @@ body {
   border-left: 4px solid var(--status-red);
 }
 
+.product-card.status-critical-dlc {
+  border-left: 4px solid #f59e0b;
+  box-shadow: 0 0 14px rgba(245, 158, 11, 0.12);
+}
+
 .product-card.status-orange {
   border-left: 4px solid var(--status-orange);
+}
+
+.product-card.status-dluo-exceeded {
+  border-left: 4px solid #3b82f6;
 }
 
 .product-card.status-green {
@@ -643,10 +659,34 @@ body {
   color: var(--status-red);
 }
 
+.badge-critical-dlc {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25), rgba(245, 158, 11, 0.25));
+  border: 1px solid #f59e0b;
+  color: #fbbf24;
+  animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.4); }
+  50% { box-shadow: 0 0 6px 1px rgba(245, 158, 11, 0.3); }
+}
+
 .badge-orange {
   background: var(--status-orange-bg);
   border: 1px solid var(--status-orange-border);
   color: var(--status-orange);
+}
+
+.badge-orange-dluo {
+  background: rgba(59, 130, 246, 0.12);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #60a5fa;
+}
+
+.badge-dluo-exceeded {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
 }
 
 .badge-green {
@@ -677,9 +717,9 @@ body {
 }
 
 .batch-photo-thumb {
-  width: 34px;
-  height: 34px;
-  border-radius: 6px;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
   border: 1px solid var(--border-gold);
   object-fit: cover;
   cursor: pointer;
@@ -1363,5 +1403,176 @@ body {
 /* Utilitaires */
 .hidden {
   display: none !important;
+}
+
+/* ==========================================================================
+   Bannière d'Alerte Critique DLC ≤ 3 jours (HACCP)
+   ========================================================================== */
+.critical-dlc-container {
+  margin-top: 10px;
+}
+
+.critical-dlc-banner {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.16), rgba(245, 158, 11, 0.16));
+  border: 1px solid rgba(245, 158, 11, 0.6);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 4px 18px rgba(245, 158, 11, 0.15);
+  animation: fadeIn 0.25s ease;
+}
+
+.critical-dlc-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 0.82rem;
+  color: #fbbf24;
+  margin-bottom: 10px;
+  letter-spacing: 0.02em;
+}
+
+.critical-dlc-header i {
+  color: #ef4444;
+  font-size: 1.05rem;
+  animation: flicker 1.5s infinite alternate;
+}
+
+@keyframes flicker {
+  0% { transform: scale(1); opacity: 0.85; }
+  100% { transform: scale(1.2); opacity: 1; }
+}
+
+.critical-dlc-item {
+  background: rgba(16, 16, 19, 0.65);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.critical-dlc-item:last-child {
+  margin-bottom: 0;
+}
+
+.critical-dlc-info {
+  font-size: 0.82rem;
+  color: var(--text-primary);
+  flex: 1;
+  min-width: 180px;
+  line-height: 1.35;
+}
+
+.critical-dlc-info strong {
+  color: #ffd15b;
+}
+
+.critical-dlc-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.btn-critical-consumed {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.4);
+  color: #4ade80;
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.76rem;
+  padding: 8px 12px;
+  min-height: 38px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.btn-critical-consumed:hover,
+.btn-critical-consumed:active {
+  background: #22c55e;
+  color: #101013;
+}
+
+/* ==========================================================================
+   Modale Registre d'Archives HACCP
+   ========================================================================== */
+.modal-dialog-wide {
+  max-width: 550px;
+  max-height: 85vh;
+}
+
+.archives-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+  max-height: 55vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.archive-card {
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.archive-card-left {
+  flex: 1;
+}
+
+.archive-card-title {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--text-primary);
+}
+
+.archive-card-meta {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+  margin-top: 3px;
+  line-height: 1.35;
+}
+
+.archive-tag {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  margin-right: 5px;
+}
+
+.archive-tag.consumed {
+  background: rgba(34, 197, 94, 0.15);
+  border: 1px solid rgba(34, 197, 94, 0.35);
+  color: #4ade80;
+}
+
+.archive-tag.discarded {
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #f87171;
+}
+
+.archive-empty-msg {
+  text-align: center;
+  padding: 30px 15px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
 }
 
