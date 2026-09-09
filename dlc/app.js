@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.2.0';
+const APP_VERSION = 'v1.3.0';
 
 async function forceAppUpdate() {
   if ('caches' in window) {
@@ -688,7 +688,7 @@ function handlePhotoUpload(event) {
       canvas.height = height;
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Compression JPEG 0.72 (~80-120Ko)
+      // Compression JPEG 0.72 (~80-120Ko) pour affichage et stockage
       const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
       currentUploadedPhotoBase64 = compressedDataUrl;
 
@@ -697,12 +697,42 @@ function handlePhotoUpload(event) {
       document.getElementById('photo-preview-box').classList.remove('hidden');
       document.getElementById('btn-camera-label').classList.add('hidden');
 
-      // Lancement immédiat de l'analyse OCR intelligente
-      triggerOcrAnalysis(compressedDataUrl);
+      // Pré-traitement spécifique OCR : N&B + rehaussement de contraste pour matrices de points et étiquettes thermiques
+      const ocrOptimizedDataUrl = preprocessImageForOcr(canvas);
+
+      // Lancement immédiat de l'analyse OCR intelligente calibrée
+      triggerOcrAnalysis(ocrOptimizedDataUrl);
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
+}
+
+function preprocessImageForOcr(canvas) {
+  const ocrCanvas = document.createElement('canvas');
+  ocrCanvas.width = canvas.width;
+  ocrCanvas.height = canvas.height;
+  const ocrCtx = ocrCanvas.getContext('2d');
+  ocrCtx.drawImage(canvas, 0, 0);
+
+  try {
+    const imgData = ocrCtx.getImageData(0, 0, ocrCanvas.width, ocrCanvas.height);
+    const data = imgData.data;
+    const contrast = 1.4; // 40% de contraste en plus
+    const factor = (259 * (contrast * 100 + 255)) / (255 * (259 - contrast * 100));
+
+    for (let i = 0; i < data.length; i += 4) {
+      const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+      const adjusted = Math.min(255, Math.max(0, factor * (gray - 128) + 128));
+      data[i] = adjusted;
+      data[i + 1] = adjusted;
+      data[i + 2] = adjusted;
+    }
+    ocrCtx.putImageData(imgData, 0, 0);
+    return ocrCanvas.toDataURL('image/jpeg', 0.85);
+  } catch (e) {
+    return canvas.toDataURL('image/jpeg', 0.75);
+  }
 }
 
 async function triggerOcrAnalysis(imageDataUrl) {
@@ -778,20 +808,12 @@ async function triggerOcrAnalysis(imageDataUrl) {
 
 function parseOcrLabelText(rawText) {
   const text = rawText.replace(/\r?\n/g, ' ');
-  let date = null;
-  let type = 'DLC';
-  let lot = null;
-
-  // 1. Détection Type DLC vs DLUO
   const lower = text.toLowerCase();
-  if (lower.includes('pref') || lower.includes('préf') || lower.includes('dluo') || lower.includes('ddm') || lower.includes('durabilite') || lower.includes('durabilité') || lower.includes('avant le')) {
-    type = 'DLUO';
-  } else if (lower.includes('jusqu') || lower.includes('dlc') || lower.includes('tard')) {
-    type = 'DLC';
-  }
 
-  // 2. Détection de Date (chiffres et mois en lettres)
+  // 1. Extraction de toutes les dates candidates
   const foundDates = [];
+  
+  // Format numérique : DD/MM/YYYY, DD.MM.YY, DD-MM-YYYY, etc.
   const numericDateRegex = /\b(0?[1-9]|[12][0-9]|3[01])[\/\.\-](0?[1-9]|1[012])[\/\.\-](20\d\d|\d{2})\b/g;
   let match;
   while ((match = numericDateRegex.exec(text)) !== null) {
@@ -799,37 +821,162 @@ function parseOcrLabelText(rawText) {
     let month = match[2].padStart(2, '0');
     let year = match[3];
     if (year.length === 2) year = '20' + year;
-    foundDates.push(`${year}-${month}-${day}`);
+    foundDates.push({
+      iso: `${year}-${month}-${day}`,
+      start: match.index,
+      end: match.index + match[0].length,
+      raw: match[0]
+    });
   }
 
+  // Format texte en français : "15 SEPT 2026", "24 OCTOBRE 26"
   const frenchMonths = {
-    'jan': '01', 'fev': '02', 'fév': '02', 'mar': '03', 'avr': '04', 'mai': '05', 'jui': '06',
-    'jul': '07', 'aou': '08', 'aoû': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12', 'déc': '12'
+    'jan': '01', 'fev': '02', 'mar': '03', 'avr': '04', 'mai': '05', 'jui': '06',
+    'jul': '07', 'aou': '08', 'sep': '09', 'oct': '10', 'nov': '11', 'dec': '12'
   };
   const textDateRegex = /\b(0?[1-9]|[12][0-9]|3[01])\s+([a-zA-Zàâéèêîïôûç]{3,9})\.?\s+(20\d\d|\d{2})\b/gi;
   while ((match = textDateRegex.exec(text)) !== null) {
     const day = match[1].padStart(2, '0');
-    const monthWord = match[2].toLowerCase().substring(0, 3);
+    let mWord = match[2].toLowerCase().substring(0, 3)
+      .replace('é', 'e').replace('û', 'u').replace('ô', 'o');
     let year = match[3];
     if (year.length === 2) year = '20' + year;
-    if (frenchMonths[monthWord]) {
-      foundDates.push(`${year}-${frenchMonths[monthWord]}-${day}`);
+    if (frenchMonths[mWord]) {
+      foundDates.push({
+        iso: `${year}-${frenchMonths[mWord]}-${day}`,
+        start: match.index,
+        end: match.index + match[0].length,
+        raw: match[0]
+      });
     }
   }
 
-  if (foundDates.length > 0) {
-    foundDates.sort();
-    date = foundDates[foundDates.length - 1]; // Sélectionne la date la plus éloignée (expiration vs fabrication)
+  // 2. Zones de Date d'Emballage (À EXCLURE ABSOLUMENT)
+  // "Emballé le", "Emb le", "Emb.", "Fabriqué le", "Fab le", "Date fabrication", "Conditionné le"
+  const packagingRegex = /(?:emball[eé]\s*le|emb\.?\s*le|emb\.?\s*:|date\s*d['’]emballage|fabriqu[eé]\s*le|fab\.?\s*le|fab\.?\s*:|date\s*fabrication|conditionn[eé]\s*le|date\s*conditionnement|\bpck\b|\bpack\b)/gi;
+  const packagingPositions = [];
+  while ((match = packagingRegex.exec(lower)) !== null) {
+    packagingPositions.push({ start: match.index, end: match.index + match[0].length });
   }
 
-  // 3. Détection du N° de Lot
-  const lotRegex = /(?:lot|n[°o]|l\s*[:\.]?)\s*([a-z0-9\-_]{2,15})/i;
-  const lotMatch = text.match(lotRegex);
-  if (lotMatch) {
-    lot = lotMatch[1].trim();
+  // 3. Zones de Consommation DLC vs DLUO
+  // DLC : "A consommer jusqu'au", "Consommer jusqu'a", "Jusqu'au", "DLC"
+  const dlcRegex = /(?:a\s*consommer\s*jusqu['’]?(?:au|a)|consommer\s*jusqu['’]?(?:au|a)|jusqu['’]?(?:au|a)|\bdlc\b|au\s*plus\s*tard\s*le)/gi;
+  const dlcPositions = [];
+  while ((match = dlcRegex.exec(lower)) !== null) {
+    dlcPositions.push({ start: match.index, end: match.index + match[0].length });
   }
 
-  return { date, type, lot };
+  // DLUO : "A consommer de preference avant", "De preference avant", "A consommer avant", "DLUO", "DDM"
+  const dluoRegex = /(?:a\s*consommer\s*de\s*pr[eé]f[eé]rence\s*avant\s*(?:le)?|de\s*pr[eé]f[eé]rence\s*avant\s*(?:le)?|a\s*consommer\s*avant\s*(?:le)?|\bdluo\b|\bddm\b|durabilit[eé]\s*minimale)/gi;
+  const dluoPositions = [];
+  while ((match = dluoRegex.exec(lower)) !== null) {
+    dluoPositions.push({ start: match.index, end: match.index + match[0].length });
+  }
+
+  // 4. Scoring de proximité pour éliminer la date d'emballage et élire la vraie DLC/DLUO
+  const scoredDates = [];
+  foundDates.forEach(d => {
+    let score = 0;
+    const datePos = d.start;
+    let detectedType = 'DLC';
+
+    // Pénalité massive si la date suit une mention d'emballage (< 45 caractères)
+    let isPackagingDate = false;
+    packagingPositions.forEach(p => {
+      const dist = datePos - p.end;
+      if (dist >= 0 && dist <= 45) {
+        isPackagingDate = true;
+      }
+    });
+    if (isPackagingDate) {
+      score -= 1000;
+    }
+
+    // Bonus proximité DLC
+    dlcPositions.forEach(p => {
+      const dist = datePos - p.end;
+      if (dist >= 0 && dist <= 50) {
+        score += 1500;
+        detectedType = 'DLC';
+      } else if (Math.abs(dist) <= 15) {
+        score += 800;
+        detectedType = 'DLC';
+      }
+    });
+
+    // Bonus proximité DLUO
+    dluoPositions.forEach(p => {
+      const dist = datePos - p.end;
+      if (dist >= 0 && dist <= 50) {
+        score += 1500;
+        detectedType = 'DLUO';
+      } else if (Math.abs(dist) <= 15) {
+        score += 800;
+        detectedType = 'DLUO';
+      }
+    });
+
+    // Bonus si la date est future (une DLC est par définition postérieure à l'emballage)
+    try {
+      const [y, m, dayNum] = d.iso.split('-').map(Number);
+      const targetDate = new Date(y, m - 1, dayNum);
+      const now = new Date();
+      now.setHours(0, 0, 0, 0);
+      if (targetDate >= now) {
+        score += 200;
+      }
+    } catch (e) {}
+
+    scoredDates.push({
+      iso: d.iso,
+      score: score,
+      type: detectedType,
+      raw: d.raw
+    });
+  });
+
+  scoredDates.sort((a, b) => b.score - a.score);
+
+  let bestDate = scoredDates.length > 0 ? scoredDates[0].iso : null;
+  let bestType = scoredDates.length > 0 ? scoredDates[0].type : 'DLC';
+
+  // Si score faible mais mots-clés présents globalement
+  if (scoredDates.length > 0 && scoredDates[0].score < 500) {
+    if (dluoPositions.length > 0 && dlcPositions.length === 0) {
+      bestType = 'DLUO';
+    } else if (dlcPositions.length > 0 && dluoPositions.length === 0) {
+      bestType = 'DLC';
+    }
+  }
+
+  // 5. Extraction Calibrée du Numéro de Lot (suite de 5 à 10 chiffres en priorité)
+  let bestLot = null;
+
+  // Priorité 1 : Mot-clé Lot / L / N° suivi de 5 à 10 chiffres
+  const lotKwDigitMatch = lower.match(/(?:lot|n[°o]|l[\.:\s])\s*[:.\s]?\s*(\d{5,10})\b/i);
+  if (lotKwDigitMatch) {
+    bestLot = lotKwDigitMatch[1];
+  } else {
+    // Priorité 2 : Mot-clé Lot / L / N° suivi de 4 à 10 caractères alphanumériques
+    const lotKwAlphanumMatch = lower.match(/(?:lot|n[°o]|l[\.:\s])\s*[:.\s]?\s*([a-z0-9\-_]{4,10})\b/i);
+    if (lotKwAlphanumMatch) {
+      bestLot = lotKwAlphanumMatch[1].toUpperCase();
+    } else {
+      // Priorité 3 : Suite isolée de 5 à 10 chiffres (non contenue dans les dates)
+      const digitMatches = text.match(/\b\d{5,10}\b/g);
+      if (digitMatches) {
+        for (let num of digitMatches) {
+          if (!foundDates.some(fd => fd.raw.includes(num))) {
+            bestLot = num;
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  return { date: bestDate, type: bestType, lot: bestLot };
 }
 
 function resetOcrStatus() {
