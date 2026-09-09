@@ -1,0 +1,72 @@
+{
+  "lastUpdated": "2026-09-09",
+  "currentWeekTitle": "Programme de la Semaine",
+  "currentWeekDates": "Du Lundi 07 au Samedi 12 Septembre",
+  "currentWeekTheme": "Rentrée festive, chocs sportifs & Grand Quiz du BOB",
+  "happyHourNotice": "⚡ HAPPY HOUR TOUS LES SOIRS DE 17H À 20H",
+  "events": [
+    {
+      "id": "event-1",
+      "day": "Lundi 07/09",
+      "dayName": "Lundi",
+      "time": "17h00 - 23h00",
+      "category": "jeux",
+      "categoryLabel": "Opening & Jeux",
+      "categoryIcon": "fa-solid fa-bullseye",
+      "badge": "Nouveaux Horaires",
+      "title": "Le Lundi au BOB & Fléchettes",
+      "description": "Le BOB ouvre désormais dès le lundi soir ! Cible de fléchettes en libre accès, jeux de cartes et dégustation de nos 9 pressions en Happy Hour (17h-20h)."
+    },
+    {
+      "id": "event-2",
+      "day": "Jeudi 10/09",
+      "dayName": "Jeudi",
+      "time": "20h30",
+      "category": "quiz",
+      "categoryLabel": "Soirée Quiz",
+      "categoryIcon": "fa-solid fa-brain",
+      "badge": "Lots & Tournées",
+      "title": "Grand Quiz du BOB #1 (Rentrée)",
+      "description": "Blind-tests musicaux, culture générale et questions décalées par équipe de 2 à 6 personnes. Tournées et cadeaux pour le podium ! Venez tôt pour avoir les meilleures places."
+    },
+    {
+      "id": "event-3",
+      "day": "Vendredi 11/09",
+      "dayName": "Vendredi",
+      "time": "20h45",
+      "category": "foot",
+      "categoryLabel": "Ligue 1",
+      "categoryIcon": "fa-solid fa-futbol",
+      "badge": "Grand Écran",
+      "title": "PSG 🆚 AS Monaco (Ligue 1)",
+      "description": "Le gros choc du vendredi soir diffusé sur notre écran géant dans une ambiance chaleureuse de supporters. Planches géantes et bières fraîches au comptoir."
+    },
+    {
+      "id": "event-4",
+      "day": "Samedi 12/09",
+      "dayName": "Samedi",
+      "time": "17h00",
+      "category": "echecs",
+      "categoryLabel": "Échecs Loisir",
+      "categoryIcon": "fa-solid fa-chess-knight",
+      "badge": "Partenariat Chessbar",
+      "title": "Tournoi d'Échecs (<1000 ELO)",
+      "description": "Tournoi convivial ouvert aux débutants et joueurs loisirs (<1000 ELO) en partenariat avec @chessbar_lyon. Participation libre, venez poser vos pions entre deux galopins !"
+    },
+    {
+      "id": "event-5",
+      "day": "Samedi 12/09",
+      "dayName": "Samedi",
+      "time": "21h05",
+      "category": "rugby",
+      "categoryLabel": "Top 14",
+      "categoryIcon": "fa-solid fa-trophy",
+      "badge": "Direct Rugby",
+      "title": "LOU Rugby 🆚 ASM Clermont",
+      "description": "Premier gros choc de Top 14 pour nos Lyonnais ! Retransmission en direct, ferveur et troisième mi-temps garantie jusqu'à 01h00."
+    }
+  ],
+  "storyTemplate": {
+    "caption": "🍻 LE PROGRAMME DE LA SEMAINE AU BOB ! 🍻\n\nNouveauté : On ouvre désormais dès le LUNDI 17h-23h ! ⚡\n\n🎯 LUNDI 07/09 (17h-23h) : Opening & Fléchettes\n🧠 JEUDI 10/09 (20h30) : Grand Quiz du BOB #1 (Lots & tournées 🎁)\n⚽ VENDREDI 11/09 (20h45) : PSG vs Monaco sur grand écran !\n♟️ SAMEDI 12/09 (17h00) : Tournoi d'Échecs (<1000 ELO) avec @chessbar_lyon\n🏉 SAMEDI 12/09 (21h05) : LOU Rugby vs ASM Clermont (Top 14)\n\n⚡ HAPPY HOUR TOUS LES SOIRS 17H - 20H\n📍 12 rue Imbert Colomès, Lyon 1er\n🔗 Réserve ta table ou la mezzanine via le lien en bio !"
+  }
+}

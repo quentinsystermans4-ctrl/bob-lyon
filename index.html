@@ -73,6 +73,12 @@
     "openingHoursSpecification": [
       {
         "@type": "OpeningHoursSpecification",
+        "dayOfWeek": "Monday",
+        "opens": "17:00",
+        "closes": "23:00"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
         "dayOfWeek": ["Tuesday", "Wednesday", "Thursday", "Friday"],
         "opens": "17:00",
         "closes": "01:00"
@@ -291,9 +297,10 @@
           <div class="info-card-icon"><i class="fa-regular fa-clock"></i></div>
           <div class="info-card-content">
             <h4>Horaires d'Ouverture</h4>
+            <p class="highlight-text"><strong>Lundi :</strong> 17h00 - 23h00</p>
             <p class="highlight-text"><strong>Mar - Ven :</strong> 17h00 - 01h00</p>
             <p class="highlight-text"><strong>Samedi :</strong> 16h00 - 01h00</p>
-            <span class="sub-text">Fermé dimanche & lundi</span>
+            <span class="sub-text">Fermé le dimanche</span>
           </div>
         </div>
 
@@ -468,6 +475,16 @@
         <p class="section-subtitle">
           Chaque semaine au BOB, profitez d'une ambiance conviviale, de tournois et d'événements exclusifs dans les Pentes.
         </p>
+      </div>
+
+      <!-- BLOC DYNAMIQUE : PROGRAMME DE LA SEMAINE EN DIRECT (Injecté via assets/data/agenda.json) -->
+      <div id="dynamic-weekly-agenda" class="weekly-agenda-wrapper"></div>
+
+      <!-- Les Rendez-vous Permanents du Bar -->
+      <div class="events-permanent-header text-center mb-4">
+        <h3 style="font-family: var(--font-heading); font-size: 1.2rem; color: #fff; text-transform: uppercase; letter-spacing: 0.05em;">
+          <i class="fa-solid fa-dice text-gold"></i> Les Activités & Jeux en Libre Accès
+        </h3>
       </div>
 
       <div class="events-grid">
@@ -1712,9 +1729,9 @@
                   <td>Dimanche</td>
                   <td class="text-right"><em>Fermé</em></td>
                 </tr>
-                <tr id="row-monday" class="row-closed">
-                  <td>Lundi</td>
-                  <td class="text-right"><em>Fermé</em></td>
+                <tr id="row-monday">
+                  <td><strong>Lundi</strong></td>
+                  <td class="text-right">17h00 — 23h00</td>
                 </tr>
               </tbody>
             </table>

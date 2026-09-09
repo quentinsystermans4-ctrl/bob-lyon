@@ -594,6 +594,83 @@
     }
 
     /* ==========================================================================
+       GÉNÉRATEUR VISUEL STORY 9:16 (Canvas HD)
+       ========================================================================== */
+    .story-visual-hero {
+      background: linear-gradient(135deg, rgba(255, 209, 91, 0.08) 0%, #18181f 100%);
+      border: 1.5px solid var(--gold);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-bottom: 30px;
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 209, 91, 0.15);
+      display: grid;
+      grid-template-columns: 320px 1fr;
+      gap: 28px;
+      align-items: start;
+    }
+
+    @media (max-width: 900px) {
+      .story-visual-hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .canvas-preview-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    #story-canvas {
+      width: 100%;
+      max-width: 300px;
+      aspect-ratio: 9/16;
+      border-radius: 18px;
+      border: 2px solid var(--gold);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.7);
+      background: #121214;
+      display: block;
+    }
+
+    .story-hero-content {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .btn-download-story {
+      background: var(--gold);
+      color: #121214;
+      border: none;
+      padding: 14px 22px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+      font-size: 1rem;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 16px rgba(212, 175, 55, 0.35);
+      width: 100%;
+    }
+
+    .btn-download-story:hover {
+      background: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 22px rgba(212, 175, 55, 0.55);
+    }
+
+    .story-actions-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================================================================
        VUE 3 : CALENDRIER COMPLET INTERACTIF
        ========================================================================== */
     .calendar-wrapper {
@@ -868,10 +945,10 @@
         </div>
 
         <div class="header-pills">
-          <span class="pill-info"><i class="fa-regular fa-clock"></i> Mar-Ven : 17h00 - 01h00 | Sam : 16h00 - 01h00</span>
+          <span class="pill-info"><i class="fa-regular fa-clock"></i> Lun : 17h-23h | Mar-Ven : 17h-01h | Sam : 16h-01h</span>
           <span class="pill-info hh"><i class="fa-solid fa-bolt"></i> Happy Hour : 17h00 - 20h00</span>
           <span class="pill-info" style="background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); color: #f87171;">
-            <i class="fa-solid fa-ban"></i> Dim & Lun : Fermé
+            <i class="fa-solid fa-ban"></i> Dimanche : Fermé
           </span>
         </div>
       </div>
@@ -1257,6 +1334,58 @@
               <p style="font-size: 0.85rem; color: var(--text-muted);">
                 Cliquez sur <strong>"Copier le texte"</strong> pour coller directement dans vos stories avec les bons emojis, tags et suggestions de stickers interactifs.
               </p>
+        </div>
+
+        <!-- NOUVEAU : GÉNÉRATEUR VISUEL DE STORY 9:16 (1080x1920) -->
+        <div class="story-visual-hero">
+          <div class="canvas-preview-wrapper">
+            <canvas id="story-canvas" width="1080" height="1920"></canvas>
+            <span style="font-size: 0.78rem; color: var(--gold); font-weight: 600;">
+              <i class="fa-solid fa-mobile-screen"></i> Aperçu Story 9:16 (HD 1080x1920)
+            </span>
+          </div>
+
+          <div class="story-hero-content">
+            <div>
+              <span class="story-type-badge" style="background: rgba(212, 175, 55, 0.15); color: var(--gold); border-color: rgba(212, 175, 55, 0.4);">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> Générateur 1-Clic Haute Définition
+              </span>
+              <h2 style="font-family: var(--font-title); font-size: 1.5rem; color: #fff; margin-top: 8px;">
+                Visuel Story de la Semaine Prêt à Télécharger
+              </h2>
+              <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 4px;">
+                Votre visuel Story Instagram officiel est généré en direct à partir de <strong>agenda.json</strong>. Téléchargez l'image PNG et collez la légende sans passer par Canva !
+              </p>
+            </div>
+
+            <!-- Bouton principal Télécharger PNG -->
+            <button class="btn-download-story" onclick="downloadStoryImage()">
+              <i class="fa-solid fa-cloud-arrow-down" style="font-size: 1.25rem;"></i>
+              <span>📸 Télécharger l'Image Story (PNG 1080x1920)</span>
+            </button>
+
+            <!-- Preview et copie de la légende -->
+            <div>
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <label style="font-size: 0.82rem; font-weight: 700; color: #fff; text-transform: uppercase;">
+                  <i class="fa-brands fa-instagram text-gold"></i> Texte & Légende Prêts à Coller
+                </label>
+                <button class="btn-action" style="padding: 4px 12px; font-size: 0.78rem;" onclick="reloadAgendaData()">
+                  <i class="fa-solid fa-arrows-rotate"></i> Recharger agenda.json
+                </button>
+              </div>
+              <div class="story-preview-box" id="dynamic-story-caption" style="max-height: 220px; overflow-y: auto;">Chargement du texte depuis agenda.json...</div>
+            </div>
+
+            <div class="story-actions-row">
+              <button class="btn-copy-story" style="flex: 1;" onclick="copyStory('dynamic-story-caption', this)">
+                <i class="fa-regular fa-copy"></i> Copier la légende Instagram
+              </button>
+            </div>
+
+            <div class="story-stickers-tip">
+              <strong><i class="fa-solid fa-wand-magic-sparkles"></i> Stickers conseillés à ajouter sur Instagram :</strong>
+              Sticker Lien vers <code>https://www.boblyon.fr/links/</code> + Boîte à questions / Sondage <em>« Tu viens quel soir ? »</em> + Compte à rebours Soirée Quiz.
             </div>
           </div>
         </div>
@@ -1958,6 +2087,239 @@ Allez l'OL ! Réservez vos tables en avance !
       closeAddModal();
       e.target.reset();
     }
+
+    // =========================================================================
+    // MODULE STORY INSTAGRAM 9:16 (Canvas HD 1080x1920) & AGENDA.JSON
+    // =========================================================================
+    let currentAgendaData = null;
+
+    async function loadAgendaData() {
+      try {
+        const res = await fetch('assets/data/agenda.json');
+        if (!res.ok) throw new Error('Fichier agenda.json introuvable');
+        currentAgendaData = await res.json();
+        
+        // Mettre à jour la légende texte
+        const captionBox = document.getElementById('dynamic-story-caption');
+        if (captionBox && currentAgendaData.storyTemplate && currentAgendaData.storyTemplate.caption) {
+          captionBox.innerText = currentAgendaData.storyTemplate.caption;
+        }
+
+        // Dessiner la story sur le canvas
+        renderStoryCanvas(currentAgendaData);
+      } catch (err) {
+        console.warn('Erreur chargement agenda.json :', err);
+        currentAgendaData = {
+          currentWeekTitle: "Programme de la Semaine",
+          currentWeekDates: "Du Lundi 07 au Samedi 12 Septembre",
+          currentWeekTheme: "Rentrée festive & chocs sportifs au BOB",
+          happyHourNotice: "⚡ HAPPY HOUR TOUS LES SOIRS 17H - 20H",
+          events: [
+            { day: "Lundi 07/09", time: "17h00 - 23h00", title: "Le Lundi au BOB & Fléchettes", categoryLabel: "Opening & Jeux", description: "Le BOB ouvre dès le lundi soir avec les 9 pressions en Happy Hour !" },
+            { day: "Jeudi 10/09", time: "20h30", title: "Grand Quiz du BOB #1", categoryLabel: "Soirée Quiz", description: "Blind-tests, culture G et tournées à gagner par équipe !" },
+            { day: "Vendredi 11/09", time: "20h45", title: "PSG vs AS Monaco (Ligue 1)", categoryLabel: "Grand Écran", description: "Gros choc diffusé sur grand écran dans une ambiance survoltée." },
+            { day: "Samedi 12/09", time: "17h00", title: "Tournoi d'Échecs (<1000 ELO)", categoryLabel: "Partenariat Chessbar", description: "Tournoi convivial loisir & débutants avec Chessbar." },
+            { day: "Samedi 12/09", time: "21h05", title: "LOU Rugby vs ASM Clermont", categoryLabel: "Top 14", description: "Supportez le LOU au BOB ! Pression fraîche et planches." }
+          ]
+        };
+        renderStoryCanvas(currentAgendaData);
+      }
+    }
+
+    function reloadAgendaData() {
+      loadAgendaData().then(() => {
+        showToast('🔄 Données agenda.json rechargées avec succès !');
+      });
+    }
+
+    function renderStoryCanvas(data) {
+      const canvas = document.getElementById('story-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const W = canvas.width;  // 1080
+      const H = canvas.height; // 1920
+
+      // 1. Fond sombre & dégradé avec halo doré en haut
+      ctx.fillStyle = '#111114';
+      ctx.fillRect(0, 0, W, H);
+
+      // Halo doré
+      const radial = ctx.createRadialGradient(W / 2, 280, 50, W / 2, 280, 500);
+      radial.addColorStop(0, 'rgba(255, 209, 91, 0.16)');
+      radial.addColorStop(1, 'transparent');
+      ctx.fillStyle = radial;
+      ctx.fillRect(0, 0, W, 800);
+
+      // Cadre doré fin autour de l'image (marge 36px)
+      ctx.strokeStyle = 'rgba(255, 209, 91, 0.35)';
+      ctx.lineWidth = 4;
+      ctx.strokeRect(36, 36, W - 72, H - 72);
+
+      // Liserés d'angles
+      ctx.strokeStyle = '#ffd15b';
+      ctx.lineWidth = 6;
+      ctx.beginPath();
+      ctx.moveTo(36, 120); ctx.lineTo(36, 36); ctx.lineTo(120, 36);
+      ctx.moveTo(W - 120, 36); ctx.lineTo(W - 36, 36); ctx.lineTo(W - 36, 120);
+      ctx.moveTo(36, H - 120); ctx.lineTo(36, H - 36); ctx.lineTo(120, H - 36);
+      ctx.moveTo(W - 120, H - 36); ctx.lineTo(W - 36, H - 36); ctx.lineTo(W - 36, H - 120);
+      ctx.stroke();
+
+      // 2. Header & Branding
+      ctx.textAlign = 'center';
+      
+      // Nom du bar
+      ctx.fillStyle = '#ffd15b';
+      ctx.font = 'bold 50px "Josefin Sans", sans-serif';
+      ctx.fillText('BOB • BLONDE OU BRUNE', W / 2, 130);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '600 24px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('PENTES DE LA CROIX-ROUSSE • LYON 1ER', W / 2, 175);
+
+      // Ligne dorée
+      ctx.strokeStyle = 'rgba(255, 209, 91, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(180, 210);
+      ctx.lineTo(W - 180, 210);
+      ctx.stroke();
+
+      // Titre de la semaine
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '800 58px "Josefin Sans", sans-serif';
+      ctx.fillText('AU PROGRAMME CETTE SEMAINE', W / 2, 285);
+
+      // Badge dates
+      const datesText = (data.currentWeekDates || 'SEMAINE EN COURS').toUpperCase();
+      ctx.font = '700 28px "Plus Jakarta Sans", sans-serif';
+      const textWidth = ctx.measureText(datesText).width;
+      const pillW = textWidth + 50;
+      const pillH = 46;
+      const pillX = (W - pillW) / 2;
+      const pillY = 315;
+
+      ctx.fillStyle = 'rgba(255, 209, 91, 0.18)';
+      ctx.beginPath();
+      ctx.roundRect(pillX, pillY, pillW, pillH, 23);
+      ctx.fill();
+      ctx.strokeStyle = '#ffd15b';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffd15b';
+      ctx.fillText(datesText, W / 2, pillY + 33);
+
+      // 3. Cartes des Événements (4 à 5 events)
+      const events = data.events || [];
+      const startY = 405;
+      const availableH = 1150;
+      const count = Math.min(events.length, 5);
+      const cardGap = 22;
+      const cardH = Math.floor((availableH - (count - 1) * cardGap) / count);
+
+      events.slice(0, count).forEach((ev, i) => {
+        const cardY = startY + i * (cardH + cardGap);
+        const cardX = 70;
+        const cardW = W - 140;
+
+        // Fond de carte
+        ctx.fillStyle = 'rgba(25, 25, 32, 0.95)';
+        ctx.beginPath();
+        ctx.roundRect(cardX, cardY, cardW, cardH, 20);
+        ctx.fill();
+
+        ctx.strokeStyle = 'rgba(255, 209, 91, 0.25)';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        // Ligne accentuée dorée à gauche
+        ctx.fillStyle = '#ffd15b';
+        ctx.beginPath();
+        ctx.roundRect(cardX, cardY, 8, cardH, [20, 0, 0, 20]);
+        ctx.fill();
+
+        // Jour & Heure (Tag haut)
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffd15b';
+        ctx.font = '800 28px "Josefin Sans", sans-serif';
+        const dayTimeText = `${(ev.day || '').toUpperCase()}  •  ${ev.time || ''}`;
+        ctx.fillText(dayTimeText, cardX + 35, cardY + 52);
+
+        // Badge Catégorie à droite
+        if (ev.categoryLabel || ev.badge) {
+          ctx.textAlign = 'right';
+          ctx.font = '700 20px "Plus Jakarta Sans", sans-serif';
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(ev.badge || ev.categoryLabel, cardX + cardW - 35, cardY + 50);
+        }
+
+        // Titre de l'événement
+        ctx.textAlign = 'left';
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 36px "Josefin Sans", sans-serif';
+        const titleY = cardY + 104;
+        let titleText = ev.title || '';
+        if (titleText.length > 38) titleText = titleText.substring(0, 36) + '...';
+        ctx.fillText(titleText, cardX + 35, titleY);
+
+        // Brève description
+        ctx.fillStyle = '#cbd5e1';
+        ctx.font = '400 22px "Plus Jakarta Sans", sans-serif';
+        let descText = ev.description || '';
+        if (descText.length > 64) descText = descText.substring(0, 62) + '...';
+        ctx.fillText(descText, cardX + 35, titleY + 44);
+      });
+
+      // 4. Footer & Call to Action (Bas de la Story)
+      const footerY = 1640;
+
+      // Bandeau Happy Hour
+      ctx.textAlign = 'center';
+      ctx.fillStyle = 'rgba(255, 209, 91, 0.15)';
+      ctx.beginPath();
+      ctx.roundRect(100, footerY, W - 200, 70, 35);
+      ctx.fill();
+      ctx.strokeStyle = '#ffd15b';
+      ctx.lineWidth = 2.5;
+      ctx.stroke();
+
+      ctx.fillStyle = '#ffd15b';
+      ctx.font = 'bold 28px "Josefin Sans", sans-serif';
+      ctx.fillText('⚡ HAPPY HOUR TOUS LES SOIRS DE 17H À 20H ⚡', W / 2, footerY + 45);
+
+      // Adresse & Métro
+      ctx.fillStyle = '#ffffff';
+      ctx.font = '600 24px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('📍 12 rue Imbert Colomès, 69001 Lyon • Pentes de la Croix-Rousse', W / 2, footerY + 115);
+
+      // CTA Bio
+      ctx.fillStyle = '#ffd15b';
+      ctx.font = 'bold 26px "Plus Jakarta Sans", sans-serif';
+      ctx.fillText('👉 RÉSERVE TA TABLE OU LA MEZZANINE VIA LE LIEN EN BIO', W / 2, footerY + 165);
+    }
+
+    function downloadStoryImage() {
+      const canvas = document.getElementById('story-canvas');
+      if (!canvas) return;
+
+      canvas.toBlob((blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.download = 'story-bob-programme-semaine.png';
+        a.href = url;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('📸 Image Story 1080x1920 téléchargée avec succès !');
+      }, 'image/png');
+    }
+
+    // Charger les données au démarrage
+    window.addEventListener('DOMContentLoaded', () => {
+      loadAgendaData();
+    });
   </script>
 </body>
 </html>

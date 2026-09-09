@@ -472,7 +472,18 @@
           dotClass = 'closed';
         }
       } else {
-        if (day >= 2 && day <= 5) {
+        if (day === 1) {
+          if (timeInMins >= 17 * 60 && timeInMins < 23 * 60) {
+            message = timeInMins < 20 * 60 ? '⚡ HAPPY HOUR en cours ! (jusqu’à 20h)' : 'Ouvert actuellement (ferme à 23h)';
+            dotClass = '';
+          } else if (timeInMins < 17 * 60) {
+            message = 'Fermé • Ouvre aujourd’hui à 17h00';
+            dotClass = 'soon';
+          } else {
+            message = 'Fermé actuellement • Réouverture mardi 17h';
+            dotClass = 'closed';
+          }
+        } else if (day >= 2 && day <= 5) {
           if (timeInMins >= 17 * 60) {
             message = timeInMins < 20 * 60 ? '⚡ HAPPY HOUR en cours ! (jusqu’à 20h)' : 'Ouvert actuellement (ferme à 01h)';
             dotClass = '';
@@ -489,7 +500,7 @@
             dotClass = 'soon';
           }
         } else {
-          message = (day === 0) ? 'Fermé le dimanche • Réouverture mardi 17h' : 'Fermé le lundi • Réouverture mardi 17h';
+          message = 'Fermé le dimanche • Réouverture lundi 17h';
           dotClass = 'closed';
         }
       }
