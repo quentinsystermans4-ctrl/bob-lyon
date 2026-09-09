@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.2.0').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.3.0').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -456,6 +456,7 @@ function confirmBatchConsumed(productId, batchId) {
   prod.batches = prod.batches.filter(b => b.id !== batchId);
   saveProductsToStorage();
   renderProducts();
+  if (navigator.vibrate) navigator.vibrate(35);
 }
 
 function snoozeBatchAlert(batchId) {
@@ -794,6 +795,7 @@ async function triggerOcrAnalysis(imageDataUrl) {
     if (detected.length > 0) {
       successText.textContent = `✨ Détecté : ${detected.join(' | ')}`;
       successEl.classList.remove('hidden');
+      if (navigator.vibrate) navigator.vibrate(35);
     } else {
       successText.textContent = `Photo nette enregistrée. Vérifiez la date ci-dessous.`;
       successEl.classList.remove('hidden');

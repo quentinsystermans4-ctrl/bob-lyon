@@ -258,14 +258,14 @@ body {
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
   color: var(--text-secondary);
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem;
   transition: all 0.2s ease;
 }
 
@@ -476,8 +476,9 @@ body {
   color: var(--color-gold);
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 0.76rem;
-  padding: 6px 10px;
+  font-size: 0.78rem;
+  padding: 8px 12px;
+  min-height: 40px;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
@@ -940,16 +941,17 @@ body {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(239, 68, 68, 0.85);
+  background: rgba(239, 68, 68, 0.9);
   border: none;
   color: #fff;
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 1rem;
 }
 
 /* Boutons modales */
@@ -1186,7 +1188,8 @@ body {
   background: var(--bg-card-alt);
   border: 1px solid var(--border-soft);
   border-radius: 8px;
-  padding: 9px 10px;
+  padding: 10px 12px;
+  min-height: 52px;
   cursor: pointer;
   display: flex;
   align-items: center;
