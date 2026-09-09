@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée -->
-  <link rel="stylesheet" href="style.css">
+  <!-- Feuille de style dédiée avec cache-busting v1.2.0 -->
+  <link rel="stylesheet" href="style.css?v=1.2.0">
 </head>
 <body>
 
@@ -361,6 +361,16 @@
         <hr class="settings-divider">
 
         <div class="settings-section">
+          <h4>Version & Mise à jour</h4>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.2.0) si le téléphone a gardé l'ancien cache.</p>
+          <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
+            <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
+          </button>
+        </div>
+
+        <hr class="settings-divider">
+
+        <div class="settings-section">
           <h4>Sécurité</h4>
           <button type="button" class="btn-danger" onclick="lockApp()">
             <i class="fa-solid fa-lock"></i> Verrouiller l'accès sur cet appareil
@@ -376,7 +386,7 @@
   <!-- Tesseract.js pour reconnaissance OCR locale dans le navigateur -->
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 
-  <!-- Script JS de l'application -->
-  <script src="app.js"></script>
+  <!-- Script JS de l'application avec cache-busting v1.2.0 -->
+  <script src="app.js?v=1.2.0"></script>
 </body>
 </html>

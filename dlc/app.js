@@ -54,13 +54,34 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(err => {
+    navigator.serviceWorker.register('./sw.js?v=1.2.0').then(reg => {
+      reg.update();
+    }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
     });
   }
 });
 
 const APP_VERSION = 'v1.2.0';
+
+async function forceAppUpdate() {
+  if ('caches' in window) {
+    try {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(key => caches.delete(key)));
+    } catch (e) {}
+  }
+  if ('serviceWorker' in navigator) {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      for (let reg of registrations) {
+        await reg.unregister();
+      }
+    } catch (e) {}
+  }
+  // Rechargement complet en ignorant le cache
+  window.location.href = window.location.origin + window.location.pathname + '?v=' + Date.now();
+}
 
 function initStorage() {
   // Initialisation du Code PIN si inexistant (défaut '1234')
