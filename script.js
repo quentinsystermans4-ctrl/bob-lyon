@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollSpy();
   initLightbox();
   initDynamicBeers();
-  initDynamicAgenda();
   initAnalyticsAndTracking();
 });
 
@@ -523,69 +522,5 @@ function initAnalyticsAndTracking() {
   });
 }
 
-/* --------------------------------------------------------------------------
-   9. AGENDA DYNAMIQUE DE LA SEMAINE (Chargement depuis assets/data/agenda.json)
-   -------------------------------------------------------------------------- */
-async function initDynamicAgenda() {
-  const agendaContainer = document.getElementById('dynamic-weekly-agenda');
-  if (!agendaContainer) return;
-
-  try {
-    const response = await fetch('assets/data/agenda.json');
-    if (!response.ok) return;
-    const data = await response.json();
-
-    if (!data || !Array.isArray(data.events) || data.events.length === 0) return;
-
-    const eventsHtml = data.events.map((ev, idx) => {
-      const badgeHtml = ev.badge ? `<span class="event-tag"><i class="fa-solid fa-tag text-gold"></i> ${escapeHtml(ev.badge)}</span>` : '';
-      const iconClass = ev.categoryIcon || 'fa-solid fa-calendar-check';
-
-      return `
-        <div class="event-card weekly-highlight" id="${escapeHtml(ev.id || 'weekly-ev-' + (idx + 1))}">
-          <div>
-            <div class="event-icon-box">
-              <i class="${escapeHtml(iconClass)}"></i>
-            </div>
-            <div class="event-meta">
-              <span class="event-timing">${escapeHtml(ev.day)} • ${escapeHtml(ev.time)}</span>
-              <h4 class="event-title">${escapeHtml(ev.title)}</h4>
-            </div>
-            <p class="event-desc">${escapeHtml(ev.description)}</p>
-          </div>
-          <div class="event-footer">
-            ${badgeHtml}
-            <div class="event-card-action">
-              <a href="https://www.privateaser.com/lieu/45402-bob-blonde-ou-brune" 
-                 target="_blank" 
-                 rel="noopener noreferrer" 
-                 class="btn btn-primary btn-xs btn-block" 
-                 data-track="privateaser_weekly_event" 
-                 data-label="${escapeHtml(ev.title)}">
-                <i class="fa-solid fa-calendar-check"></i> Réserver pour ce soir
-              </a>
-            </div>
-          </div>
-        </div>
-      `;
-    }).join('');
-
-    agendaContainer.innerHTML = `
-      <div class="weekly-banner-box">
-        <div class="weekly-banner-badge">
-          <span class="badge-pulse"><i class="fa-solid fa-calendar-days"></i> AU PROGRAMME CETTE SEMAINE</span>
-          <span class="weekly-dates">${escapeHtml(data.currentWeekDates || '')}</span>
-        </div>
-        <h3 class="weekly-banner-title">${escapeHtml(data.currentWeekTheme || data.currentWeekTitle || 'Cette semaine au BOB')}</h3>
-        <p class="weekly-banner-sub"><i class="fa-solid fa-bolt text-gold"></i> ${escapeHtml(data.happyHourNotice || 'Happy Hour tous les soirs 17h - 20h')} • 12 rue Imbert Colomès</p>
-      </div>
-      <div class="events-grid weekly-grid">
-        ${eventsHtml}
-      </div>
-    `;
-  } catch (err) {
-    console.info('Agenda dynamique : aucun événement chargé, affichage des activités permanentes.');
-  }
-}
 
 

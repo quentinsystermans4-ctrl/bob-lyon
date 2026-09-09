@@ -2980,78 +2980,7 @@ h1, h2, h3, h4, h5, h6 {
   }
 }
 
-/* ==========================================================================
-   WEEKLY DYNAMIC AGENDA STYLES (Programme de la semaine)
-   ========================================================================== */
-.weekly-agenda-wrapper {
-  margin-bottom: 3.5rem;
-}
 
-.weekly-banner-box {
-  background: linear-gradient(135deg, rgba(255, 209, 91, 0.12) 0%, rgba(24, 24, 28, 0.95) 100%);
-  border: 1px solid rgba(255, 209, 91, 0.35);
-  border-radius: var(--radius-lg);
-  padding: 1.6rem 2rem;
-  margin-bottom: 1.8rem;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  text-align: left;
-}
-
-.weekly-banner-badge {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-.weekly-dates {
-  font-family: var(--font-heading);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--color-gold);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  background: rgba(255, 209, 91, 0.15);
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  border: 1px solid rgba(255, 209, 91, 0.3);
-}
-
-.weekly-banner-title {
-  font-family: var(--font-heading);
-  font-size: 1.45rem;
-  font-weight: 800;
-  color: #ffffff;
-  margin: 0;
-}
-
-.weekly-banner-sub {
-  font-size: 0.9rem;
-  color: var(--color-text-secondary);
-  margin: 0;
-}
-
-.weekly-grid {
-  margin-top: 0 !important;
-  margin-bottom: 2rem;
-}
-
-.event-card.weekly-highlight {
-  border-color: rgba(255, 209, 91, 0.3);
-  background: linear-gradient(180deg, #1b1b20 0%, #141417 100%);
-}
-
-.event-card.weekly-highlight:hover {
-  border-color: var(--color-gold);
-  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 209, 91, 0.18);
-}
-
-.event-card-action {
-  margin-top: 0.85rem;
-}
 
 .btn-xs {
   font-size: 0.78rem;
