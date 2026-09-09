@@ -495,14 +495,14 @@ body {
   background: transparent;
   border: 1px solid var(--border-soft);
   color: var(--text-muted);
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  font-size: 0.78rem;
+  font-size: 0.95rem;
   transition: all 0.15s ease;
 }
 
@@ -616,13 +616,14 @@ body {
   background: transparent;
   border: 1px solid var(--border-soft);
   color: var(--text-muted);
-  font-size: 0.72rem;
-  padding: 5px 8px;
-  border-radius: 6px;
+  font-size: 0.78rem;
+  padding: 8px 12px;
+  min-height: 38px;
+  border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 5px;
   transition: all 0.15s ease;
 }
 
@@ -835,7 +836,7 @@ body {
   border-radius: 8px;
   padding: 10px 12px;
   font-family: var(--font-body);
-  font-size: 0.95rem;
+  font-size: 1rem;
   color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s ease;
@@ -871,9 +872,10 @@ body {
   color: var(--text-secondary);
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 0.72rem;
-  padding: 5px 9px;
-  border-radius: 6px;
+  font-size: 0.78rem;
+  min-height: 36px;
+  padding: 6px 12px;
+  border-radius: 8px;
   cursor: pointer;
   transition: all 0.15s ease;
 }

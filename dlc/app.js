@@ -373,9 +373,10 @@ function renderMultiLotAlerts() {
       // Produit avec stock multiple (ex: plusieurs paquets de pâtes à pizza)
       prod.batches.forEach((batch, idx) => {
         const days = getDaysRemaining(batch.dlc);
-        const snoozeKey = 'snooze_lot_' + batch.id;
+        const snoozeUntil = localStorage.getItem('snooze_lot_' + batch.id);
+        const isSnoozed = snoozeUntil && Date.now() < parseInt(snoozeUntil, 10);
         // Alerte si le lot arrive à échéance (≤ 7 jours) et pas encore confirmé aujourd'hui
-        if (days !== null && days <= 7 && !sessionStorage.getItem(snoozeKey)) {
+        if (days !== null && days <= 7 && !isSnoozed) {
           alerts.push({
             productId: prod.id,
             productName: prod.name,
@@ -437,7 +438,8 @@ function confirmBatchConsumed(productId, batchId) {
 }
 
 function snoozeBatchAlert(batchId) {
-  sessionStorage.setItem('snooze_lot_' + batchId, 'true');
+  const expiry = Date.now() + 12 * 60 * 60 * 1000; // 12h de répit pour le shift
+  localStorage.setItem('snooze_lot_' + batchId, expiry.toString());
   renderMultiLotAlerts();
 }
 
@@ -699,7 +701,21 @@ async function triggerOcrAnalysis(imageDataUrl) {
 
   try {
     const result = await Tesseract.recognize(imageDataUrl, 'fra+eng', {
-      logger: m => {}
+      logger: m => {
+        if (m.status === 'loading tesseract core' || m.status === 'loading language traineddata') {
+          const pct = Math.round((m.progress || 0) * 100);
+          loadingEl.innerHTML = `
+            <i class="fa-solid fa-wand-magic-sparkles fa-spin text-gold"></i>
+            <span>Chargement du scanner (${pct}%)...</span>
+          `;
+        } else if (m.status === 'recognizing text') {
+          const pct = Math.round((m.progress || 0) * 100);
+          loadingEl.innerHTML = `
+            <i class="fa-solid fa-wand-magic-sparkles fa-spin text-gold"></i>
+            <span>Lecture de l'étiquette (${pct}%)...</span>
+          `;
+        }
+      }
     });
 
     const rawText = result && result.data ? result.data.text : '';
@@ -800,7 +816,13 @@ function resetOcrStatus() {
   const loading = document.getElementById('ocr-loading');
   const success = document.getElementById('ocr-success');
   if (box) box.classList.add('hidden');
-  if (loading) loading.classList.add('hidden');
+  if (loading) {
+    loading.classList.add('hidden');
+    loading.innerHTML = `
+      <i class="fa-solid fa-wand-magic-sparkles fa-spin text-gold"></i>
+      <span>Lecture intelligente de la date et du lot...</span>
+    `;
+  }
   if (success) success.classList.add('hidden');
 }
 
