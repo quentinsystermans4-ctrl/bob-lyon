@@ -76,7 +76,10 @@
         <div class="brand-info">
           <img src="../assets/logos/BOB LOGO B.svg" alt="BOB" class="brand-logo" onerror="this.src='../assets/logos/BOB LOGO B.png'">
           <div>
-            <h1>BOB • DLC & Hygiène</h1>
+            <div class="header-title-row">
+              <h1>BOB • DLC & Hygiène</h1>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> v1.2.0</span>
+            </div>
             <span class="current-date" id="live-date">Chargement...</span>
           </div>
         </div>
@@ -140,6 +143,12 @@
         <i class="fa-solid fa-plus"></i> Ajouter un produit hors-carte
       </button>
     </div>
+
+    <!-- Pied de page avec versioning -->
+    <footer class="app-footer">
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> v1.2.0</span>
+      <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
+    </footer>
 
   </div>
 
@@ -336,6 +345,16 @@
           <p class="settings-desc">Téléchargez l'état des DLC pour les contrôles sanitaires (HACCP).</p>
           <button type="button" class="btn-secondary" onclick="exportDlcReport()">
             <i class="fa-solid fa-file-arrow-down"></i> Télécharger le rapport CSV
+          </button>
+        </div>
+
+        <hr class="settings-divider">
+
+        <div class="settings-section">
+          <h4>Gestion du catalogue</h4>
+          <p class="settings-desc">Réinitialiser ou restaurer la liste d'origine des 10 denrées si besoin.</p>
+          <button type="button" class="btn-secondary" onclick="restoreDefaultCatalogue()">
+            <i class="fa-solid fa-rotate-left"></i> Restaurer les 10 produits par défaut
           </button>
         </div>
 

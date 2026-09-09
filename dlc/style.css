@@ -228,6 +228,27 @@ body {
   line-height: 1.1;
 }
 
+.header-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.version-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-heading);
+  font-size: 0.64rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 12px;
+  background: rgba(255, 209, 91, 0.12);
+  border: 1px solid var(--border-gold);
+  color: var(--color-gold);
+  letter-spacing: 0.03em;
+}
+
 .current-date {
   font-size: 0.72rem;
   color: var(--text-secondary);
@@ -468,6 +489,39 @@ body {
 .btn-update-dlc:active {
   background: var(--color-gold);
   color: #101013;
+}
+
+.btn-delete-product {
+  background: transparent;
+  border: 1px solid var(--border-soft);
+  color: var(--text-muted);
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.78rem;
+  transition: all 0.15s ease;
+}
+
+.btn-delete-product:hover,
+.btn-delete-product:active {
+  border-color: var(--status-red);
+  color: var(--status-red);
+  background: var(--status-red-bg);
+}
+
+.app-footer {
+  margin-top: 25px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 /* Liste des lots d'un produit */

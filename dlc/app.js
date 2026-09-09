@@ -60,6 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+const APP_VERSION = 'v1.2.0';
+
 function initStorage() {
   // Initialisation du Code PIN si inexistant (défaut '1234')
   if (!localStorage.getItem(STORAGE_KEYS.PIN)) {
@@ -71,12 +73,6 @@ function initStorage() {
   if (stored) {
     try {
       products = JSON.parse(stored);
-      // Synchronisation : s'assurer que tous les produits par défaut existent
-      DEFAULT_PRODUCTS.forEach(defProd => {
-        if (!products.some(p => p.id === defProd.id)) {
-          products.push(defProd);
-        }
-      });
     } catch (e) {
       console.error('Erreur lecture stockage, restauration défauts', e);
       products = [...DEFAULT_PRODUCTS];
@@ -289,6 +285,9 @@ function renderProducts() {
             <button class="btn-update-dlc" onclick="openDlcModal('${prod.id}')">
               <i class="fa-solid fa-pen-to-square"></i>
               <span>${hasBatches ? 'Modifier / Ajouter' : 'Définir DLC'}</span>
+            </button>
+            <button class="btn-delete-product" onclick="deleteProduct('${prod.id}')" title="Supprimer ce produit (ex: arrêt temporaire)">
+              <i class="fa-regular fa-trash-can"></i>
             </button>
           </div>
         </div>
@@ -601,6 +600,33 @@ function finishBatch(productId, batchId) {
     prod.batches = prod.batches.filter(b => b.id !== batchId);
     saveProductsToStorage();
     renderProducts();
+  }
+}
+
+function deleteProduct(productId) {
+  const prod = products.find(p => p.id === productId);
+  if (!prod) return;
+
+  const confirmMsg = `Retirer "${prod.name}" de la liste des DLC ?\n\n(Pratique si vous n'en servez plus en ce moment. Vous pourrez le réajouter à tout moment via "+ Ajouter un produit")`;
+  if (confirm(confirmMsg)) {
+    products = products.filter(p => p.id !== productId);
+    saveProductsToStorage();
+    renderProducts();
+  }
+}
+
+function restoreDefaultCatalogue() {
+  if (confirm('Restaurer tous les 10 produits de base de la carte Food ?\n(Vos DLC déjà saisies pour ces produits seront conservées)')) {
+    DEFAULT_PRODUCTS.forEach(defProd => {
+      const existing = products.find(p => p.id === defProd.id);
+      if (!existing) {
+        products.push({ ...defProd, batches: [] });
+      }
+    });
+    saveProductsToStorage();
+    renderProducts();
+    closeSettingsModal();
+    alert('Catalogue restauré avec succès !');
   }
 }
 
