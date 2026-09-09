@@ -2,7 +2,7 @@
   "lastUpdated": "2026-09-09",
   "currentWeekTitle": "Programme de la Semaine",
   "currentWeekDates": "Du Lundi 07 au Samedi 12 Septembre",
-  "currentWeekTheme": "Rentrée festive, chocs sportifs & Grand Quiz du BOB",
+  "currentWeekTheme": "Semaine 100% Ligue des Champions, Choc OL & Super Samedi Sport",
   "happyHourNotice": "⚡ HAPPY HOUR TOUS LES SOIRS DE 17H À 20H",
   "events": [
     {
@@ -11,62 +11,74 @@
       "dayName": "Lundi",
       "time": "17h00 - 23h00",
       "category": "jeux",
-      "categoryLabel": "Opening & Jeux",
+      "categoryLabel": "Opening & Fléchettes",
       "categoryIcon": "fa-solid fa-bullseye",
-      "badge": "Nouveaux Horaires",
+      "badge": "En libre accès",
       "title": "Le Lundi au BOB & Fléchettes",
-      "description": "Le BOB ouvre désormais dès le lundi soir ! Cible de fléchettes en libre accès, jeux de cartes et dégustation de nos 9 pressions en Happy Hour (17h-20h)."
+      "description": "On attaque la semaine dès 17h ! Cible de fléchettes en libre accès gratuit, jeux de cartes et dégustation de nos 9 pressions en Happy Hour (17h-20h)."
     },
     {
       "id": "event-2",
-      "day": "Jeudi 10/09",
-      "dayName": "Jeudi",
-      "time": "20h30",
-      "category": "quiz",
-      "categoryLabel": "Soirée Quiz",
-      "categoryIcon": "fa-solid fa-brain",
-      "badge": "Lots & Tournées",
-      "title": "Grand Quiz du BOB #1 (Rentrée)",
-      "description": "Blind-tests musicaux, culture générale et questions décalées par équipe de 2 à 6 personnes. Tournées et cadeaux pour le podium ! Venez tôt pour avoir les meilleures places."
+      "day": "Mardi 08/09",
+      "dayName": "Mardi",
+      "time": "21h00",
+      "category": "foot",
+      "categoryLabel": "Ligue des Champions",
+      "categoryIcon": "fa-solid fa-futbol",
+      "badge": "LDC • Grand Écran",
+      "title": "Ligue des Champions : Focus Lille (LOSC)",
+      "description": "Coup d'envoi des soirées européennes sur grand écran avec notamment le match de Lille. Pression bien fraîche, pizzas chaudes et ambiance de supporters !"
     },
     {
       "id": "event-3",
-      "day": "Vendredi 11/09",
-      "dayName": "Vendredi",
-      "time": "20h45",
+      "day": "Mercredi 09/09",
+      "dayName": "Mercredi",
+      "time": "21h00",
       "category": "foot",
-      "categoryLabel": "Ligue 1",
+      "categoryLabel": "Ligue des Champions",
       "categoryIcon": "fa-solid fa-futbol",
-      "badge": "Grand Écran",
-      "title": "PSG 🆚 AS Monaco (Ligue 1)",
-      "description": "Le gros choc du vendredi soir diffusé sur notre écran géant dans une ambiance chaleureuse de supporters. Planches géantes et bières fraîches au comptoir."
+      "badge": "LDC • Grand Écran",
+      "title": "Ligue des Champions : Focus PSG",
+      "description": "Deuxième soirée européenne au BOB avec la diffusion sur grand écran du choc du Paris SG. Pensez à réserver votre table ou la mezzanine entre potes !"
     },
     {
       "id": "event-4",
-      "day": "Samedi 12/09",
-      "dayName": "Samedi",
-      "time": "17h00",
-      "category": "echecs",
-      "categoryLabel": "Échecs Loisir",
-      "categoryIcon": "fa-solid fa-chess-knight",
-      "badge": "Partenariat Chessbar",
-      "title": "Tournoi d'Échecs (<1000 ELO)",
-      "description": "Tournoi convivial ouvert aux débutants et joueurs loisirs (<1000 ELO) en partenariat avec @chessbar_lyon. Participation libre, venez poser vos pions entre deux galopins !"
+      "day": "Jeudi 10/09",
+      "dayName": "Jeudi",
+      "time": "21h00",
+      "category": "foot",
+      "categoryLabel": "Ligue des Champions",
+      "categoryIcon": "fa-solid fa-futbol",
+      "badge": "LDC • Grand Écran",
+      "title": "Ligue des Champions : Focus Lens (RCL)",
+      "description": "Troisième grand rendez-vous européen de la semaine avec le match du RC Lens ! Ferveur, planches apéritives et bières artisanales locales."
     },
     {
       "id": "event-5",
+      "day": "Vendredi 11/09",
+      "dayName": "Vendredi",
+      "time": "17h00 - 01h00",
+      "category": "afterwork",
+      "categoryLabel": "Afterwork & Planches",
+      "categoryIcon": "fa-solid fa-beer-mug-empty",
+      "badge": "Happy Hour 17h-20h",
+      "title": "Afterwork des Pentes & Soirée Conviviale",
+      "description": "Lancez le week-end dans les Pentes ! Happy Hour de 17h à 20h sur les bières, softs & cocktails, camemberts rôtis et fléchettes entre collègues et amis."
+    },
+    {
+      "id": "event-6",
       "day": "Samedi 12/09",
       "dayName": "Samedi",
-      "time": "21h05",
-      "category": "rugby",
-      "categoryLabel": "Top 14",
+      "time": "Dès 16h00",
+      "category": "multisport",
+      "categoryLabel": "Super Samedi",
       "categoryIcon": "fa-solid fa-trophy",
-      "badge": "Direct Rugby",
-      "title": "LOU Rugby 🆚 ASM Clermont",
-      "description": "Premier gros choc de Top 14 pour nos Lyonnais ! Retransmission en direct, ferveur et troisième mi-temps garantie jusqu'à 01h00."
+      "badge": "F1 • Échecs • OL • LOU",
+      "title": "Super Samedi : F1, Échecs, Paris FC-OL & LOU Rugby",
+      "description": "16h00 : Qualifs F1 GP Madrid • 17h00 : Tournoi d'Échecs (<1000 ELO) avec @chessbar_lyon • Match Paris FC vs OL (L1) • 21h05 : Racing 92 vs LOU Rugby (Top 14) !"
     }
   ],
   "storyTemplate": {
-    "caption": "🍻 LE PROGRAMME DE LA SEMAINE AU BOB ! 🍻\n\nNouveauté : On ouvre désormais dès le LUNDI 17h-23h ! ⚡\n\n🎯 LUNDI 07/09 (17h-23h) : Opening & Fléchettes\n🧠 JEUDI 10/09 (20h30) : Grand Quiz du BOB #1 (Lots & tournées 🎁)\n⚽ VENDREDI 11/09 (20h45) : PSG vs Monaco sur grand écran !\n♟️ SAMEDI 12/09 (17h00) : Tournoi d'Échecs (<1000 ELO) avec @chessbar_lyon\n🏉 SAMEDI 12/09 (21h05) : LOU Rugby vs ASM Clermont (Top 14)\n\n⚡ HAPPY HOUR TOUS LES SOIRS 17H - 20H\n📍 12 rue Imbert Colomès, Lyon 1er\n🔗 Réserve ta table ou la mezzanine via le lien en bio !"
+    "caption": "🍻 LE PROGRAMME DE LA SEMAINE AU BOB ! 🍻\n\nSemaine XXL aux Pentes avec 3 soirées de Ligue des Champions, l'OL et un énorme samedi sport & échecs 👇\n\n🎯 LUNDI 07/09 (17h-23h) : Opening & Fléchettes en accès libre 🎯\n⚽ MARDI 08/09 (21h00) : Ligue des Champions avec le LOSC Lille !\n⚽ MERCREDI 09/09 (21h00) : Ligue des Champions avec le PSG !\n⚽ JEUDI 10/09 (21h00) : Ligue des Champions avec le RC Lens !\n🧀 VENDREDI 11/09 (17h-01h) : Afterwork des Pentes, planches & pizzas chaudes\n🔥 SAMEDI 12/09 (Dès 16h00) : SUPER SAMEDI SPORT & JEUX\n   🏎️ 16h00 : Qualifs F1 GP de Madrid\n   ♟️ 17h00 : Tournoi d'Échecs (<1000 ELO) avec @chessbar_lyon\n   ⚽ Match Paris FC 🆚 OL (Ligue 1)\n   🏉 21h05 : Racing 92 🆚 LOU Rugby (Top 14)\n\n⚡ HAPPY HOUR TOUS LES SOIRS DE 17H À 20H\n📍 12 rue Imbert Colomès, Lyon 1er\n🔗 Réserve ta table ou la mezzanine via le lien en bio !"
   }
 }
