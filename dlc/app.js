@@ -9,20 +9,20 @@
 
 const DEFAULT_PRODUCTS = [
   // Charcuterie
-  { id: 'jambon_blanc', name: 'Jambon Blanc', category: 'charcuterie', icon: '🥓', batches: [] },
-  { id: 'jambon_sec', name: 'Jambon Sec', category: 'charcuterie', icon: '🥓', batches: [] },
-  { id: 'chorizo', name: 'Chorizo déjà tranché', category: 'charcuterie', icon: '🥓', batches: [] },
+  { id: 'jambon_blanc', name: 'Jambon Blanc', category: 'charcuterie', icon: '🥓', batches: [], order: 1 },
+  { id: 'jambon_sec', name: 'Jambon Sec', category: 'charcuterie', icon: '🥓', batches: [], order: 2 },
+  { id: 'chorizo', name: 'Chorizo déjà tranché', category: 'charcuterie', icon: '🥓', batches: [], order: 3 },
   
   // Fromages
-  { id: 'camembert', name: 'Camembert', category: 'fromage', icon: '🧀', batches: [] },
-  { id: 'saint_marcellin', name: 'Saint Marcelin', category: 'fromage', icon: '🧀', batches: [] },
-  { id: 'tome', name: 'Tome', category: 'fromage', icon: '🧀', batches: [] },
-  { id: 'comte', name: 'Comté', category: 'fromage', icon: '🧀', batches: [] },
-  { id: 'chevre', name: 'Chèvre', category: 'fromage', icon: '🧀', batches: [] },
-  { id: 'fromage_pizza', name: 'Fromage à pizza', category: 'fromage', icon: '🧀', batches: [] },
+  { id: 'camembert', name: 'Camembert', category: 'fromage', icon: '🧀', batches: [], order: 4 },
+  { id: 'saint_marcellin', name: 'Saint Marcelin', category: 'fromage', icon: '🧀', batches: [], order: 5 },
+  { id: 'tome', name: 'Tome', category: 'fromage', icon: '🧀', batches: [], order: 6 },
+  { id: 'comte', name: 'Comté', category: 'fromage', icon: '🧀', batches: [], order: 7 },
+  { id: 'chevre', name: 'Chèvre', category: 'fromage', icon: '🧀', batches: [], order: 8 },
+  { id: 'fromage_pizza', name: 'Fromage à pizza', category: 'fromage', icon: '🧀', batches: [], order: 9 },
   
   // Pâtes
-  { id: 'pate_pizza', name: 'Pâte à pizza', category: 'pate', icon: '🍕', batches: [] }
+  { id: 'pate_pizza', name: 'Pâte à pizza', category: 'pate', icon: '🍕', batches: [], order: 10 }
 ];
 
 const STORAGE_KEYS = {
@@ -59,6 +59,7 @@ const firebaseConfig = {
 document.addEventListener('DOMContentLoaded', () => {
   initStorage();
   updateLiveDate();
+  updateVersionDisplay();
   checkPinAuth();
   renderProducts();
   updateKpiCounts();
@@ -67,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.4.0').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.4.1').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -75,7 +76,14 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.4.0';
+const APP_VERSION = 'v1.4.1';
+
+function updateVersionDisplay() {
+  const hEl = document.getElementById('header-version-text');
+  const fEl = document.getElementById('footer-version-text');
+  if (hEl) hEl.textContent = APP_VERSION;
+  if (fEl) fEl.textContent = APP_VERSION;
+}
 
 async function forceAppUpdate() {
   if ('caches' in window) {
@@ -132,7 +140,7 @@ function updateCloudStatus(status, text) {
 }
 
 // =============================================================================
-// SYNCHRONISATION FIREBASE FIRESTORE TEMPS RÉEL
+// SYNCHRONISATION FIREBASE FIRESTORE TEMPS RÉEL (Collection 'products')
 // =============================================================================
 
 function initFirebase() {
@@ -164,47 +172,51 @@ function listenToCloudInventory() {
   if (!db) return;
   updateCloudStatus('connecting', 'Connexion...');
 
-  const inventoryDoc = db.collection('inventory').doc('current');
+  const colRef = db.collection('products');
 
-  inventoryDoc.onSnapshot({ includeMetadataChanges: true }, (doc) => {
-    if (doc.exists) {
-      const data = doc.data();
-      if (data && Array.isArray(data.products)) {
-        const cloudBatches = countTotalBatches(data.products);
-        const localBatches = countTotalBatches(products);
+  colRef.onSnapshot({ includeMetadataChanges: true }, (snapshot) => {
+    if (!snapshot.empty) {
+      const cloudProducts = [];
+      snapshot.forEach(doc => {
+        cloudProducts.push(doc.data());
+      });
 
-        // Si le Cloud est vide (0 lot) et que CET appareil a de vrais lots enregistrés (ex: iPhone de Quentin),
-        // on initialise le Cloud avec les lots de cet appareil pour ne jamais rien écraser !
-        if (cloudBatches === 0 && localBatches > 0) {
-          console.log(`Cloud vierge détecté. Envoi automatique des ${localBatches} lots locaux vers le Cloud...`);
-          saveProductsToCloud(true);
-          return;
-        }
+      // Tri par order
+      cloudProducts.sort((a, b) => (a.order || 999) - (b.order || 999));
 
-        // Sinon, synchronisation temps réel depuis le cloud
-        isApplyingCloudSnapshot = true;
-        products = data.products;
-        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
-        renderProducts();
-        updateKpiCounts();
-        renderMultiLotAlerts();
-        isApplyingCloudSnapshot = false;
+      const cloudBatches = countTotalBatches(cloudProducts);
+      const localBatches = countTotalBatches(products);
 
-        const hasPendingWrites = doc.metadata.hasPendingWrites;
-        if (hasPendingWrites) {
-          updateCloudStatus('connecting', 'Synchronisation...');
-        } else {
-          updateCloudStatus('online', 'Équipe synchronisée');
-        }
+      // Si le Cloud n'a aucun lot (0) et que CET appareil a de vrais lots enregistrés (ex: iPhone de Quentin),
+      // on pousse immédiatement nos lots locaux vers Firestore !
+      if (cloudBatches === 0 && localBatches > 0) {
+        console.log(`Cloud sans lots. Envoi de nos ${localBatches} lots vers Firestore...`);
+        pushAllLocalProductsToCloud(true);
         return;
       }
+
+      // Synchronisation normale depuis le cloud
+      isApplyingCloudSnapshot = true;
+      products = cloudProducts;
+      localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      renderProducts();
+      updateKpiCounts();
+      renderMultiLotAlerts();
+      isApplyingCloudSnapshot = false;
+
+      if (snapshot.metadata.hasPendingWrites) {
+        updateCloudStatus('connecting', 'Synchronisation...');
+      } else {
+        updateCloudStatus('online', 'Équipe synchronisée');
+      }
+      return;
     }
 
-    // Le document Cloud n'existe pas encore
+    // Si la collection Firestore est complètement vide (0 document)
     const localBatches = countTotalBatches(products);
     if (localBatches > 0) {
-      console.log(`Initialisation du document Cloud avec ${localBatches} lots locaux...`);
-      saveProductsToCloud(true);
+      console.log(`Collection vide. Initialisation avec nos ${products.length} produits (${localBatches} lots)...`);
+      pushAllLocalProductsToCloud(true);
     } else {
       updateCloudStatus('online', 'Cloud connecté');
     }
@@ -218,23 +230,43 @@ function listenToCloudInventory() {
   });
 }
 
-function saveProductsToCloud(silent = false) {
-  if (!db) return;
-  const inventoryDoc = db.collection('inventory').doc('current');
-  const payload = {
-    products: products,
-    updatedAt: new Date().toISOString(),
-    batchesCount: countTotalBatches(products),
-    appVersion: APP_VERSION
-  };
+function saveSingleProductToCloud(prod) {
+  if (!db || !prod) return;
+  db.collection('products').doc(prod.id).set(prod)
+    .then(() => updateCloudStatus('online', 'Équipe synchronisée'))
+    .catch(err => {
+      console.warn('Erreur set product:', err);
+      if (err.code === 'permission-denied') {
+        updateCloudStatus('warning', 'Règles Firebase');
+      } else {
+        updateCloudStatus('offline', 'Hors-ligne');
+      }
+    });
+}
 
-  inventoryDoc.set(payload).then(() => {
+function deleteProductFromCloud(productId) {
+  if (!db || !productId) return;
+  db.collection('products').doc(productId).delete()
+    .catch(err => console.warn('Erreur delete product:', err));
+}
+
+function pushAllLocalProductsToCloud(silent = false) {
+  if (!db) return;
+  updateCloudStatus('connecting', 'Envoi au Cloud...');
+
+  const promises = products.map((prod, idx) => {
+    const toSave = { ...prod, order: prod.order !== undefined ? prod.order : idx + 1 };
+    return db.collection('products').doc(prod.id).set(toSave);
+  });
+
+  Promise.all(promises).then(() => {
     updateCloudStatus('online', 'Équipe synchronisée');
     if (!silent) {
-      console.log('Stock synchronisé sur Firestore.');
+      alert(`✅ ${products.length} produits (${countTotalBatches(products)} lots) synchronisés sur le Cloud pour toute l'équipe !`);
+      closeSettingsModal();
     }
   }).catch(err => {
-    console.warn('Erreur set Firestore:', err);
+    console.warn('Erreur push Cloud:', err);
     if (err.code === 'permission-denied') {
       updateCloudStatus('warning', 'Règles Firebase');
     } else {
@@ -250,9 +282,7 @@ function pushLocalToCloud() {
   }
   const batches = countTotalBatches(products);
   if (confirm(`Envoyer tout le stock de cet appareil (${products.length} produits, ${batches} lots) sur le Cloud ?\n\nTous vos collègues recevront ces données instantanément.`)) {
-    saveProductsToCloud();
-    alert('✅ Envoi réussi ! Vos collègues recevront ces données en direct.');
-    closeSettingsModal();
+    pushAllLocalProductsToCloud();
   }
 }
 
@@ -261,29 +291,36 @@ function pullCloudToLocal() {
     alert('Firebase non initialisé sur cet appareil.');
     return;
   }
-  db.collection('inventory').doc('current').get().then((doc) => {
-    if (doc.exists && doc.data() && Array.isArray(doc.data().products)) {
-      products = doc.data().products;
+  db.collection('products').get().then((snapshot) => {
+    if (!snapshot.empty) {
+      const cloudProducts = [];
+      snapshot.forEach(doc => cloudProducts.push(doc.data()));
+      cloudProducts.sort((a, b) => (a.order || 999) - (b.order || 999));
+      products = cloudProducts;
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
       renderProducts();
       updateKpiCounts();
       renderMultiLotAlerts();
-      alert('✅ Données Cloud récupérées avec succès !');
+      alert(`✅ ${products.length} produits récupérés du Cloud !`);
       closeSettingsModal();
     } else {
-      alert('Aucune donnée trouvée sur le Cloud pour le moment.');
+      alert('Aucun produit trouvé sur le Cloud pour le moment.');
     }
   }).catch(err => {
     alert('Erreur lors de la récupération Cloud : ' + (err.message || err));
   });
 }
 
-function saveProductsToStorage() {
+function saveProductsToStorage(specificProduct = null) {
   localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
   updateKpiCounts();
   renderMultiLotAlerts();
-  if (!isApplyingCloudSnapshot) {
-    saveProductsToCloud();
+  if (!isApplyingCloudSnapshot && db) {
+    if (specificProduct) {
+      saveSingleProductToCloud(specificProduct);
+    } else {
+      pushAllLocalProductsToCloud(true);
+    }
   }
 }
 
@@ -630,7 +667,7 @@ function confirmBatchConsumed(productId, batchId) {
   const prod = products.find(p => p.id === productId);
   if (!prod || !prod.batches) return;
   prod.batches = prod.batches.filter(b => b.id !== batchId);
-  saveProductsToStorage();
+  saveProductsToStorage(prod);
   renderProducts();
   if (navigator.vibrate) navigator.vibrate(35);
 }
@@ -787,7 +824,7 @@ function saveDlc() {
   // Trier les lots par date croissante
   prod.batches.sort((a, b) => new Date(a.dlc) - new Date(b.dlc));
 
-  saveProductsToStorage();
+  saveProductsToStorage(prod);
   renderProducts();
   closeDlcModal();
 }
@@ -798,7 +835,7 @@ function finishBatch(productId, batchId) {
 
   if (confirm(`Confirmer que ce lot de ${prod.name} est consommé / terminé ?`)) {
     prod.batches = prod.batches.filter(b => b.id !== batchId);
-    saveProductsToStorage();
+    saveProductsToStorage(prod);
     renderProducts();
   }
 }
@@ -810,6 +847,7 @@ function deleteProduct(productId) {
   const confirmMsg = `Retirer "${prod.name}" de la liste des DLC ?\n\n(Pratique si vous n'en servez plus en ce moment. Vous pourrez le réajouter à tout moment via "+ Ajouter un produit")`;
   if (confirm(confirmMsg)) {
     products = products.filter(p => p.id !== productId);
+    deleteProductFromCloud(productId);
     saveProductsToStorage();
     renderProducts();
   }
