@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v1.5.0 -->
-  <link rel="stylesheet" href="style.css?v=1.5.0">
+  <!-- Feuille de style dédiée avec cache-busting v1.5.1 -->
+  <link rel="stylesheet" href="style.css?v=1.5.1">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
           <div>
             <div class="header-title-row">
               <h1>BOB • DLC & Hygiène</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.5.0</span></span>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.5.1</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
@@ -134,12 +134,9 @@
       </div>
     </header>
 
-    <!-- Filtres par catégorie -->
-    <nav class="category-tabs">
+    <!-- Filtres par catégorie (généré dynamiquement en JS) -->
+    <nav class="category-tabs" id="category-tabs-nav">
       <button class="tab-btn active" id="tab-all" onclick="switchCategory('all')">Tous</button>
-      <button class="tab-btn" id="tab-charcuterie" onclick="switchCategory('charcuterie')">🥓 Charcuterie</button>
-      <button class="tab-btn" id="tab-fromage" onclick="switchCategory('fromage')">🧀 Fromages</button>
-      <button class="tab-btn" id="tab-pate" onclick="switchCategory('pate')">🍕 Pâtes</button>
     </nav>
 
     <!-- Liste des produits -->
@@ -156,7 +153,7 @@
 
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.5.0</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.5.1</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
 
@@ -261,19 +258,6 @@
           <input type="date" id="input-dlc-date" class="form-input-date" required>
         </div>
 
-        <!-- Raccourcis de dates rapides -->
-        <div class="quick-days-selector">
-          <span class="selector-label">Raccourcis rapides :</span>
-          <div class="days-chips">
-            <button type="button" class="chip-btn" onclick="addDaysToDate(3)">+3j</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(5)">+5j</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(7)">+7j</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(10)">+10j</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(14)">+14j</button>
-            <button type="button" class="chip-btn" onclick="addDaysToDate(30)">+1 mois</button>
-          </div>
-        </div>
-
         <!-- Notes / N° de lot fournisseur (Optionnel) -->
         <div class="form-group">
           <label class="form-label">
@@ -316,12 +300,13 @@
         </div>
         <div class="form-group">
           <label class="form-label">Catégorie</label>
-          <select id="new-product-category" class="form-select">
-            <option value="fromage">🧀 Fromage</option>
-            <option value="charcuterie">🥓 Charcuterie</option>
-            <option value="pate">🍕 Pâte & Pain</option>
-            <option value="autre">🥫 Autre denrée</option>
+          <select id="new-product-category" class="form-select" onchange="handleCategorySelectChange()">
+            <!-- Rempli dynamiquement en JS -->
           </select>
+        </div>
+        <div class="form-group hidden" id="custom-category-group">
+          <label class="form-label"><i class="fa-solid fa-plus text-gold"></i> Nom de la nouvelle catégorie</label>
+          <input type="text" id="new-custom-category-name" class="form-input-text" placeholder="Ex: Sauces, Épicerie, Boissons, Poisson...">
         </div>
       </div>
       <div class="modal-footer">
@@ -408,7 +393,7 @@
 
         <div class="settings-section">
           <h4>Version & Mise à jour</h4>
-          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.5.0) si le téléphone a gardé l'ancien cache.</p>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.5.1) si le téléphone a gardé l'ancien cache.</p>
           <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
             <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
           </button>
@@ -481,7 +466,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v1.5.0 -->
-  <script src="app.js?v=1.5.0"></script>
+  <!-- Script JS de l'application avec cache-busting v1.5.1 -->
+  <script src="app.js?v=1.5.1"></script>
 </body>
 </html>

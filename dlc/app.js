@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateLiveDate();
   updateVersionDisplay();
   checkPinAuth();
+  renderCategoryTabs();
   renderProducts();
   updateKpiCounts();
   renderCriticalDlcAlerts();
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.5.0').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.5.1').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -81,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.5.0';
+const APP_VERSION = 'v1.5.1';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -233,6 +234,7 @@ function listenToCloudInventory() {
       isApplyingCloudSnapshot = true;
       products = cloudProducts;
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      renderCategoryTabs();
       renderProducts();
       updateKpiCounts();
       renderCriticalDlcAlerts();
@@ -333,6 +335,7 @@ function pullCloudToLocal() {
       cloudProducts.sort((a, b) => (a.order || 999) - (b.order || 999));
       products = cloudProducts;
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+      renderCategoryTabs();
       renderProducts();
       updateKpiCounts();
       renderCriticalDlcAlerts();
@@ -349,6 +352,7 @@ function pullCloudToLocal() {
 
 function saveProductsToStorage(specificProduct = null) {
   localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+  renderCategoryTabs();
   updateKpiCounts();
   renderCriticalDlcAlerts();
   renderMultiLotAlerts();
@@ -865,11 +869,50 @@ function snoozeBatchAlert(batchId) {
   renderMultiLotAlerts();
 }
 
+function getAllCategories() {
+  const baseCategories = [
+    { id: 'charcuterie', label: '🥓 Charcuterie' },
+    { id: 'fromage', label: '🧀 Fromages' },
+    { id: 'pate', label: '🍕 Pâtes & Pain' }
+  ];
+
+  const found = new Map();
+  baseCategories.forEach(c => found.set(c.id, c.label));
+
+  // Scanner toutes les catégories existantes dans la liste des produits actifs
+  products.forEach(p => {
+    if (p.category && !found.has(p.category)) {
+      found.set(p.category, getCategoryLabel(p.category));
+    }
+  });
+
+  return Array.from(found.entries()).map(([id, label]) => ({ id, label }));
+}
+
+function renderCategoryTabs() {
+  const nav = document.getElementById('category-tabs-nav') || document.querySelector('.category-tabs');
+  if (!nav) return;
+
+  const categories = getAllCategories();
+
+  // Si la catégorie actuellement filtrée n'existe plus dans le stock, retour sur 'all'
+  if (currentFilterCategory !== 'all' && !categories.some(c => c.id === currentFilterCategory)) {
+    currentFilterCategory = 'all';
+  }
+
+  let html = `<button class="tab-btn ${currentFilterCategory === 'all' ? 'active' : ''}" id="tab-all" onclick="switchCategory('all')">Tous</button>`;
+
+  categories.forEach(cat => {
+    const isActive = currentFilterCategory === cat.id ? 'active' : '';
+    html += `<button class="tab-btn ${isActive}" id="tab-${cat.id}" onclick="switchCategory('${cat.id}')">${escapeHtml(cat.label)}</button>`;
+  });
+
+  nav.innerHTML = html;
+}
+
 function switchCategory(cat) {
   currentFilterCategory = cat;
-  document.querySelectorAll('.category-tabs .tab-btn').forEach(btn => btn.classList.remove('active'));
-  const activeBtn = document.getElementById(`tab-${cat}`);
-  if (activeBtn) activeBtn.classList.add('active');
+  renderCategoryTabs();
   renderProducts();
 }
 
@@ -879,11 +922,17 @@ function filterByStatus(status) {
 }
 
 function getCategoryLabel(cat) {
+  if (!cat) return '🥫 Autre';
   switch (cat) {
     case 'charcuterie': return '🥓 Charcuterie';
     case 'fromage': return '🧀 Fromage';
     case 'pate': return '🍕 Pâte & Pain';
-    default: return '🥫 Autre';
+    case 'autre': return '🥫 Autre';
+    default: {
+      const clean = cat.replace(/_/g, ' ');
+      const capitalized = clean.charAt(0).toUpperCase() + clean.slice(1);
+      return `🏷️ ${capitalized}`;
+    }
   }
 }
 
@@ -1197,6 +1246,7 @@ function deleteProduct(productId) {
     products = products.filter(p => p.id !== productId);
     deleteProductFromCloud(productId);
     saveProductsToStorage();
+    renderCategoryTabs();
     renderProducts();
   }
 }
@@ -1210,6 +1260,7 @@ function restoreDefaultCatalogue() {
       }
     });
     saveProductsToStorage();
+    renderCategoryTabs();
     renderProducts();
     closeSettingsModal();
     alert('Catalogue restauré avec succès !');
@@ -1699,8 +1750,41 @@ function shareToWhatsAppGroup() {
 // =============================================================================
 
 function openAddProductModal() {
-  document.getElementById('new-product-name').value = '';
+  const nameInput = document.getElementById('new-product-name');
+  if (nameInput) nameInput.value = '';
+
+  const catSelect = document.getElementById('new-product-category');
+  if (catSelect) {
+    const categories = getAllCategories();
+    let opts = '';
+    categories.forEach(cat => {
+      opts += `<option value="${cat.id}">${escapeHtml(cat.label)}</option>`;
+    });
+    opts += `<option value="__custom__">➕ + Créer une nouvelle catégorie...</option>`;
+    catSelect.innerHTML = opts;
+    catSelect.value = categories[0] ? categories[0].id : 'charcuterie';
+  }
+
+  const customGroup = document.getElementById('custom-category-group');
+  const customInput = document.getElementById('new-custom-category-name');
+  if (customGroup) customGroup.classList.add('hidden');
+  if (customInput) customInput.value = '';
+
   document.getElementById('add-product-modal').classList.remove('hidden');
+}
+
+function handleCategorySelectChange() {
+  const catSelect = document.getElementById('new-product-category');
+  const customGroup = document.getElementById('custom-category-group');
+  const customInput = document.getElementById('new-custom-category-name');
+  if (!catSelect || !customGroup) return;
+
+  if (catSelect.value === '__custom__') {
+    customGroup.classList.remove('hidden');
+    if (customInput) customInput.focus();
+  } else {
+    customGroup.classList.add('hidden');
+  }
 }
 
 function closeAddProductModal() {
@@ -1710,23 +1794,45 @@ function closeAddProductModal() {
 function confirmAddProduct() {
   const nameInput = document.getElementById('new-product-name');
   const name = nameInput.value.trim();
-  const category = document.getElementById('new-product-category').value;
-
   if (!name) {
     alert('Veuillez entrer un nom de produit.');
     return;
   }
 
+  const catSelect = document.getElementById('new-product-category');
+  let category = catSelect ? catSelect.value : 'autre';
+
+  if (category === '__custom__') {
+    const customInput = document.getElementById('new-custom-category-name');
+    const customName = customInput ? customInput.value.trim() : '';
+    if (!customName) {
+      alert('Veuillez renseigner le nom de la nouvelle catégorie.');
+      return;
+    }
+    // Génération d'un identifiant propre pour la catégorie
+    category = customName.toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/^_+|_+$/g, '');
+    if (!category) category = 'cat_' + Date.now();
+  }
+
+  let icon = '🏷️';
+  if (category === 'fromage') icon = '🧀';
+  else if (category === 'charcuterie') icon = '🥓';
+  else if (category === 'pate') icon = '🍕';
+
   const newProd = {
     id: 'prod_' + Date.now(),
     name: name,
     category: category,
-    icon: category === 'fromage' ? '🧀' : category === 'charcuterie' ? '🥓' : category === 'pate' ? '🍕' : '🥫',
+    icon: icon,
     batches: []
   };
 
   products.push(newProd);
   saveProductsToStorage();
+  renderCategoryTabs();
   renderProducts();
   closeAddProductModal();
   openDlcModal(newProd.id);
@@ -1860,6 +1966,7 @@ function importBackupData(event) {
             }
           }
           saveProductsToStorage();
+          renderCategoryTabs();
           renderProducts();
           updateKpiCounts();
           renderCriticalDlcAlerts();
