@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>BOB • Suivi des DLC & Traçabilité</title>
+  <meta name="robots" content="noindex, nofollow">
+  
+  <!-- Polices Google : Josefin Sans & Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- PWA & Mobile Web App Meta -->
+  <meta name="theme-color" content="#ffd15b">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
+  <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
+
+  <!-- Feuille de style dédiée -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Écran de Verrouillage PIN Bar -->
+  <div id="pin-screen" class="pin-overlay hidden">
+    <div class="pin-card">
+      <div class="pin-logo">
+        <img src="../assets/logos/BOB LOGO B.svg" alt="BOB Lyon" onerror="this.src='../assets/logos/BOB LOGO B.png'">
+      </div>
+      <h2>Accès Équipe BOB</h2>
+      <p>Entrez le code PIN du bar pour accéder aux DLC</p>
+      
+      <div class="pin-dots">
+        <span class="dot" id="dot-1"></span>
+        <span class="dot" id="dot-2"></span>
+        <span class="dot" id="dot-3"></span>
+        <span class="dot" id="dot-4"></span>
+      </div>
+      <div id="pin-error" class="pin-error-msg hidden">Code PIN incorrect</div>
+
+      <div class="pin-pad">
+        <button type="button" class="pin-btn" onclick="pressPin('1')">1</button>
+        <button type="button" class="pin-btn" onclick="pressPin('2')">2</button>
+        <button type="button" class="pin-btn" onclick="pressPin('3')">3</button>
+        <button type="button" class="pin-btn" onclick="pressPin('4')">4</button>
+        <button type="button" class="pin-btn" onclick="pressPin('5')">5</button>
+        <button type="button" class="pin-btn" onclick="pressPin('6')">6</button>
+        <button type="button" class="pin-btn" onclick="pressPin('7')">7</button>
+        <button type="button" class="pin-btn" onclick="pressPin('8')">8</button>
+        <button type="button" class="pin-btn" onclick="pressPin('9')">9</button>
+        <button type="button" class="pin-btn pin-btn-sub" onclick="clearPin()"><i class="fa-solid fa-rotate-left"></i></button>
+        <button type="button" class="pin-btn" onclick="pressPin('0')">0</button>
+        <button type="button" class="pin-btn pin-btn-sub" onclick="deletePin()"><i class="fa-solid fa-delete-left"></i></button>
+      </div>
+
+      <div class="pin-remember">
+        <label>
+          <input type="checkbox" id="remember-device" checked> Rester connecté sur ce téléphone
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Application Principale -->
+  <div id="app-container" class="app-wrapper">
+    
+    <!-- En-tête de l'application -->
+    <header class="app-header">
+      <div class="header-top">
+        <div class="brand-info">
+          <img src="../assets/logos/BOB LOGO B.svg" alt="BOB" class="brand-logo" onerror="this.src='../assets/logos/BOB LOGO B.png'">
+          <div>
+            <h1>BOB • DLC & Hygiène</h1>
+            <span class="current-date" id="live-date">Chargement...</span>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="btn-icon" onclick="openSettingsModal()" title="Paramètres & Code PIN">
+            <i class="fa-solid fa-gear"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bouton d'action WhatsApp Équipe -->
+      <div class="quick-whatsapp-banner">
+        <button class="btn-whatsapp-share" onclick="shareToWhatsAppGroup()">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span>Envoyer le récap du jour sur le groupe WhatsApp</span>
+        </button>
+      </div>
+
+      <!-- Tableau de bord / Compteurs rapides -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-red" onclick="filterByStatus('red')">
+          <div class="kpi-count" id="count-red">0</div>
+          <div class="kpi-label"><i class="fa-solid fa-triangle-exclamation"></i> Périmé</div>
+        </div>
+        <div class="kpi-card kpi-orange" onclick="filterByStatus('orange')">
+          <div class="kpi-count" id="count-orange">0</div>
+          <div class="kpi-label"><i class="fa-solid fa-clock"></i> &le; 7 jours</div>
+        </div>
+        <div class="kpi-card kpi-green" onclick="filterByStatus('green')">
+          <div class="kpi-count" id="count-green">0</div>
+          <div class="kpi-label"><i class="fa-solid fa-circle-check"></i> &gt; 7 jours</div>
+        </div>
+        <div class="kpi-card kpi-neutral" onclick="filterByStatus('all')">
+          <div class="kpi-count" id="count-total">10</div>
+          <div class="kpi-label"><i class="fa-solid fa-list-check"></i> Total</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Filtres par catégorie -->
+    <nav class="category-tabs">
+      <button class="tab-btn active" id="tab-all" onclick="switchCategory('all')">Tous</button>
+      <button class="tab-btn" id="tab-charcuterie" onclick="switchCategory('charcuterie')">🥓 Charcuterie</button>
+      <button class="tab-btn" id="tab-fromage" onclick="switchCategory('fromage')">🧀 Fromages</button>
+      <button class="tab-btn" id="tab-pate" onclick="switchCategory('pate')">🍕 Pâtes</button>
+    </nav>
+
+    <!-- Liste des produits -->
+    <main class="products-container" id="products-list">
+      <!-- Généré dynamiquement en JS -->
+    </main>
+
+    <!-- Bouton pour ajouter un produit hors-carte -->
+    <div class="bottom-action-bar">
+      <button class="btn-add-product" onclick="openAddProductModal()">
+        <i class="fa-solid fa-plus"></i> Ajouter un produit hors-carte
+      </button>
+    </div>
+
+  </div>
+
+  <!-- MODAL 1 : Saisie / Remplacement de DLC -->
+  <div id="dlc-modal" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <span class="modal-subtitle" id="modal-category">Fromage</span>
+          <h3 class="modal-title" id="modal-product-name">Nom du Produit</h3>
+        </div>
+        <button class="btn-close" onclick="closeDlcModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        
+        <!-- Choix Remplacement vs 2e Lot (si déjà 1 lot existant) -->
+        <div id="batch-choice-container" class="batch-choice-box hidden">
+          <div class="choice-title">
+            <i class="fa-solid fa-layer-group"></i> Que souhaitez-vous faire ?
+          </div>
+          <div class="choice-options">
+            <label class="choice-card active" id="label-replace">
+              <input type="radio" name="batchAction" value="replace" checked onchange="toggleBatchAction('replace')">
+              <div class="choice-content">
+                <strong><i class="fa-solid fa-arrows-rotate"></i> Remplacer le lot actuel</strong>
+                <span>(ex: nouveau jambon blanc acheté à l'unité)</span>
+              </div>
+            </label>
+            <label class="choice-card" id="label-add">
+              <input type="radio" name="batchAction" value="add" onchange="toggleBatchAction('add')">
+              <div class="choice-content">
+                <strong><i class="fa-solid fa-plus"></i> Ajouter un 2e lot</strong>
+                <span>(ex: nouvelle livraison pâtes avec stock restant)</span>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Date de DLC -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fa-regular fa-calendar-days text-gold"></i> Date Limite de Consommation (DLC)
+          </label>
+          <input type="date" id="input-dlc-date" class="form-input-date" required>
+        </div>
+
+        <!-- Raccourcis de dates rapides -->
+        <div class="quick-days-selector">
+          <span class="selector-label">Raccourcis rapides :</span>
+          <div class="days-chips">
+            <button type="button" class="chip-btn" onclick="addDaysToDate(3)">+3 jours</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(5)">+5 jours</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(7)">+7 jours</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(10)">+10 jours</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(14)">+2 sem</button>
+            <button type="button" class="chip-btn" onclick="addDaysToDate(30)">+1 mois</button>
+          </div>
+        </div>
+
+        <!-- Photo de l'étiquette (Capture Appareil Photo) -->
+        <div class="form-group photo-section">
+          <label class="form-label">
+            <i class="fa-solid fa-camera text-gold"></i> Photo de l'étiquette / Traçabilité
+          </label>
+          
+          <div id="photo-preview-box" class="photo-preview-box hidden">
+            <img id="img-preview" src="" alt="Aperçu étiquette">
+            <button type="button" class="btn-remove-photo" onclick="removePhoto()" title="Supprimer la photo">
+              <i class="fa-solid fa-trash"></i>
+            </button>
+          </div>
+
+          <label class="btn-camera-trigger" id="btn-camera-label">
+            <i class="fa-solid fa-camera-retro"></i>
+            <span>Prendre en photo l'étiquette</span>
+            <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handlePhotoUpload(event)">
+          </label>
+          <small class="photo-hint">Compresse l'image pour un chargement instantané sans saturer la mémoire.</small>
+        </div>
+
+        <!-- Notes / N° de lot fournisseur (Optionnel) -->
+        <div class="form-group">
+          <label class="form-label">
+            <i class="fa-regular fa-note-sticky text-gold"></i> N° de lot ou Note (Optionnel)
+          </label>
+          <input type="text" id="input-lot-note" class="form-input-text" placeholder="Ex: Ouvert ce midi, paquet 2/3...">
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeDlcModal()">Annuler</button>
+        <button type="button" class="btn-submit" onclick="saveDlc()">
+          <i class="fa-solid fa-check"></i> Enregistrer
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 2 : Visualiseur Photo Plein Écran (Lightbox) -->
+  <div id="lightbox-modal" class="modal-overlay hidden" onclick="closeLightbox()">
+    <div class="lightbox-dialog" onclick="event.stopPropagation()">
+      <button class="btn-lightbox-close" onclick="closeLightbox()"><i class="fa-solid fa-xmark"></i></button>
+      <img id="lightbox-img" src="" alt="Étiquette en grand">
+      <div class="lightbox-caption" id="lightbox-caption">Photo de traçabilité</div>
+    </div>
+  </div>
+
+  <!-- MODAL 3 : Nouveau Produit Hors-Carte -->
+  <div id="add-product-modal" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title">Ajouter un produit hors-carte</h3>
+        <button class="btn-close" onclick="closeAddProductModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Nom du produit</label>
+          <input type="text" id="new-product-name" class="form-input-text" placeholder="Ex: Burrata des Pouilles, Truffade..." required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Catégorie</label>
+          <select id="new-product-category" class="form-select">
+            <option value="fromage">🧀 Fromage</option>
+            <option value="charcuterie">🥓 Charcuterie</option>
+            <option value="pate">🍕 Pâte & Pain</option>
+            <option value="autre">🥫 Autre denrée</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeAddProductModal()">Annuler</button>
+        <button type="button" class="btn-submit" onclick="confirmAddProduct()">Créer le produit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 4 : Paramètres & Gestion Code PIN -->
+  <div id="settings-modal" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-gear text-gold"></i> Paramètres du bar</h3>
+        <button class="btn-close" onclick="closeSettingsModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="settings-section">
+          <h4>Code PIN du Bar</h4>
+          <p class="settings-desc">Code à 4 chiffres partagé avec l'équipe pour accéder à l'application.</p>
+          <div class="form-group">
+            <input type="password" id="settings-new-pin" maxlength="4" class="form-input-text text-center" placeholder="Nouveau code (ex: 1234)">
+          </div>
+          <button type="button" class="btn-secondary" onclick="updateBarPin()">Mettre à jour le code PIN</button>
+        </div>
+
+        <hr class="settings-divider">
+
+        <div class="settings-section">
+          <h4>Export & Contrôles Hygiène</h4>
+          <p class="settings-desc">Téléchargez l'état des DLC pour les contrôles sanitaires (HACCP).</p>
+          <button type="button" class="btn-secondary" onclick="exportDlcReport()">
+            <i class="fa-solid fa-file-arrow-down"></i> Télécharger le rapport CSV
+          </button>
+        </div>
+
+        <hr class="settings-divider">
+
+        <div class="settings-section">
+          <h4>Sécurité</h4>
+          <button type="button" class="btn-danger" onclick="lockApp()">
+            <i class="fa-solid fa-lock"></i> Verrouiller l'accès sur cet appareil
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Canvas caché pour compression d'image ultra-légère -->
+  <canvas id="compress-canvas" style="display:none;"></canvas>
+
+  <!-- Script JS de l'application -->
+  <script src="app.js"></script>
+</body>
+</html>

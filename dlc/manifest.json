@@ -1,0 +1,16 @@
+{
+  "name": "BOB • Suivi DLC & Hygiène",
+  "short_name": "DLC BOB",
+  "description": "Application de suivi des DLC et traçabilité pour l'équipe du bar BOB",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0d0d10",
+  "theme_color": "#ffd15b",
+  "icons": [
+    {
+      "src": "../assets/logos/BOB EMBLEME B.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ]
+}
