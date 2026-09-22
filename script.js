@@ -86,18 +86,18 @@ function initLiveScheduleStatus() {
           message = 'Fermé • Ouvre aujourd’hui à 16h00';
           dotClass = 'soon';
         }
-      } else if (day === 1) { // Lundi : 17h00 à 23h00
-        if (currentTimeInMinutes >= 17 * 60 && currentTimeInMinutes < 23 * 60) {
+      } else if (day === 1) { // Lundi : 18h00 à 00h00
+        if (currentTimeInMinutes >= 18 * 60 && currentTimeInMinutes < 24 * 60) {
           isOpen = true;
           if (currentTimeInMinutes < 20 * 60) {
             message = 'Ouvert • ⚡ HAPPY HOUR en cours !';
           } else {
-            message = 'Ouvert actuellement (ferme à 23h)';
+            message = 'Ouvert actuellement (ferme à minuit)';
           }
           dotClass = '';
-        } else if (currentTimeInMinutes < 17 * 60) {
+        } else if (currentTimeInMinutes < 18 * 60) {
           isOpen = false;
-          message = 'Fermé • Ouvre aujourd’hui à 17h00';
+          message = 'Fermé • Ouvre aujourd’hui à 18h00';
           dotClass = 'soon';
         } else {
           isOpen = false;
@@ -106,7 +106,7 @@ function initLiveScheduleStatus() {
         }
       } else if (day === 0) { // Dimanche : Fermé
         isOpen = false;
-        message = 'Fermé le dimanche • Réouverture lundi à 17h';
+        message = 'Fermé le dimanche • Réouverture lundi à 18h';
         dotClass = 'closed';
       }
     }
