@@ -41,6 +41,8 @@ let currentFilterCategory = 'all';
 let currentFilterStatus = 'all';
 let activeEditingProductId = null;
 let currentUploadedPhotoBase64 = null;
+let currentBatchAction = 'replace';
+let currentConservationType = 'DLC';
 let enteredPin = '';
 let db = null;
 let isApplyingCloudSnapshot = false;
@@ -74,7 +76,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.5.1').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.5.2').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -82,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.5.1';
+const APP_VERSION = 'v1.5.2';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -351,7 +353,11 @@ function pullCloudToLocal() {
 }
 
 function saveProductsToStorage(specificProduct = null) {
-  localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+  try {
+    localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+  } catch (e) {
+    console.warn('Quota localStorage dépassé ou restriction Safari:', e);
+  }
   renderCategoryTabs();
   updateKpiCounts();
   renderCriticalDlcAlerts();
@@ -1002,7 +1008,7 @@ function openDlcModal(productId) {
   document.getElementById('input-dlc-date').value = defaultDate.toISOString().split('T')[0];
   
   // Type par défaut : DLC
-  toggleConservationType('DLC');
+  selectConservationType('DLC');
 
   // Reset champs & OCR
   document.getElementById('input-lot-note').value = '';
@@ -1013,9 +1019,10 @@ function openDlcModal(productId) {
   const choiceContainer = document.getElementById('batch-choice-container');
   if (prod.batches && prod.batches.length > 0) {
     choiceContainer.classList.remove('hidden');
-    toggleBatchAction('replace');
+    selectBatchAction('replace');
   } else {
     choiceContainer.classList.add('hidden');
+    selectBatchAction('replace');
   }
 
   document.getElementById('dlc-modal').classList.remove('hidden');
@@ -1028,20 +1035,35 @@ function closeDlcModal() {
   resetOcrStatus();
 }
 
-function toggleBatchAction(action) {
+function selectBatchAction(action) {
+  currentBatchAction = action;
   const radio = document.querySelector(`input[name="batchAction"][value="${action}"]`);
   if (radio) radio.checked = true;
 
-  document.getElementById('label-replace').classList.toggle('active', action === 'replace');
-  document.getElementById('label-add').classList.toggle('active', action === 'add');
+  const labelReplace = document.getElementById('label-replace');
+  const labelAdd = document.getElementById('label-add');
+  if (labelReplace) labelReplace.classList.toggle('active', action === 'replace');
+  if (labelAdd) labelAdd.classList.toggle('active', action === 'add');
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(20); } catch (e) {}
+  }
 }
 
-function toggleConservationType(type) {
+// Alias pour rétro-compatibilité
+function toggleBatchAction(action) {
+  selectBatchAction(action);
+}
+
+function selectConservationType(type) {
+  currentConservationType = type;
   const radio = document.querySelector(`input[name="conservationType"][value="${type}"]`);
   if (radio) radio.checked = true;
 
-  document.getElementById('label-type-dlc').classList.toggle('active', type === 'DLC');
-  document.getElementById('label-type-dluo').classList.toggle('active', type === 'DLUO');
+  const labelDlc = document.getElementById('label-type-dlc');
+  const labelDluo = document.getElementById('label-type-dluo');
+  if (labelDlc) labelDlc.classList.toggle('active', type === 'DLC');
+  if (labelDluo) labelDluo.classList.toggle('active', type === 'DLUO');
 
   const titleEl = document.getElementById('label-date-title');
   if (titleEl) {
@@ -1049,6 +1071,15 @@ function toggleConservationType(type) {
       ? "Date Limite de Consommation (DLC - impératif)" 
       : "Date de Durabilité Minimale (DLUO - de préférence)";
   }
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(20); } catch (e) {}
+  }
+}
+
+// Alias pour rétro-compatibilité
+function toggleConservationType(type) {
+  selectConservationType(type);
 }
 
 function addDaysToDate(days) {
@@ -1068,10 +1099,10 @@ function saveDlc() {
   }
 
   const typeRadio = document.querySelector('input[name="conservationType"]:checked');
-  const conservationType = typeRadio ? typeRadio.value : 'DLC';
+  const conservationType = currentConservationType || (typeRadio ? typeRadio.value : 'DLC');
   const note = document.getElementById('input-lot-note').value.trim();
   const actionRadio = document.querySelector('input[name="batchAction"]:checked');
-  const batchAction = actionRadio ? actionRadio.value : 'replace';
+  const batchAction = currentBatchAction || (actionRadio ? actionRadio.value : 'replace');
 
   const newBatch = {
     id: 'batch_' + Date.now(),
@@ -1092,8 +1123,8 @@ function saveDlc() {
     prod.batches.push(newBatch);
   }
 
-  // Trier les lots par date croissante
-  prod.batches.sort((a, b) => new Date(a.dlc) - new Date(b.dlc));
+  // Trier les lots par date croissante (comparaison de chaînes ISO 'YYYY-MM-DD' sûre et robuste sur tous navigateurs)
+  prod.batches.sort((a, b) => (a.dlc || '').localeCompare(b.dlc || ''));
 
   saveProductsToStorage(prod);
   renderProducts();

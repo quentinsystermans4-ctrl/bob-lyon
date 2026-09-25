@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>BOB • Suivi des DLC & Traçabilité</title>
   <meta name="robots" content="noindex, nofollow">
   
@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v1.5.1 -->
-  <link rel="stylesheet" href="style.css?v=1.5.1">
+  <!-- Feuille de style dédiée avec cache-busting v1.5.2 -->
+  <link rel="stylesheet" href="style.css?v=1.5.2">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
           <div>
             <div class="header-title-row">
               <h1>BOB • DLC & Hygiène</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.5.1</span></span>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.5.2</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
@@ -153,7 +153,7 @@
 
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.5.1</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.5.2</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
 
@@ -178,20 +178,20 @@
             <i class="fa-solid fa-layer-group"></i> Que souhaitez-vous faire ?
           </div>
           <div class="choice-options">
-            <label class="choice-card active" id="label-replace">
-              <input type="radio" name="batchAction" value="replace" checked onchange="toggleBatchAction('replace')">
+            <div class="choice-card active" id="label-replace" onclick="selectBatchAction('replace')" role="button" tabindex="0">
+              <input type="radio" name="batchAction" id="radio-batch-replace" value="replace" checked>
               <div class="choice-content">
                 <strong><i class="fa-solid fa-arrows-rotate"></i> Remplacer le lot actuel</strong>
                 <span>(ex: nouveau jambon blanc acheté à l'unité)</span>
               </div>
-            </label>
-            <label class="choice-card" id="label-add">
-              <input type="radio" name="batchAction" value="add" onchange="toggleBatchAction('add')">
+            </div>
+            <div class="choice-card" id="label-add" onclick="selectBatchAction('add')" role="button" tabindex="0">
+              <input type="radio" name="batchAction" id="radio-batch-add" value="add">
               <div class="choice-content">
                 <strong><i class="fa-solid fa-plus"></i> Ajouter un 2e lot</strong>
                 <span>(ex: nouvelle livraison pâtes avec stock restant)</span>
               </div>
-            </label>
+            </div>
           </div>
         </div>
 
@@ -233,20 +233,20 @@
             <i class="fa-solid fa-tag text-gold"></i> Type de date
           </label>
           <div class="type-choice-grid">
-            <label class="type-card active" id="label-type-dlc">
-              <input type="radio" name="conservationType" value="DLC" checked onchange="toggleConservationType('DLC')">
+            <div class="type-card active" id="label-type-dlc" onclick="selectConservationType('DLC')" role="button" tabindex="0">
+              <input type="radio" name="conservationType" id="radio-type-dlc" value="DLC" checked>
               <div class="type-card-body">
                 <strong>🔴 DLC</strong>
                 <span>À consommer jusqu'au (impératif)</span>
               </div>
-            </label>
-            <label class="type-card" id="label-type-dluo">
-              <input type="radio" name="conservationType" value="DLUO" onchange="toggleConservationType('DLUO')">
+            </div>
+            <div class="type-card" id="label-type-dluo" onclick="selectConservationType('DLUO')" role="button" tabindex="0">
+              <input type="radio" name="conservationType" id="radio-type-dluo" value="DLUO">
               <div class="type-card-body">
                 <strong>🔵 DLUO / DDM</strong>
                 <span>De préférence avant (souple)</span>
               </div>
-            </label>
+            </div>
           </div>
         </div>
 
@@ -393,7 +393,7 @@
 
         <div class="settings-section">
           <h4>Version & Mise à jour</h4>
-          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.5.1) si le téléphone a gardé l'ancien cache.</p>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.5.2) si le téléphone a gardé l'ancien cache.</p>
           <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
             <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
           </button>
@@ -466,7 +466,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v1.5.1 -->
-  <script src="app.js?v=1.5.1"></script>
+  <!-- Script JS de l'application avec cache-busting v1.5.2 -->
+  <script src="app.js?v=1.5.2"></script>
 </body>
 </html>
