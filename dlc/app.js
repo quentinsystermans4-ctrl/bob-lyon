@@ -33,7 +33,8 @@ const STORAGE_KEYS = {
   ARCHIVES: 'bob_dlc_archives_v1',
   SHOPPING: 'bob_dlc_shopping_v1',
   TEMPERATURE: 'bob_dlc_temperature_v1',
-  CALENDAR: 'bob_dlc_calendar_v1'
+  CALENDAR: 'bob_dlc_calendar_v1',
+  LIGHTS_URL: 'bob_lights_server_url_v1'
 };
 
 // État global en mémoire
@@ -93,18 +94,20 @@ document.addEventListener('DOMContentLoaded', () => {
   updateCalendarBadge();
   initFirebase();
 
-  // Navigation initiale selon l'URL hash (#courses, #temperatures, #calendrier ou #dlc)
+  // Navigation initiale selon l'URL hash (#courses, #temperatures, #calendrier, #lumieres ou #dlc)
   if (window.location.hash === '#courses') {
     switchStaffView('shopping', false);
   } else if (window.location.hash === '#temperatures') {
     switchStaffView('temperature', false);
   } else if (window.location.hash === '#calendrier' || window.location.hash === '#calendar') {
     switchStaffView('calendar', false);
+  } else if (window.location.hash === '#lumieres' || window.location.hash === '#lights' || window.location.hash === '#eclairage') {
+    switchStaffView('lights', false);
   }
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.8.1').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.9.0').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -112,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.8.1';
+const APP_VERSION = 'v1.9.0';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -2031,6 +2034,8 @@ function confirmAddProduct() {
 
 function openSettingsModal() {
   document.getElementById('settings-new-pin').value = '';
+  const lightsInput = document.getElementById('settings-lights-url');
+  if (lightsInput) lightsInput.value = getLightsServerUrl();
   document.getElementById('settings-modal').classList.remove('hidden');
 }
 
@@ -2221,22 +2226,31 @@ function switchStaffView(viewName, updateHash = true) {
   const shoppingView = document.getElementById('view-shopping');
   const tempView = document.getElementById('view-temperature');
   const calendarView = document.getElementById('view-calendar');
+  const lightsView = document.getElementById('view-lights');
 
   const dlcTab = document.getElementById('tab-nav-dlc');
   const shoppingTab = document.getElementById('tab-nav-shopping');
   const tempTab = document.getElementById('tab-nav-temp');
   const calendarTab = document.getElementById('tab-nav-calendar');
+  const lightsTab = document.getElementById('tab-nav-lights');
 
   // Masquer toutes les vues d'abord
   if (dlcView) dlcView.classList.add('hidden');
   if (shoppingView) shoppingView.classList.add('hidden');
   if (tempView) tempView.classList.add('hidden');
   if (calendarView) calendarView.classList.add('hidden');
+  if (lightsView) lightsView.classList.add('hidden');
 
   if (dlcTab) dlcTab.classList.remove('active');
   if (shoppingTab) shoppingTab.classList.remove('active');
   if (tempTab) tempTab.classList.remove('active');
   if (calendarTab) calendarTab.classList.remove('active');
+  if (lightsTab) lightsTab.classList.remove('active');
+
+  // Arrêter le polling d'éclairage si on quitte l'onglet
+  if (viewName !== 'lights') {
+    stopLightsPolling();
+  }
 
   if (viewName === 'shopping') {
     if (shoppingView) shoppingView.classList.remove('hidden');
@@ -2260,6 +2274,13 @@ function switchStaffView(viewName, updateHash = true) {
     }
     renderCalendarMonth();
     renderAgendaForSelectedDate();
+  } else if (viewName === 'lights') {
+    if (lightsView) lightsView.classList.remove('hidden');
+    if (lightsTab) lightsTab.classList.add('active');
+    if (updateHash) {
+      history.replaceState(null, null, '#lumieres');
+    }
+    startLightsPolling();
   } else {
     // Vue par défaut : dlc
     if (dlcView) dlcView.classList.remove('hidden');
@@ -3359,4 +3380,366 @@ function updateCalendarBadge() {
     badge.classList.add('hidden');
   }
 }
+
+// =============================================================================
+// 13. VUE ÉCLAIRAGE CONNECTÉ DU BAR (v1.9.0)
+// =============================================================================
+
+const DEFAULT_LIGHTS_URL = 'http://192.168.1.211:8080';
+
+// Équipements répertoriés du bar (cache immédiat)
+const DEFAULT_LIGHTS_DEVICES = [
+  { id: 'win_L',  name: 'Window L (Vitrine Gauche)', kind: 'vintage' },
+  { id: 'win_R',  name: 'Window R (Vitrine Droite)', kind: 'vintage' },
+  { id: 'led_mz', name: 'LED Mezzanine',             kind: 'switch' },
+  { id: 'lmp_mz', name: 'Lampe Mezzanine',           kind: 'switch' },
+  { id: 'kit',    name: 'Cuisine',                   kind: 'switch' },
+  { id: 'ext',    name: 'Extérieur (Terrasse)',      kind: 'switch' },
+  { id: 'yee_1',  name: 'Salle (Milieu)',            kind: 'yeelight' },
+  { id: 'yee_2',  name: 'Comptoir (Bar)',            kind: 'yeelight' },
+  { id: 'yee_3',  name: 'Escalier',                  kind: 'yeelight' }
+];
+
+const LIGHTS_SECTIONS = [
+  { title: 'Vitrines (Ampoules Vintage)', kind: 'vintage', icon: 'fa-regular fa-sun' },
+  { title: 'Interrupteurs & Prises',     kind: 'switch',  icon: 'fa-solid fa-toggle-on' },
+  { title: 'Yeelights (Ambiance Bar)',    kind: 'yeelight',icon: 'fa-solid fa-wand-magic-sparkles' }
+];
+
+let lightsDevices = [];
+let lightsStatus = {};
+let lightsPollingTimer = null;
+let lightsIsInteracting = false;
+let lightsConnectionState = 'checking'; // 'online' | 'offline' | 'checking'
+
+document.addEventListener('pointerup', () => { lightsIsInteracting = false; });
+document.addEventListener('pointercancel', () => { lightsIsInteracting = false; });
+
+function getLightsServerUrl() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEYS.LIGHTS_URL);
+    if (saved && saved.trim()) {
+      return saved.trim().replace(/\/+$/, '');
+    }
+  } catch (e) {}
+  return DEFAULT_LIGHTS_URL;
+}
+
+function saveLightsServerUrl() {
+  const input = document.getElementById('settings-lights-url');
+  if (!input) return;
+  let val = input.value.trim().replace(/\/+$/, '');
+  if (!val) {
+    val = DEFAULT_LIGHTS_URL;
+  }
+  if (!val.startsWith('http://') && !val.startsWith('https://')) {
+    val = 'http://' + val;
+  }
+  try {
+    localStorage.setItem(STORAGE_KEYS.LIGHTS_URL, val);
+  } catch (e) {}
+
+  updateLightsEndpointLabel();
+  showStaffToast(`⚙️ Contrôleur enregistré : ${val}`);
+  closeSettingsModal();
+  refreshLightsNow();
+}
+
+function resetLightsServerUrl() {
+  try {
+    localStorage.removeItem(STORAGE_KEYS.LIGHTS_URL);
+  } catch (e) {}
+  const input = document.getElementById('settings-lights-url');
+  if (input) input.value = DEFAULT_LIGHTS_URL;
+  updateLightsEndpointLabel();
+  showStaffToast('🔄 Adresse réinitialisée sur 192.168.1.211:8080');
+  refreshLightsNow();
+}
+
+function updateLightsEndpointLabel() {
+  const label = document.getElementById('lights-endpoint-display');
+  const directLink = document.getElementById('lights-direct-link');
+  const url = getLightsServerUrl();
+  try {
+    const u = new URL(url);
+    if (label) label.textContent = u.host || url;
+  } catch (e) {
+    if (label) label.textContent = url;
+  }
+  if (directLink) directLink.href = url;
+}
+
+function updateLightsConnectionBadge(state, message) {
+  lightsConnectionState = state;
+  const pill = document.getElementById('lights-status-pill');
+  const label = document.getElementById('lights-status-label');
+  const alertBox = document.getElementById('lights-conn-alert');
+
+  if (pill) {
+    pill.classList.remove('offline', 'checking');
+    if (state === 'offline') pill.classList.add('offline');
+    else if (state === 'checking') pill.classList.add('checking');
+  }
+
+  if (label) {
+    if (state === 'online') {
+      label.textContent = message || 'En ligne (Raspberry Pi)';
+    } else if (state === 'checking') {
+      label.textContent = message || 'Connexion au bar...';
+    } else {
+      label.textContent = message || 'Hors-ligne / Injoignable';
+    }
+  }
+
+  if (alertBox) {
+    if (state === 'offline') {
+      alertBox.classList.remove('hidden');
+    } else {
+      alertBox.classList.add('hidden');
+    }
+  }
+}
+
+async function fetchLightsData() {
+  if (lightsIsInteracting) return;
+  const baseUrl = getLightsServerUrl();
+
+  // 1. Récupération des devices si la liste n'est pas encore en mémoire
+  if (!lightsDevices || lightsDevices.length === 0) {
+    try {
+      const resDevs = await fetch(`${baseUrl}/api/devices`, { signal: AbortSignal.timeout(3000) });
+      if (resDevs.ok) {
+        lightsDevices = await resDevs.json();
+      }
+    } catch (err) {
+      if (!lightsDevices || lightsDevices.length === 0) {
+        lightsDevices = DEFAULT_LIGHTS_DEVICES;
+      }
+    }
+  }
+
+  // 2. Récupération des statuts en direct
+  try {
+    const resStatus = await fetch(`${baseUrl}/api/status`, { signal: AbortSignal.timeout(3000) });
+    if (resStatus.ok) {
+      lightsStatus = await resStatus.json();
+      updateLightsConnectionBadge('online', 'En ligne (Raspberry Pi)');
+    } else {
+      updateLightsConnectionBadge('offline', `Erreur HTTP ${resStatus.status}`);
+    }
+  } catch (err) {
+    console.warn('Erreur connexion éclairage:', err);
+    updateLightsConnectionBadge('offline', 'Injoignable (Hors Wi-Fi ou Mixed Content)');
+  }
+
+  renderLightsSections();
+}
+
+function startLightsPolling() {
+  stopLightsPolling();
+  updateLightsEndpointLabel();
+  fetchLightsData();
+  lightsPollingTimer = setInterval(() => {
+    if (currentActiveView === 'lights') {
+      fetchLightsData();
+    }
+  }, 3000);
+}
+
+function stopLightsPolling() {
+  if (lightsPollingTimer) {
+    clearInterval(lightsPollingTimer);
+    lightsPollingTimer = null;
+  }
+}
+
+function refreshLightsNow() {
+  const icon = document.getElementById('lights-refresh-icon');
+  if (icon) icon.classList.add('fa-spin');
+  fetchLightsData().finally(() => {
+    setTimeout(() => {
+      if (icon) icon.classList.remove('fa-spin');
+    }, 600);
+  });
+}
+
+function rgbToHex(n) {
+  if (typeof n !== 'number' || isNaN(n)) return '#ffffff';
+  return '#' + (n & 0xffffff).toString(16).padStart(6, '0');
+}
+
+function hexToInt(h) {
+  return parseInt(h.replace('#', ''), 16);
+}
+
+function renderLightsSections() {
+  const container = document.getElementById('lights-sections-container');
+  if (!container) return;
+
+  const devsToRender = (lightsDevices && lightsDevices.length > 0) ? lightsDevices : DEFAULT_LIGHTS_DEVICES;
+  let html = '';
+
+  for (const sec of LIGHTS_SECTIONS) {
+    const devs = devsToRender.filter(d => d.kind === sec.kind);
+    if (!devs.length) continue;
+
+    html += `
+      <div class="lights-section">
+        <div class="lights-section-title">
+          <i class="${sec.icon}"></i> ${sec.title}
+        </div>
+        <div class="lights-grid">
+    `;
+
+    for (const d of devs) {
+      const s = lightsStatus[d.id] || {};
+      const isOn = s.on === true;
+      const isOffline = s.offline === true;
+      const cardClass = `light-card ${isOn ? 'is-on' : ''} ${isOffline ? 'is-offline' : ''}`;
+
+      html += `
+        <div class="${cardClass}" id="card-light-${d.id}">
+          <div class="light-card-top">
+            <span class="light-card-name" title="${escapeHtml(d.name)}">${escapeHtml(d.name)}</span>
+            <span class="light-status-dot"></span>
+          </div>
+
+          <button type="button" class="btn-light-power" 
+            onclick="actLight('${d.id}', 'toggle')" 
+            ${isOffline ? 'disabled' : ''}>
+            <i class="fa-solid fa-power-off"></i>
+            <span>${isOffline ? 'Hors-ligne' : (isOn ? 'ALLUMÉ' : 'ÉTEINT')}</span>
+          </button>
+      `;
+
+      // Variateur de luminosité (Vintage & Yeelight)
+      if (!isOffline && (sec.kind === 'vintage' || sec.kind === 'yeelight')) {
+        const bri = typeof s.bri === 'number' ? s.bri : 50;
+        html += `
+          <div class="light-slider-row">
+            <i class="fa-solid fa-sun light-slider-icon"></i>
+            <input type="range" min="1" max="100" value="${bri}" 
+              class="light-range-slider"
+              onpointerdown="lightsIsInteracting=true"
+              oninput="const el = document.getElementById('bri-val-${d.id}'); if (el) el.textContent = this.value + '%';"
+              onchange="setLightBri('${d.id}', this.value)">
+            <span class="light-slider-val" id="bri-val-${d.id}">${bri}%</span>
+          </div>
+        `;
+      }
+
+      // Palette de couleur (Yeelight)
+      if (!isOffline && sec.kind === 'yeelight') {
+        const hex = rgbToHex(s.rgb || 0xffffff);
+        html += `
+          <div class="light-color-row">
+            <input type="color" value="${hex}" 
+              class="light-color-input" 
+              title="Choisir une couleur"
+              onchange="setLightRgb('${d.id}', this.value)">
+            <div class="light-color-presets">
+              <button type="button" class="color-swatch-btn" style="background:#ffb74d;" title="Ambre chaleureux" onclick="setLightRgb('${d.id}', '#ffb74d')"></button>
+              <button type="button" class="color-swatch-btn" style="background:#fff3e0;" title="Blanc doux" onclick="setLightRgb('${d.id}', '#fff3e0')"></button>
+              <button type="button" class="color-swatch-btn" style="background:#38bdf8;" title="Bleu nuit" onclick="setLightRgb('${d.id}', '#38bdf8')"></button>
+              <button type="button" class="color-swatch-btn" style="background:#f43f5e;" title="Rouge BOB" onclick="setLightRgb('${d.id}', '#f43f5e')"></button>
+              <button type="button" class="color-swatch-btn" style="background:#a855f7;" title="Violet tamisé" onclick="setLightRgb('${d.id}', '#a855f7')"></button>
+            </div>
+          </div>
+        `;
+      }
+
+      // Statut hors-ligne et bouton retry
+      if (isOffline) {
+        const seen = (s.age_s !== null && s.age_s !== undefined)
+          ? `Vu il y a ${Math.floor(s.age_s / 60) > 0 ? Math.floor(s.age_s / 60) + ' min' : s.age_s + ' s'}`
+          : 'Jamais connecté';
+        html += `
+          <div class="light-offline-info">
+            <span class="light-last-seen">${seen}</span>
+            <button type="button" class="btn-light-retry" onclick="retryLightConnection('${d.id}')">
+              <i class="fa-solid fa-arrows-rotate"></i> Réessayer
+            </button>
+          </div>
+        `;
+      }
+
+      html += `</div>`; // .light-card
+    }
+
+    html += `</div></div>`; // .lights-grid + .lights-section
+  }
+
+  container.innerHTML = html;
+}
+
+async function actLight(id, action, qs = '') {
+  const baseUrl = getLightsServerUrl();
+  try {
+    fetch(`${baseUrl}/api/dev/${id}/${action}${qs ? '?' + qs : ''}`, { mode: 'no-cors' }).catch(() => {});
+    if (lightsStatus[id]) {
+      if (action === 'toggle') lightsStatus[id].on = !lightsStatus[id].on;
+      else if (action === 'on') lightsStatus[id].on = true;
+      else if (action === 'off') lightsStatus[id].on = false;
+      renderLightsSections();
+    }
+    setTimeout(fetchLightsData, 350);
+  } catch (err) {
+    console.warn(`Erreur action ${action} sur ${id}:`, err);
+    showStaffToast('⚠️ Erreur de communication');
+  }
+}
+
+function setLightBri(id, val) {
+  lightsIsInteracting = false;
+  if (lightsStatus[id]) lightsStatus[id].bri = +val;
+  actLight(id, 'bri', 'v=' + val);
+}
+
+function setLightRgb(id, hex) {
+  const intVal = hexToInt(hex);
+  if (lightsStatus[id]) lightsStatus[id].rgb = intVal;
+  actLight(id, 'rgb', 'v=' + intVal);
+}
+
+async function retryLightConnection(id) {
+  const baseUrl = getLightsServerUrl();
+  showStaffToast(`↻ Tentative de reconnexion...`);
+  try {
+    fetch(`${baseUrl}/api/dev/${id}/retry`, { mode: 'no-cors' }).catch(() => {});
+    setTimeout(fetchLightsData, 1500);
+    setTimeout(fetchLightsData, 4000);
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function confirmAllLightsOff() {
+  if (!confirm('Éteindre toutes les lumières du bar (fermeture) ?')) return;
+  const baseUrl = getLightsServerUrl();
+  const devs = (lightsDevices && lightsDevices.length > 0) ? lightsDevices : DEFAULT_LIGHTS_DEVICES;
+
+  showStaffToast('🌙 Extinction de toutes les lampes...');
+  for (const d of devs) {
+    const s = lightsStatus[d.id] || {};
+    if (s.offline) continue;
+    fetch(`${baseUrl}/api/dev/${d.id}/off`, { mode: 'no-cors' }).catch(() => {});
+    if (lightsStatus[d.id]) lightsStatus[d.id].on = false;
+  }
+  renderLightsSections();
+  setTimeout(fetchLightsData, 800);
+}
+
+function copyWifiPassword() {
+  const pwd = 'BOBblondeoubrune';
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(pwd).then(() => {
+      showStaffToast('🔑 Mot de passe Wi-Fi copié !');
+    }).catch(() => {
+      showStaffToast(`Wi-Fi : ${pwd}`);
+    });
+  } else {
+    showStaffToast(`Wi-Fi : ${pwd}`);
+  }
+}
+
 
