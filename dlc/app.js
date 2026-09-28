@@ -117,8 +117,10 @@ const APP_VERSION = 'v1.8.1';
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
   const fEl = document.getElementById('footer-version-text');
+  const sEl = document.getElementById('settings-version-text');
   if (hEl) hEl.textContent = APP_VERSION;
   if (fEl) fEl.textContent = APP_VERSION;
+  if (sEl) sEl.textContent = APP_VERSION;
 }
 
 async function forceAppUpdate() {

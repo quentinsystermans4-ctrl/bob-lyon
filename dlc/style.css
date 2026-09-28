@@ -15,7 +15,7 @@
   
   --text-primary: #ffffff;
   --text-secondary: #a3a3b5;
-  --text-muted: #6e6e80;
+  --text-muted: #88889e;
   
   --color-gold: #ffd15b;
   --color-gold-hover: #ffe082;
@@ -2323,45 +2323,7 @@ body {
   gap: 8px;
 }
 
-.temp-shift-selector {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.temp-shift-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 12px;
-  min-height: 44px;
-  background: var(--bg-card-alt);
-  border: 1px solid var(--border-soft);
-  border-radius: 8px;
-  font-family: var(--font-heading);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  transition: all 0.15s ease;
-  touch-action: manipulation;
-}
-
-.temp-shift-btn input[type="radio"] {
-  position: absolute;
-  opacity: 0;
-  pointer-events: none;
-}
-
-.temp-shift-btn.active {
-  border-color: var(--color-gold);
-  background: rgba(255, 209, 91, 0.14);
-  color: var(--color-gold);
-  box-shadow: 0 0 10px rgba(255, 209, 91, 0.15);
-}
-
+/* Formulaire de saisie des 3 enceintes */
 .temp-inputs-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -2665,14 +2627,14 @@ body {
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 0.88rem;
+  font-size: 0.95rem;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: all 0.15s ease;
   touch-action: manipulation;
 }
@@ -2746,8 +2708,8 @@ body {
   background: var(--bg-card-alt);
   border: 1px solid var(--border-soft);
   color: var(--text-secondary);
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 8px;
   display: flex;
   align-items: center;
@@ -3127,15 +3089,15 @@ body {
   border: 1px solid rgba(255, 209, 91, 0.3);
   color: var(--color-gold);
   font-family: var(--font-heading);
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   font-weight: 700;
   cursor: pointer;
-  padding: 6px 12px;
-  min-height: 38px;
+  padding: 8px 14px;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  border-radius: 6px;
+  gap: 7px;
+  border-radius: 8px;
   transition: all 0.15s ease;
   touch-action: manipulation;
 }
@@ -3149,14 +3111,14 @@ body {
   background: rgba(239, 68, 68, 0.08);
   border: 1px solid rgba(239, 68, 68, 0.2);
   color: var(--status-red);
-  font-size: 0.85rem;
+  font-size: 0.95rem;
   cursor: pointer;
-  width: 38px;
-  height: 38px;
+  width: 44px;
+  height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 6px;
+  border-radius: 8px;
   transition: all 0.15s ease;
   touch-action: manipulation;
 }
