@@ -1,7 +1,7 @@
 {
-  "name": "BOB • Suivi DLC & Hygiène",
-  "short_name": "DLC BOB",
-  "description": "Application de suivi des DLC et traçabilité pour l'équipe du bar BOB",
+  "name": "BOB • Staff Hub & Traçabilité",
+  "short_name": "BOB Staff",
+  "description": "Outil de gestion d'équipe et traçabilité du bar BOB (DLC, Courses, Staff)",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0d0d10",

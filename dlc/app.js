@@ -30,12 +30,15 @@ const STORAGE_KEYS = {
   PIN: 'bob_dlc_pin_v1',
   UNLOCKED: 'bob_dlc_unlocked_v1',
   REMEMBER: 'bob_dlc_remember_v1',
-  ARCHIVES: 'bob_dlc_archives_v1'
+  ARCHIVES: 'bob_dlc_archives_v1',
+  SHOPPING: 'bob_dlc_shopping_v1'
 };
 
 // État global en mémoire
 let products = [];
 let archivedBatches = [];
+let shoppingItems = [];
+let currentActiveView = 'dlc';
 let pendingFinishBatch = null;
 let currentFilterCategory = 'all';
 let currentFilterStatus = 'all';
@@ -72,11 +75,18 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCriticalDlcAlerts();
   renderMultiLotAlerts();
   updateArchiveBadge();
+  renderShoppingList();
+  updateShoppingBadge();
   initFirebase();
+
+  // Navigation initiale selon l'URL hash (#courses ou #dlc)
+  if (window.location.hash === '#courses') {
+    switchStaffView('shopping', false);
+  }
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.5.2').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.6.0').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -84,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.5.2';
+const APP_VERSION = 'v1.6.0';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -145,6 +155,18 @@ function initStorage() {
     archivedBatches = [];
   }
   updateArchiveBadge();
+
+  // Initialisation de la liste de courses
+  const storedShopping = localStorage.getItem(STORAGE_KEYS.SHOPPING);
+  if (storedShopping) {
+    try {
+      shoppingItems = JSON.parse(storedShopping);
+    } catch (e) {
+      shoppingItems = [];
+    }
+  } else {
+    shoppingItems = [];
+  }
 }
 
 function countTotalBatches(items = products) {
@@ -184,10 +206,35 @@ function initFirebase() {
 
     listenToCloudInventory();
     listenToCloudArchives();
+    listenToCloudShopping();
   } catch (err) {
     console.error('Erreur init Firebase:', err);
     updateCloudStatus('error', 'Erreur Cloud');
   }
+}
+
+function listenToCloudShopping() {
+  if (!db) return;
+  db.collection('shopping_items').onSnapshot(snapshot => {
+    if (!snapshot.empty) {
+      const items = [];
+      snapshot.forEach(doc => items.push(doc.data()));
+      items.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      shoppingItems = items;
+      try {
+        localStorage.setItem(STORAGE_KEYS.SHOPPING, JSON.stringify(shoppingItems));
+      } catch (e) {}
+      renderShoppingList();
+      updateShoppingBadge();
+    } else {
+      shoppingItems = [];
+      try {
+        localStorage.setItem(STORAGE_KEYS.SHOPPING, JSON.stringify([]));
+      } catch (e) {}
+      renderShoppingList();
+      updateShoppingBadge();
+    }
+  }, err => console.warn('Erreur écoute courses Cloud:', err));
 }
 
 function listenToCloudArchives() {
@@ -691,6 +738,16 @@ function updateKpiCounts() {
   if (orangeEl) orangeEl.textContent = orange;
   if (greenEl) greenEl.textContent = green;
   if (totalEl) totalEl.textContent = products.length;
+
+  const navBadgeDlc = document.getElementById('badge-nav-dlc');
+  if (navBadgeDlc) {
+    if (red > 0) {
+      navBadgeDlc.textContent = red;
+      navBadgeDlc.classList.remove('hidden');
+    } else {
+      navBadgeDlc.classList.add('hidden');
+    }
+  }
 }
 
 // =============================================================================
@@ -867,6 +924,10 @@ function confirmBatchConsumed(productId, batchId) {
   renderCriticalDlcAlerts();
   renderMultiLotAlerts();
   if (navigator.vibrate) navigator.vibrate(35);
+
+  // Ajout automatique à la liste de courses
+  addShoppingItem(prod.name, 'dlc');
+  showStaffToast(`🍽️ Lot terminé • "${prod.name}" ajouté aux courses !`);
 }
 
 function snoozeBatchAlert(batchId) {
@@ -1197,6 +1258,14 @@ function confirmFinishWithReason(reason) {
   renderCriticalDlcAlerts();
   renderMultiLotAlerts();
   if (navigator.vibrate) navigator.vibrate(40);
+
+  // Passerelle automatique vers la liste de courses
+  const addCheckbox = document.getElementById('checkbox-add-to-shopping');
+  const shouldAddToShopping = addCheckbox ? addCheckbox.checked : true;
+  if (shouldAddToShopping) {
+    addShoppingItem(prod.name, 'dlc');
+    showStaffToast(`🍽️ Lot clôturé • "${prod.name}" ajouté aux courses !`);
+  }
 }
 
 function updateArchiveBadge() {
@@ -2021,3 +2090,319 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+// =============================================================================
+// 12. STAFF HUB • NAVIGATION & NOTIFICATIONS
+// =============================================================================
+
+function switchStaffView(viewName, updateHash = true) {
+  currentActiveView = viewName;
+  const dlcView = document.getElementById('view-dlc');
+  const shoppingView = document.getElementById('view-shopping');
+  const dlcTab = document.getElementById('tab-nav-dlc');
+  const shoppingTab = document.getElementById('tab-nav-shopping');
+
+  if (viewName === 'shopping') {
+    if (dlcView) dlcView.classList.add('hidden');
+    if (shoppingView) shoppingView.classList.remove('hidden');
+    if (dlcTab) dlcTab.classList.remove('active');
+    if (shoppingTab) shoppingTab.classList.add('active');
+    if (updateHash) {
+      history.replaceState(null, null, '#courses');
+    }
+    renderShoppingList();
+  } else {
+    if (dlcView) dlcView.classList.remove('hidden');
+    if (shoppingView) shoppingView.classList.add('hidden');
+    if (dlcTab) dlcTab.classList.add('active');
+    if (shoppingTab) shoppingTab.classList.remove('active');
+    if (updateHash) {
+      history.replaceState(null, null, '#dlc');
+    }
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (navigator.vibrate) {
+    try { navigator.vibrate(15); } catch (e) {}
+  }
+}
+
+let staffToastTimeout = null;
+function showStaffToast(message) {
+  const toast = document.getElementById('staff-toast');
+  const text = document.getElementById('staff-toast-text');
+  if (!toast || !text) return;
+
+  text.textContent = message;
+  toast.classList.add('show');
+
+  if (staffToastTimeout) clearTimeout(staffToastTimeout);
+  staffToastTimeout = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 2800);
+}
+
+// =============================================================================
+// 13. MODULE LISTE DE COURSES & RÉAPPROVISIONNEMENT (TEMPS RÉEL FIRESTORE)
+// =============================================================================
+
+function handleShoppingSubmit(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById('input-shopping-item');
+  if (!input) return;
+  const val = input.value.trim();
+  if (!val) return;
+  addShoppingItem(val, 'manual');
+  input.value = '';
+  input.focus();
+}
+
+function addShoppingItem(name, source = 'manual') {
+  const cleanName = (name || '').trim();
+  if (!cleanName) return;
+
+  // Éviter les doublons stricts non-cochés
+  const existing = shoppingItems.find(i => !i.checked && i.name.toLowerCase() === cleanName.toLowerCase());
+  if (existing) {
+    showStaffToast(`"${cleanName}" est déjà dans la liste !`);
+    return;
+  }
+
+  const newItem = {
+    id: 'shop_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+    name: cleanName,
+    checked: false,
+    createdAt: new Date().toISOString(),
+    source: source
+  };
+
+  shoppingItems.unshift(newItem);
+  try {
+    localStorage.setItem(STORAGE_KEYS.SHOPPING, JSON.stringify(shoppingItems));
+  } catch (e) {
+    console.warn('Erreur stockage local shopping:', e);
+  }
+
+  renderShoppingList();
+  updateShoppingBadge();
+
+  if (db) {
+    db.collection('shopping_items').doc(newItem.id).set(newItem)
+      .catch(err => console.warn('Erreur set shopping cloud:', err));
+  }
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(25); } catch (e) {}
+  }
+
+  if (source === 'manual') {
+    showStaffToast(`🛒 "${cleanName}" ajouté !`);
+  }
+}
+
+function toggleShoppingItem(itemId) {
+  const item = shoppingItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  item.checked = !item.checked;
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.SHOPPING, JSON.stringify(shoppingItems));
+  } catch (e) {
+    console.warn(e);
+  }
+
+  renderShoppingList();
+  updateShoppingBadge();
+
+  if (db) {
+    db.collection('shopping_items').doc(itemId).update({ checked: item.checked })
+      .catch(err => console.warn('Erreur update shopping cloud:', err));
+  }
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(20); } catch (e) {}
+  }
+}
+
+function deleteShoppingItem(itemId) {
+  const item = shoppingItems.find(i => i.id === itemId);
+  const itemName = item ? item.name : 'Article';
+
+  shoppingItems = shoppingItems.filter(i => i.id !== itemId);
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.SHOPPING, JSON.stringify(shoppingItems));
+  } catch (e) {
+    console.warn(e);
+  }
+
+  renderShoppingList();
+  updateShoppingBadge();
+
+  if (db) {
+    db.collection('shopping_items').doc(itemId).delete()
+      .catch(err => console.warn('Erreur delete shopping cloud:', err));
+  }
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(20); } catch (e) {}
+  }
+
+  showStaffToast(`🗑️ "${itemName}" supprimé`);
+}
+
+function clearCheckedShoppingItems() {
+  const boughtItems = shoppingItems.filter(i => i.checked);
+  if (boughtItems.length === 0) {
+    alert("Aucun article déjà acheté à nettoyer.");
+    return;
+  }
+
+  if (!confirm(`Supprimer définitivement les ${boughtItems.length} article(s) déjà achetés ?`)) {
+    return;
+  }
+
+  shoppingItems = shoppingItems.filter(i => !i.checked);
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.SHOPPING, JSON.stringify(shoppingItems));
+  } catch (e) {
+    console.warn(e);
+  }
+
+  renderShoppingList();
+  updateShoppingBadge();
+
+  if (db) {
+    boughtItems.forEach(item => {
+      db.collection('shopping_items').doc(item.id).delete()
+        .catch(err => console.warn('Erreur delete shopping cloud:', err));
+    });
+  }
+
+  showStaffToast(`🧹 ${boughtItems.length} article(s) nettoyés !`);
+}
+
+function shareShoppingToWhatsApp() {
+  const toBuy = shoppingItems.filter(i => !i.checked);
+  if (toBuy.length === 0) {
+    alert("Aucun article à acheter pour le moment ! La liste est vide.");
+    return;
+  }
+
+  const options = { weekday: 'long', day: 'numeric', month: 'long' };
+  const dateStr = new Date().toLocaleDateString('fr-FR', options);
+  const capitalized = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+
+  let msg = `🛒 *BOB • LISTE DE COURSES*\n`;
+  msg += `📅 _${capitalized}_\n`;
+  msg += `━━━━━━━━━━━━━━━━━━━━━\n\n`;
+  msg += `*Articles à prendre (${toBuy.length}) :*\n`;
+  toBuy.forEach(item => {
+    msg += `• ${item.name}\n`;
+  });
+  msg += `\n_Envoyé depuis l'application Staff BOB_\n`;
+
+  const url = `https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`;
+  window.open(url, '_blank');
+}
+
+function renderShoppingList() {
+  const container = document.getElementById('shopping-list-content');
+  if (!container) return;
+
+  const toBuy = shoppingItems.filter(item => !item.checked);
+  const bought = shoppingItems.filter(item => item.checked);
+
+  // Mettre à jour le compteur d'en-tête
+  const countEl = document.getElementById('shopping-header-count');
+  if (countEl) {
+    countEl.textContent = `${toBuy.length} à acheter`;
+  }
+
+  if (shoppingItems.length === 0) {
+    container.innerHTML = `
+      <div class="shopping-empty-state">
+        <i class="fa-solid fa-basket-shopping"></i>
+        <h3 style="font-family:var(--font-heading); color:var(--text-primary); margin-bottom:6px; font-size:1.05rem;">Tout est approvisionné ! 🎉</h3>
+        <p style="font-size:0.82rem; margin:0;">Aucun article dans la liste de courses. Tapez un produit ci-dessus ou clôturez un lot DLC pour l'ajouter.</p>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+
+  // 1. Articles À ACHETER
+  if (toBuy.length > 0) {
+    html += `
+      <div class="shopping-section-title">
+        <span>À acheter (${toBuy.length})</span>
+      </div>
+      <div class="shopping-items-group">
+    `;
+    toBuy.forEach(item => {
+      const sourceTag = item.source === 'dlc'
+        ? '<span class="shopping-item-meta from-dlc"><i class="fa-solid fa-rotate-left"></i> Suite lot clôturé</span>'
+        : '';
+      html += `
+        <div class="shopping-item-card" id="shop-item-${item.id}">
+          <button type="button" class="shopping-check-trigger" onclick="toggleShoppingItem('${item.id}')" title="Cocher comme acheté">
+            <i class="fa-solid fa-check"></i>
+          </button>
+          <div class="shopping-item-content" onclick="toggleShoppingItem('${item.id}')">
+            <span class="shopping-item-name">${escapeHtml(item.name)}</span>
+            ${sourceTag}
+          </div>
+          <button type="button" class="btn-shopping-delete" onclick="deleteShoppingItem('${item.id}')" title="Supprimer">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  // 2. Articles DÉJÀ ACHETÉS
+  if (bought.length > 0) {
+    html += `
+      <div class="shopping-section-title" style="margin-top:16px;">
+        <span>Déjà pris / Achetés (${bought.length})</span>
+      </div>
+      <div class="shopping-items-group">
+    `;
+    bought.forEach(item => {
+      html += `
+        <div class="shopping-item-card is-checked" id="shop-item-${item.id}">
+          <button type="button" class="shopping-check-trigger" onclick="toggleShoppingItem('${item.id}')" title="Remettre à acheter">
+            <i class="fa-solid fa-check"></i>
+          </button>
+          <div class="shopping-item-content" onclick="toggleShoppingItem('${item.id}')">
+            <span class="shopping-item-name">${escapeHtml(item.name)}</span>
+          </div>
+          <button type="button" class="btn-shopping-delete" onclick="deleteShoppingItem('${item.id}')" title="Supprimer">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+function updateShoppingBadge() {
+  const toBuyCount = shoppingItems.filter(i => !i.checked).length;
+  const badge = document.getElementById('badge-nav-shopping');
+  if (!badge) return;
+
+  if (toBuyCount > 0) {
+    badge.textContent = toBuyCount > 99 ? '99+' : toBuyCount;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+

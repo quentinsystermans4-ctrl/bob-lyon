@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v1.5.2 -->
-  <link rel="stylesheet" href="style.css?v=1.5.2">
+  <!-- Feuille de style dédiée avec cache-busting v1.6.0 -->
+  <link rel="stylesheet" href="style.css?v=1.6.0">
 </head>
 <body>
 
@@ -70,15 +70,15 @@
   <!-- Application Principale -->
   <div id="app-container" class="app-wrapper">
     
-    <!-- En-tête de l'application -->
+    <!-- En-tête commune de l'application -->
     <header class="app-header">
       <div class="header-top">
         <div class="brand-info">
           <img src="../assets/logos/BOB LOGO B.svg" alt="BOB" class="brand-logo" onerror="this.src='../assets/logos/BOB LOGO B.png'">
           <div>
             <div class="header-title-row">
-              <h1>BOB • DLC & Hygiène</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.5.2</span></span>
+              <h1>BOB • Staff Hub</h1>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.6.0</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
@@ -94,7 +94,10 @@
           </button>
         </div>
       </div>
+    </header>
 
+    <!-- VUE 1 : DLC & Traçabilité Hygiène -->
+    <div id="view-dlc" class="staff-view active">
       <!-- Bouton d'action WhatsApp Équipe -->
       <div class="quick-whatsapp-banner">
         <button class="btn-whatsapp-share" onclick="shareToWhatsAppGroup()">
@@ -132,30 +135,82 @@
       <div id="multi-lot-alerts" class="multi-lot-alerts hidden">
         <!-- Rendu dynamique en JS -->
       </div>
-    </header>
 
-    <!-- Filtres par catégorie (généré dynamiquement en JS) -->
-    <nav class="category-tabs" id="category-tabs-nav">
-      <button class="tab-btn active" id="tab-all" onclick="switchCategory('all')">Tous</button>
-    </nav>
+      <!-- Filtres par catégorie (généré dynamiquement en JS) -->
+      <nav class="category-tabs" id="category-tabs-nav">
+        <button class="tab-btn active" id="tab-all" onclick="switchCategory('all')">Tous</button>
+      </nav>
 
-    <!-- Liste des produits -->
-    <main class="products-container" id="products-list">
-      <!-- Généré dynamiquement en JS -->
-    </main>
+      <!-- Liste des produits -->
+      <main class="products-container" id="products-list">
+        <!-- Généré dynamiquement en JS -->
+      </main>
 
-    <!-- Bouton pour ajouter un produit hors-carte -->
-    <div class="bottom-action-bar">
-      <button class="btn-add-product" onclick="openAddProductModal()">
-        <i class="fa-solid fa-plus"></i> Ajouter un produit hors-carte
-      </button>
+      <!-- Bouton pour ajouter un produit hors-carte -->
+      <div class="bottom-action-bar">
+        <button class="btn-add-product" onclick="openAddProductModal()">
+          <i class="fa-solid fa-plus"></i> Ajouter un produit hors-carte
+        </button>
+      </div>
+    </div>
+
+    <!-- VUE 2 : Liste de Courses & Réapprovisionnement -->
+    <div id="view-shopping" class="staff-view hidden">
+      <div class="shopping-container">
+        
+        <div class="shopping-header-card">
+          <div class="shopping-title-row">
+            <h2><i class="fa-solid fa-cart-shopping text-gold"></i> Liste de Courses</h2>
+            <span class="shopping-count-badge" id="shopping-header-count">0 à acheter</span>
+          </div>
+          <p style="font-size:0.76rem; color:var(--text-muted); margin:0;">
+            Synchronisée en direct pour l'équipe (2 gérants + salarié).
+          </p>
+          <div class="shopping-actions-row">
+            <button type="button" class="btn-shopping-whatsapp" onclick="shareShoppingToWhatsApp()">
+              <i class="fa-brands fa-whatsapp"></i> Partager sur WhatsApp
+            </button>
+            <button type="button" class="btn-shopping-clear" onclick="clearCheckedShoppingItems()" title="Supprimer les articles déjà achetés">
+              <i class="fa-solid fa-broom"></i> Nettoyer
+            </button>
+          </div>
+        </div>
+
+        <!-- Formulaire d'ajout direct ultra-rapide -->
+        <form class="shopping-add-box" onsubmit="handleShoppingSubmit(event)">
+          <input type="text" id="input-shopping-item" class="shopping-add-input" placeholder="Ajouter un article (ex: citrons, serviettes, lait...)" autocomplete="off">
+          <button type="submit" class="shopping-add-btn">
+            <i class="fa-solid fa-plus"></i> Ajouter
+          </button>
+        </form>
+
+        <!-- Liste des articles (rendu dynamique JS) -->
+        <div id="shopping-list-content">
+          <!-- Rendu dynamique en JS -->
+        </div>
+
+      </div>
     </div>
 
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.5.2</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.6.0</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
+
+    <!-- Barre de Navigation Staff Hub (Mobile Bottom Nav) -->
+    <nav class="staff-bottom-nav">
+      <button type="button" class="nav-item active" id="tab-nav-dlc" onclick="switchStaffView('dlc')">
+        <i class="fa-solid fa-layer-group"></i>
+        <span>DLC & Stock</span>
+        <span class="nav-badge danger hidden" id="badge-nav-dlc">!</span>
+      </button>
+      <button type="button" class="nav-item" id="tab-nav-shopping" onclick="switchStaffView('shopping')">
+        <i class="fa-solid fa-cart-shopping"></i>
+        <span>Courses</span>
+        <span class="nav-badge hidden" id="badge-nav-shopping">0</span>
+      </button>
+    </nav>
 
   </div>
 
@@ -393,7 +448,7 @@
 
         <div class="settings-section">
           <h4>Version & Mise à jour</h4>
-          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.5.2) si le téléphone a gardé l'ancien cache.</p>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.6.0) si le téléphone a gardé l'ancien cache.</p>
           <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
             <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
           </button>
@@ -452,8 +507,21 @@
             <i class="fa-solid fa-trash-can"></i> 🗑️ Mis au rebut (Périmé ou altéré)
           </button>
         </div>
+
+        <div class="finish-shopping-option">
+          <label class="checkbox-shopping-label">
+            <input type="checkbox" id="checkbox-add-to-shopping" checked>
+            <span><i class="fa-solid fa-cart-plus text-gold"></i> Ajouter ce produit à la liste de courses</span>
+          </label>
+        </div>
       </div>
     </div>
+  </div>
+
+  <!-- Toast Notification Staff Hub -->
+  <div id="staff-toast" class="staff-toast">
+    <i class="fa-solid fa-circle-check text-gold"></i>
+    <span id="staff-toast-text">Message</span>
   </div>
 
   <!-- Canvas caché pour compression d'image ultra-légère -->
@@ -466,7 +534,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v1.5.2 -->
-  <script src="app.js?v=1.5.2"></script>
+  <!-- Script JS de l'application avec cache-busting v1.6.0 -->
+  <script src="app.js?v=1.6.0"></script>
 </body>
 </html>
