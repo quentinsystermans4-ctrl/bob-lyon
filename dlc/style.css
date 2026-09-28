@@ -1735,9 +1735,10 @@ body {
 
 .nav-item span {
   font-family: var(--font-heading);
-  font-size: 0.7rem;
+  font-size: 0.66rem;
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
 }
 
 .nav-item.active {
@@ -1754,8 +1755,8 @@ body {
 
 .nav-badge {
   position: absolute;
-  top: 5px;
-  right: calc(50% - 20px);
+  top: 4px;
+  right: calc(50% - 18px);
   background: var(--color-gold);
   color: #101013;
   font-family: var(--font-heading);
@@ -2685,5 +2686,509 @@ body {
   color: var(--color-gold);
   margin-bottom: 8px;
   display: block;
+}
+
+/* ==========================================================================
+   Module Calendrier, Planning & Réservations (v1.8.0)
+   ========================================================================== */
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.calendar-header-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.calendar-nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.calendar-month-selector {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calendar-month-selector h2 {
+  font-family: var(--font-heading);
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  text-transform: capitalize;
+  margin: 0;
+  min-width: 135px;
+  text-align: center;
+}
+
+.btn-cal-nav {
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.btn-cal-nav:active {
+  background: var(--color-gold);
+  color: #101013;
+  transform: scale(0.95);
+}
+
+.calendar-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-cal-today {
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+  font-family: var(--font-heading);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 8px 12px;
+  min-height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.btn-cal-today:active {
+  border-color: var(--color-gold);
+  color: var(--color-gold);
+}
+
+.btn-cal-add {
+  background: var(--color-gold);
+  border: none;
+  color: #101013;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 800;
+  padding: 8px 14px;
+  min-height: 36px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 3px 10px rgba(255, 209, 91, 0.2);
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.btn-cal-add:active {
+  transform: scale(0.96);
+  background: var(--color-gold-hover);
+}
+
+/* Grille du Mois */
+.calendar-weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-family: var(--font-heading);
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.calendar-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day-cell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: var(--bg-card-alt);
+  border: 1px solid transparent;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  min-height: 40px;
+}
+
+.calendar-day-cell:active {
+  transform: scale(0.93);
+}
+
+.calendar-day-cell.other-month {
+  opacity: 0.25;
+  background: transparent;
+}
+
+.calendar-day-cell.is-today {
+  border-color: var(--color-gold);
+  font-weight: 800;
+}
+
+.calendar-day-cell.is-selected {
+  background: var(--color-gold) !important;
+  color: #101013 !important;
+  border-color: var(--color-gold) !important;
+  box-shadow: 0 4px 12px rgba(255, 209, 91, 0.35);
+}
+
+.calendar-day-cell.is-selected .day-num {
+  color: #101013 !important;
+  font-weight: 800;
+}
+
+.day-num {
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.day-badges-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  position: absolute;
+  bottom: 4px;
+}
+
+.dot-badge {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+}
+
+.dot-badge.event {
+  background: var(--color-gold);
+}
+
+.dot-badge.booking {
+  background: #60a5fa;
+}
+
+.calendar-day-cell.is-selected .dot-badge.event {
+  background: #101013;
+}
+
+.calendar-day-cell.is-selected .dot-badge.booking {
+  background: #1e3a8a;
+}
+
+/* Carte Programme du Jour Sélectionné */
+.calendar-day-agenda-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-soft);
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.agenda-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border-soft);
+}
+
+.agenda-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.agenda-title-wrap h3 {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.agenda-count-badge {
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: rgba(255, 209, 91, 0.15);
+  color: var(--color-gold);
+  border: 1px solid var(--border-gold);
+}
+
+.btn-agenda-quick-add {
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-gold);
+  color: var(--color-gold);
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.btn-agenda-quick-add:active {
+  background: rgba(255, 209, 91, 0.15);
+  transform: scale(0.97);
+}
+
+/* Liste des éléments du jour */
+.agenda-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.agenda-item-card {
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.agenda-item-card.is-event {
+  border-left: 4px solid var(--color-gold);
+}
+
+.agenda-item-card.is-booking {
+  border-left: 4px solid #60a5fa;
+  background: linear-gradient(135deg, rgba(96, 165, 250, 0.05), var(--bg-card-alt));
+}
+
+.agenda-item-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.agenda-item-type-tag {
+  font-family: var(--font-heading);
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 2px 7px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.agenda-item-type-tag.event {
+  background: rgba(255, 209, 91, 0.15);
+  color: var(--color-gold);
+}
+
+.agenda-item-type-tag.booking {
+  background: rgba(96, 165, 250, 0.18);
+  color: #93c5fd;
+}
+
+.agenda-item-time {
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.agenda-item-main {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agenda-item-title {
+  font-family: var(--font-heading);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.25;
+}
+
+.agenda-item-desc {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+}
+
+.agenda-booking-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+
+.booking-guests-pill {
+  font-family: var(--font-heading);
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(96, 165, 250, 0.15);
+  color: #93c5fd;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-call-guest {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #34d399;
+  text-decoration: none;
+  font-family: var(--font-heading);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 9px;
+  border-radius: 6px;
+  background: rgba(52, 211, 153, 0.12);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.btn-call-guest:active {
+  background: #34d399;
+  color: #101013;
+}
+
+.agenda-item-actions {
+  display: flex;
+  justify-content: flex-end;
+  border-top: 1px dashed rgba(255, 255, 255, 0.06);
+  padding-top: 6px;
+  margin-top: 2px;
+}
+
+.btn-delete-agenda-item {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  cursor: pointer;
+  width: 36px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.btn-delete-agenda-item:active {
+  color: var(--status-red);
+}
+
+.agenda-empty-state {
+  text-align: center;
+  padding: 28px 14px;
+  color: var(--text-muted);
+  background: var(--bg-card-alt);
+  border: 1px dashed var(--border-soft);
+  border-radius: 10px;
+}
+
+.agenda-empty-state i {
+  font-size: 2rem;
+  color: var(--color-gold);
+  margin-bottom: 8px;
+  display: block;
+}
+
+/* Modale Ajout Événement / Réservation */
+.cal-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.cal-type-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 12px;
+  min-height: 44px;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-soft);
+  border-radius: 8px;
+  font-family: var(--font-heading);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.cal-type-btn input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cal-type-btn.active {
+  border-color: var(--color-gold);
+  background: rgba(255, 209, 91, 0.14);
+  color: var(--color-gold);
+  box-shadow: 0 0 10px rgba(255, 209, 91, 0.15);
+}
+
+.form-row-2col {
+  display: flex;
+  gap: 10px;
 }
 

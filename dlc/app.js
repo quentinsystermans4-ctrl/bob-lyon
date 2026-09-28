@@ -32,7 +32,8 @@ const STORAGE_KEYS = {
   REMEMBER: 'bob_dlc_remember_v1',
   ARCHIVES: 'bob_dlc_archives_v1',
   SHOPPING: 'bob_dlc_shopping_v1',
-  TEMPERATURE: 'bob_dlc_temperature_v1'
+  TEMPERATURE: 'bob_dlc_temperature_v1',
+  CALENDAR: 'bob_dlc_calendar_v1'
 };
 
 // État global en mémoire
@@ -40,7 +41,11 @@ let products = [];
 let archivedBatches = [];
 let shoppingItems = [];
 let temperatureLogs = [];
-let currentTempShift = 'Ouverture';
+let calendarItems = [];
+let selectedCalendarDate = new Date().toISOString().split('T')[0];
+let currentCalendarMonth = new Date().getMonth();
+let currentCalendarYear = new Date().getFullYear();
+let currentCalendarType = 'event';
 let currentActiveView = 'dlc';
 let pendingFinishBatch = null;
 let currentFilterCategory = 'all';
@@ -82,18 +87,23 @@ document.addEventListener('DOMContentLoaded', () => {
   updateShoppingBadge();
   renderTemperatureView();
   updateTemperatureBadge();
+  renderCalendarMonth();
+  renderAgendaForSelectedDate();
+  updateCalendarBadge();
   initFirebase();
 
-  // Navigation initiale selon l'URL hash (#courses, #temperatures ou #dlc)
+  // Navigation initiale selon l'URL hash (#courses, #temperatures, #calendrier ou #dlc)
   if (window.location.hash === '#courses') {
     switchStaffView('shopping', false);
   } else if (window.location.hash === '#temperatures') {
     switchStaffView('temperature', false);
+  } else if (window.location.hash === '#calendrier' || window.location.hash === '#calendar') {
+    switchStaffView('calendar', false);
   }
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.7.0').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.8.0').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -101,7 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.7.0';
+const APP_VERSION = 'v1.8.0';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -187,6 +197,19 @@ function initStorage() {
     temperatureLogs = [];
   }
   updateTemperatureBadge();
+
+  // Initialisation du calendrier et des réservations (v1.8.0)
+  const storedCalendar = localStorage.getItem(STORAGE_KEYS.CALENDAR);
+  if (storedCalendar) {
+    try {
+      calendarItems = JSON.parse(storedCalendar);
+    } catch (e) {
+      calendarItems = [];
+    }
+  } else {
+    calendarItems = [];
+  }
+  updateCalendarBadge();
 }
 
 function countTotalBatches(items = products) {
@@ -228,6 +251,7 @@ function initFirebase() {
     listenToCloudArchives();
     listenToCloudShopping();
     listenToCloudTemperature();
+    listenToCloudCalendar();
   } catch (err) {
     console.error('Erreur init Firebase:', err);
     updateCloudStatus('error', 'Erreur Cloud');
@@ -273,6 +297,32 @@ function listenToCloudTemperature() {
       updateTemperatureBadge();
     }
   }, err => console.warn('Erreur écoute températures Cloud:', err));
+}
+
+function listenToCloudCalendar() {
+  if (!db) return;
+  db.collection('calendar_items').onSnapshot(snapshot => {
+    if (!snapshot.empty) {
+      const items = [];
+      snapshot.forEach(doc => items.push(doc.data()));
+      items.sort((a, b) => (a.date + (a.time || '')).localeCompare(b.date + (b.time || '')));
+      calendarItems = items;
+      try {
+        localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify(calendarItems));
+      } catch (e) {}
+      renderCalendarMonth();
+      renderAgendaForSelectedDate();
+      updateCalendarBadge();
+    } else {
+      calendarItems = [];
+      try {
+        localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify([]));
+      } catch (e) {}
+      renderCalendarMonth();
+      renderAgendaForSelectedDate();
+      updateCalendarBadge();
+    }
+  }, err => console.warn('Erreur écoute calendrier Cloud:', err));
 }
 
 function listenToCloudArchives() {
@@ -2065,9 +2115,11 @@ function exportBackupData() {
     batchesCount: countTotalBatches(products),
     archivesCount: archivedBatches.length,
     temperaturesCount: temperatureLogs.length,
+    calendarCount: calendarItems.length,
     products: products,
     archivedBatches: archivedBatches,
-    temperatureLogs: temperatureLogs
+    temperatureLogs: temperatureLogs,
+    calendarItems: calendarItems
   };
   const jsonStr = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -2093,7 +2145,8 @@ function importBackupData(event) {
         const count = countTotalBatches(data.products);
         const archCount = Array.isArray(data.archivedBatches) ? data.archivedBatches.length : 0;
         const tempCount = Array.isArray(data.temperatureLogs) ? data.temperatureLogs.length : 0;
-        if (confirm(`Restaurer cette sauvegarde contenant ${data.products.length} produits (${count} lots actifs, ${archCount} archives, ${tempCount} relevés T°) ?\n\nCela mettra également à jour le Cloud pour vos collègues.`)) {
+        const calCount = Array.isArray(data.calendarItems) ? data.calendarItems.length : 0;
+        if (confirm(`Restaurer cette sauvegarde contenant ${data.products.length} produits (${count} lots actifs, ${archCount} archives, ${tempCount} relevés T°, ${calCount} entrées planning) ?\n\nCela mettra également à jour le Cloud pour vos collègues.`)) {
           products = data.products;
           if (Array.isArray(data.archivedBatches)) {
             archivedBatches = data.archivedBatches;
@@ -2114,6 +2167,18 @@ function importBackupData(event) {
             if (db) {
               temperatureLogs.forEach(tLog => {
                 db.collection('temperature_logs').doc(tLog.id).set(tLog).catch(err => console.warn(err));
+              });
+            }
+          }
+          if (Array.isArray(data.calendarItems)) {
+            calendarItems = data.calendarItems;
+            localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify(calendarItems));
+            renderCalendarMonth();
+            renderAgendaForSelectedDate();
+            updateCalendarBadge();
+            if (db) {
+              calendarItems.forEach(cItem => {
+                db.collection('calendar_items').doc(cItem.id).set(cItem).catch(err => console.warn(err));
               });
             }
           }
@@ -2152,19 +2217,23 @@ function switchStaffView(viewName, updateHash = true) {
   const dlcView = document.getElementById('view-dlc');
   const shoppingView = document.getElementById('view-shopping');
   const tempView = document.getElementById('view-temperature');
+  const calendarView = document.getElementById('view-calendar');
 
   const dlcTab = document.getElementById('tab-nav-dlc');
   const shoppingTab = document.getElementById('tab-nav-shopping');
   const tempTab = document.getElementById('tab-nav-temp');
+  const calendarTab = document.getElementById('tab-nav-calendar');
 
   // Masquer toutes les vues d'abord
   if (dlcView) dlcView.classList.add('hidden');
   if (shoppingView) shoppingView.classList.add('hidden');
   if (tempView) tempView.classList.add('hidden');
+  if (calendarView) calendarView.classList.add('hidden');
 
   if (dlcTab) dlcTab.classList.remove('active');
   if (shoppingTab) shoppingTab.classList.remove('active');
   if (tempTab) tempTab.classList.remove('active');
+  if (calendarTab) calendarTab.classList.remove('active');
 
   if (viewName === 'shopping') {
     if (shoppingView) shoppingView.classList.remove('hidden');
@@ -2180,6 +2249,14 @@ function switchStaffView(viewName, updateHash = true) {
       history.replaceState(null, null, '#temperatures');
     }
     renderTemperatureView();
+  } else if (viewName === 'calendar') {
+    if (calendarView) calendarView.classList.remove('hidden');
+    if (calendarTab) calendarTab.classList.add('active');
+    if (updateHash) {
+      history.replaceState(null, null, '#calendrier');
+    }
+    renderCalendarMonth();
+    renderAgendaForSelectedDate();
   } else {
     // Vue par défaut : dlc
     if (dlcView) dlcView.classList.remove('hidden');
@@ -2475,23 +2552,8 @@ function updateShoppingBadge() {
 }
 
 // =============================================================================
-// 14. MODULE RELEVÉ DES TEMPÉRATURES FRIGOS & FROID (HACCP v1.7.0)
+// 14. MODULE RELEVÉ DES TEMPÉRATURES FRIGOS & FROID (HACCP v1.7.0 / v1.8.0)
 // =============================================================================
-
-function toggleTempShift(shift) {
-  currentTempShift = shift;
-  const openLabel = document.getElementById('label-shift-open');
-  const closeLabel = document.getElementById('label-shift-close');
-  if (openLabel && closeLabel) {
-    if (shift === 'Ouverture') {
-      openLabel.classList.add('active');
-      closeLabel.classList.remove('active');
-    } else {
-      openLabel.classList.remove('active');
-      closeLabel.classList.add('active');
-    }
-  }
-}
 
 function handleTemperatureSubmit(e) {
   if (e) e.preventDefault();
@@ -2534,7 +2596,6 @@ function handleTemperatureSubmit(e) {
     id: 'temp_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
     createdAt: now.toISOString(),
     date: todayIso,
-    shift: currentTempShift || 'Ouverture',
     frigoBlanc: Math.round(valBlanc * 10) / 10,
     frigoMetro: Math.round(valMetro * 10) / 10,
     congelateur: Math.round(valCongel * 10) / 10,
@@ -2571,7 +2632,7 @@ function handleTemperatureSubmit(e) {
   if (!isGlobalCompliant) {
     showStaffToast('⚠️ Température anormale enregistrée ! Vérifiez la fermeture des portes.');
   } else {
-    showStaffToast('❄️ Relevé de températures enregistré avec succès !');
+    showStaffToast('❄️ Relevé quotidien de températures enregistré !');
   }
 }
 
@@ -2604,7 +2665,7 @@ function renderTemperatureView() {
         <div class="temp-empty-state">
           <i class="fa-solid fa-temperature-snowflake"></i>
           <p><strong>Aucun relevé sanitaire enregistré</strong></p>
-          <span style="font-size:0.75rem; color:var(--text-muted);">Saisissez vos relevés d'ouverture et de fermeture ci-dessus pour assurer la traçabilité HACCP.</span>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Saisissez votre relevé de températures du jour ci-dessus pour assurer la traçabilité HACCP.</span>
         </div>
       `;
     }
@@ -2615,7 +2676,7 @@ function renderTemperatureView() {
   const dateStr = formatDateTimeFr(latest.createdAt);
 
   if (latestMetaEl) {
-    latestMetaEl.textContent = `${dateStr} (${latest.shift || 'Service'})`;
+    latestMetaEl.textContent = dateStr;
   }
 
   // Évaluation des 3 températures du dernier relevé
@@ -2657,8 +2718,6 @@ function renderTemperatureView() {
       const mOk = log.frigoMetro <= 4.0;
       const cOk = log.congelateur <= -18.0;
       const isAlert = !bOk || !mOk || !cOk;
-      const shiftClass = (log.shift === 'Fermeture') ? 'close' : 'open';
-      const shiftIcon = (log.shift === 'Fermeture') ? '🌙' : '☀️';
 
       listHtml += `
         <div class="temp-log-item ${isAlert ? 'alert' : ''}" id="temp-log-${log.id}">
@@ -2667,7 +2726,7 @@ function renderTemperatureView() {
               <i class="fa-regular fa-calendar-check text-gold"></i>
               <span>${formatDateTimeFr(log.createdAt)}</span>
             </div>
-            <span class="temp-shift-tag ${shiftClass}">${shiftIcon} ${escapeHtml(log.shift || 'Service')}</span>
+            <span class="temp-status-badge ${isAlert ? 'danger' : 'ok'}">${isAlert ? '⚠️ Anomalie' : '✅ Conforme'}</span>
           </div>
 
           <div class="temp-log-values">
@@ -2763,12 +2822,13 @@ function exportTemperatureReport() {
   csv += `# Date d'export du registre : ${nowFr}\n`;
   csv += '# Règlements CE 852/2004 & Arrêté ministériel du 21/12/2009 - Contrôle officiel DDPP\n';
   csv += '# Enceintes contrôlées : Frigo Blanc (0°C à +4°C), Frigo Metro (0°C à +4°C), Congélateur (≤ -18°C)\n';
+  csv += '# Fréquence : 1 relevé sanitaire quotidien\n';
   csv += '# =============================================================================\n\n';
 
-  csv += 'Date;Heure;Moment de service;Frigo Blanc (°C);Statut Frigo Blanc;Frigo Metro (°C);Statut Frigo Metro;Congélateur (°C);Statut Congélateur;Conformité Sanitaire;Remarques / Actions Correctives\n';
+  csv += 'Date;Heure;Frigo Blanc (°C);Statut Frigo Blanc;Frigo Metro (°C);Statut Frigo Metro;Congélateur (°C);Statut Congélateur;Conformité Sanitaire;Remarques / Actions Correctives\n';
 
   if (temperatureLogs.length === 0) {
-    csv += '"Aucun relevé enregistré";"";"";"";"";"";"";"";"";"";""\n';
+    csv += '"Aucun relevé enregistré";"";"";"";"";"";"";"";"";""\n';
   } else {
     temperatureLogs.forEach(log => {
       const dt = new Date(log.createdAt || Date.now());
@@ -2787,7 +2847,7 @@ function exportTemperatureReport() {
 
       const noteClean = (log.note || '').replace(/"/g, '""');
 
-      csv += `"${dateOnly}";"${timeOnly}";"${log.shift || 'Service'}";"${log.frigoBlanc}";"${statutBlanc}";"${log.frigoMetro}";"${statutMetro}";"${log.congelateur}";"${statutCongel}";"${statutGlobal}";"${noteClean}"\n`;
+      csv += `"${dateOnly}";"${timeOnly}";"${log.frigoBlanc}";"${statutBlanc}";"${log.frigoMetro}";"${statutMetro}";"${log.congelateur}";"${statutCongel}";"${statutGlobal}";"${noteClean}"\n`;
     });
   }
 
@@ -2799,5 +2859,383 @@ function exportTemperatureReport() {
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
+}
+
+// =============================================================================
+// 15. MODULE CALENDRIER, PLANNING & RÉSERVATIONS (v1.8.0)
+// =============================================================================
+
+function changeCalendarMonth(offset) {
+  currentCalendarMonth += offset;
+  if (currentCalendarMonth < 0) {
+    currentCalendarMonth = 11;
+    currentCalendarYear -= 1;
+  } else if (currentCalendarMonth > 11) {
+    currentCalendarMonth = 0;
+    currentCalendarYear += 1;
+  }
+  renderCalendarMonth();
+}
+
+function goToTodayCalendar() {
+  const now = new Date();
+  currentCalendarMonth = now.getMonth();
+  currentCalendarYear = now.getFullYear();
+  selectedCalendarDate = now.toISOString().split('T')[0];
+  renderCalendarMonth();
+  renderAgendaForSelectedDate();
+}
+
+function selectCalendarDate(dateStr) {
+  selectedCalendarDate = dateStr;
+  renderCalendarMonth();
+  renderAgendaForSelectedDate();
+}
+
+function renderCalendarMonth() {
+  const monthLabel = document.getElementById('calendar-month-label');
+  const grid = document.getElementById('calendar-days-grid');
+  if (!grid) return;
+
+  const dateObj = new Date(currentCalendarYear, currentCalendarMonth, 1);
+  const monthName = dateObj.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+  if (monthLabel) {
+    monthLabel.textContent = monthName;
+  }
+
+  // Calcul du premier jour du mois (lundi = 0, dimanche = 6)
+  let firstDayIndex = dateObj.getDay() - 1;
+  if (firstDayIndex === -1) firstDayIndex = 6;
+
+  const daysInMonth = new Date(currentCalendarYear, currentCalendarMonth + 1, 0).getDate();
+  const prevMonthDays = new Date(currentCalendarYear, currentCalendarMonth, 0).getDate();
+
+  const todayIso = new Date().toISOString().split('T')[0];
+
+  let html = '';
+
+  // 1. Jours du mois précédent (padding grisé)
+  for (let i = firstDayIndex - 1; i >= 0; i--) {
+    const dNum = prevMonthDays - i;
+    html += `
+      <div class="calendar-day-cell other-month">
+        <span class="day-num">${dNum}</span>
+      </div>
+    `;
+  }
+
+  // 2. Jours du mois courant
+  for (let d = 1; d <= daysInMonth; d++) {
+    const mStr = String(currentCalendarMonth + 1).padStart(2, '0');
+    const dStr = String(d).padStart(2, '0');
+    const cellDateIso = `${currentCalendarYear}-${mStr}-${dStr}`;
+
+    const isToday = cellDateIso === todayIso;
+    const isSelected = cellDateIso === selectedCalendarDate;
+
+    // Badges / indicateurs d'événements et réservations
+    const itemsOnDay = calendarItems.filter(item => item.date === cellDateIso);
+    const hasEvent = itemsOnDay.some(item => item.type === 'event');
+    const hasBooking = itemsOnDay.some(item => item.type === 'booking');
+
+    let badgeDotsHtml = '';
+    if (hasEvent || hasBooking) {
+      badgeDotsHtml += '<div class="day-badges-row">';
+      if (hasEvent) badgeDotsHtml += '<span class="dot-badge event" title="Événement"></span>';
+      if (hasBooking) badgeDotsHtml += '<span class="dot-badge booking" title="Réservation"></span>';
+      badgeDotsHtml += '</div>';
+    }
+
+    const classes = ['calendar-day-cell'];
+    if (isToday) classes.push('is-today');
+    if (isSelected) classes.push('is-selected');
+
+    html += `
+      <div class="${classes.join(' ')}" onclick="selectCalendarDate('${cellDateIso}')">
+        <span class="day-num">${d}</span>
+        ${badgeDotsHtml}
+      </div>
+    `;
+  }
+
+  // 3. Jours du mois suivant pour compléter les 35 ou 42 cellules
+  const totalCellsSoFar = firstDayIndex + daysInMonth;
+  const remainingCells = (totalCellsSoFar % 7 === 0) ? 0 : 7 - (totalCellsSoFar % 7);
+  for (let nextD = 1; nextD <= remainingCells; nextD++) {
+    html += `
+      <div class="calendar-day-cell other-month">
+        <span class="day-num">${nextD}</span>
+      </div>
+    `;
+  }
+
+  grid.innerHTML = html;
+}
+
+function renderAgendaForSelectedDate() {
+  const titleEl = document.getElementById('agenda-date-title');
+  const countBadge = document.getElementById('agenda-count-badge');
+  const listEl = document.getElementById('agenda-items-list');
+  if (!listEl) return;
+
+  const parts = selectedCalendarDate.split('-');
+  const selectedDateObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+  const fullDateFr = selectedDateObj.toLocaleDateString('fr-FR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long'
+  });
+
+  if (titleEl) {
+    titleEl.innerHTML = `<i class="fa-regular fa-calendar-check text-gold"></i> ${fullDateFr}`;
+  }
+
+  const items = calendarItems.filter(item => item.date === selectedCalendarDate);
+  items.sort((a, b) => (a.time || '99:99').localeCompare(b.time || '99:99'));
+
+  if (countBadge) {
+    countBadge.textContent = `${items.length} entrée${items.length > 1 ? 's' : ''}`;
+  }
+
+  if (items.length === 0) {
+    listEl.innerHTML = `
+      <div class="agenda-empty-state">
+        <i class="fa-regular fa-calendar-plus"></i>
+        <p><strong>Aucun événement ni réservation</strong></p>
+        <span style="font-size:0.75rem; color:var(--text-muted);">Cliquez sur "+ Nouveau" ci-dessus pour planifier une réservation ou noter un événement.</span>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  items.forEach(item => {
+    const isBooking = item.type === 'booking';
+    const cardClass = isBooking ? 'is-booking' : 'is-event';
+    const typeLabel = isBooking ? '👥 Réservation' : '🎉 Événement';
+    const tagClass = isBooking ? 'booking' : 'event';
+    const timeDisplay = item.time ? `<div class="agenda-item-time"><i class="fa-regular fa-clock"></i> ${escapeHtml(item.time)}</div>` : '';
+
+    let contentHtml = '';
+    if (isBooking) {
+      const cleanPhone = (item.phone || '').replace(/\s+/g, '');
+      const phoneHtml = item.phone ? `
+        <a href="tel:${cleanPhone}" class="btn-call-guest" title="Appeler ce client">
+          <i class="fa-solid fa-phone"></i> ${escapeHtml(item.phone)}
+        </a>
+      ` : '';
+
+      contentHtml = `
+        <div class="agenda-item-main">
+          <div class="agenda-item-title">${escapeHtml(item.name || 'Client')}</div>
+          ${item.desc ? `<div class="agenda-item-desc">${escapeHtml(item.desc)}</div>` : ''}
+          <div class="agenda-booking-meta">
+            <span class="booking-guests-pill"><i class="fa-solid fa-users"></i> ${escapeHtml(String(item.guests || '1'))} pers.</span>
+            ${phoneHtml}
+          </div>
+        </div>
+      `;
+    } else {
+      contentHtml = `
+        <div class="agenda-item-main">
+          <div class="agenda-item-title">${escapeHtml(item.desc || 'Événement')}</div>
+        </div>
+      `;
+    }
+
+    html += `
+      <div class="agenda-item-card ${cardClass}" id="cal-item-${item.id}">
+        <div class="agenda-item-top">
+          <span class="agenda-item-type-tag ${tagClass}">${typeLabel}</span>
+          ${timeDisplay}
+        </div>
+        ${contentHtml}
+        <div class="agenda-item-actions">
+          <button type="button" class="btn-delete-agenda-item" onclick="deleteCalendarItem('${item.id}')" title="Supprimer cette entrée">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  listEl.innerHTML = html;
+}
+
+function openCalendarModal(defaultDate) {
+  const modal = document.getElementById('calendar-modal');
+  if (!modal) return;
+
+  const dateInput = document.getElementById('input-cal-date');
+  const timeInput = document.getElementById('input-cal-time');
+  const nameInput = document.getElementById('input-cal-name');
+  const guestsInput = document.getElementById('input-cal-guests');
+  const phoneInput = document.getElementById('input-cal-phone');
+  const descInput = document.getElementById('input-cal-desc');
+
+  if (dateInput) {
+    dateInput.value = defaultDate || selectedCalendarDate || new Date().toISOString().split('T')[0];
+  }
+  if (timeInput) timeInput.value = '';
+  if (nameInput) nameInput.value = '';
+  if (guestsInput) guestsInput.value = '';
+  if (phoneInput) phoneInput.value = '';
+  if (descInput) descInput.value = '';
+
+  toggleCalendarType('event');
+  modal.classList.remove('hidden');
+}
+
+function closeCalendarModal() {
+  const modal = document.getElementById('calendar-modal');
+  if (modal) modal.classList.add('hidden');
+}
+
+function toggleCalendarType(type) {
+  currentCalendarType = type;
+  const labelEvent = document.getElementById('label-cal-type-event');
+  const labelBooking = document.getElementById('label-cal-type-booking');
+  const bookingFields = document.getElementById('cal-booking-fields');
+  const labelDesc = document.getElementById('label-cal-desc');
+  const inputDesc = document.getElementById('input-cal-desc');
+  const inputName = document.getElementById('input-cal-name');
+  const inputGuests = document.getElementById('input-cal-guests');
+
+  if (type === 'booking') {
+    if (labelEvent) labelEvent.classList.remove('active');
+    if (labelBooking) labelBooking.classList.add('active');
+    if (bookingFields) bookingFields.classList.remove('hidden');
+    if (inputName) inputName.required = true;
+    if (inputGuests) inputGuests.required = true;
+    if (labelDesc) labelDesc.innerHTML = '<i class="fa-solid fa-pen-nib text-gold"></i> Occasion / Description (3/4 mots) *';
+    if (inputDesc) inputDesc.placeholder = 'ex: Anniversaire 30 ans, Afterwork, Pot de départ...';
+  } else {
+    if (labelEvent) labelEvent.classList.add('active');
+    if (labelBooking) labelBooking.classList.remove('active');
+    if (bookingFields) bookingFields.classList.add('hidden');
+    if (inputName) inputName.required = false;
+    if (inputGuests) inputGuests.required = false;
+    if (labelDesc) labelDesc.innerHTML = '<i class="fa-solid fa-pen-nib text-gold"></i> Description (quelques mots) *';
+    if (inputDesc) inputDesc.placeholder = 'ex: Concert Jazz, Match OL, Blind test, Soirée fléchettes...';
+  }
+}
+
+function handleCalendarSubmit(e) {
+  if (e) e.preventDefault();
+
+  const dateInput = document.getElementById('input-cal-date');
+  const timeInput = document.getElementById('input-cal-time');
+  const descInput = document.getElementById('input-cal-desc');
+  const nameInput = document.getElementById('input-cal-name');
+  const guestsInput = document.getElementById('input-cal-guests');
+  const phoneInput = document.getElementById('input-cal-phone');
+
+  if (!dateInput || !descInput) return;
+
+  const dateVal = dateInput.value;
+  const timeVal = timeInput ? timeInput.value.trim() : '';
+  const descVal = descInput.value.trim();
+
+  if (!dateVal || !descVal) {
+    alert("Veuillez renseigner la date et la description.");
+    return;
+  }
+
+  let nameVal = '';
+  let guestsVal = 1;
+  let phoneVal = '';
+
+  if (currentCalendarType === 'booking') {
+    nameVal = nameInput ? nameInput.value.trim() : '';
+    guestsVal = guestsInput && guestsInput.value ? parseInt(guestsInput.value, 10) : 1;
+    phoneVal = phoneInput ? phoneInput.value.trim() : '';
+
+    if (!nameVal) {
+      alert("Veuillez indiquer le nom ou prénom de la réservation.");
+      return;
+    }
+  }
+
+  const newItem = {
+    id: 'cal_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+    createdAt: new Date().toISOString(),
+    type: currentCalendarType,
+    date: dateVal,
+    time: timeVal,
+    desc: descVal,
+    name: nameVal,
+    guests: guestsVal,
+    phone: phoneVal
+  };
+
+  calendarItems.push(newItem);
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify(calendarItems));
+  } catch (err) {
+    console.warn('Erreur stockage local calendar:', err);
+  }
+
+  if (db) {
+    db.collection('calendar_items').doc(newItem.id).set(newItem)
+      .catch(err => console.warn('Erreur set calendar cloud:', err));
+  }
+
+  closeCalendarModal();
+
+  // Positionner sur le jour ajouté
+  selectedCalendarDate = dateVal;
+  const parts = dateVal.split('-');
+  currentCalendarYear = parseInt(parts[0], 10);
+  currentCalendarMonth = parseInt(parts[1], 10) - 1;
+
+  renderCalendarMonth();
+  renderAgendaForSelectedDate();
+  updateCalendarBadge();
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(25); } catch (e) {}
+  }
+
+  showStaffToast(currentCalendarType === 'booking' ? `👥 Réservation "${nameVal}" enregistrée !` : `🎉 Événement ajouté au planning !`);
+}
+
+function deleteCalendarItem(itemId) {
+  const item = calendarItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  const itemLabel = item.type === 'booking' ? `la réservation de "${item.name}"` : `l'événement "${item.desc}"`;
+  if (confirm(`Supprimer ${itemLabel} ?`)) {
+    calendarItems = calendarItems.filter(i => i.id !== itemId);
+
+    try {
+      localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify(calendarItems));
+    } catch (e) {}
+
+    if (db) {
+      db.collection('calendar_items').doc(itemId).delete()
+        .catch(err => console.warn('Erreur delete calendar cloud:', err));
+    }
+
+    renderCalendarMonth();
+    renderAgendaForSelectedDate();
+    updateCalendarBadge();
+    showStaffToast('🗑️ Entrée supprimée du planning');
+  }
+}
+
+function updateCalendarBadge() {
+  const badge = document.getElementById('badge-nav-calendar');
+  if (!badge) return;
+
+  const todayIso = new Date().toISOString().split('T')[0];
+  const countToday = calendarItems.filter(i => i.date === todayIso).length;
+
+  if (countToday > 0) {
+    badge.textContent = countToday > 99 ? '99+' : countToday;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
 }
 

@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v1.7.0 -->
-  <link rel="stylesheet" href="style.css?v=1.7.0">
+  <!-- Feuille de style dédiée avec cache-busting v1.8.0 -->
+  <link rel="stylesheet" href="style.css?v=1.8.0">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
           <div>
             <div class="header-title-row">
               <h1>BOB • Staff Hub</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.7.0</span></span>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.8.0</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
@@ -241,18 +241,6 @@
             <span>Nouveau relevé sanitaire</span>
           </div>
 
-          <!-- Choix du moment (Ouverture vs Fermeture) -->
-          <div class="temp-shift-selector">
-            <label class="temp-shift-btn active" id="label-shift-open">
-              <input type="radio" name="tempShift" value="Ouverture" checked onchange="toggleTempShift('Ouverture')">
-              <span>☀️ Ouverture</span>
-            </label>
-            <label class="temp-shift-btn" id="label-shift-close">
-              <input type="radio" name="tempShift" value="Fermeture" onchange="toggleTempShift('Fermeture')">
-              <span>🌙 Fermeture</span>
-            </label>
-          </div>
-
           <!-- Grille des 3 champs de températures -->
           <div class="temp-inputs-grid">
             <div class="temp-input-group">
@@ -316,9 +304,72 @@
       </div>
     </div>
 
+    <!-- VUE 4 : Calendrier des Événements & Réservations (v1.8.0) -->
+    <div id="view-calendar" class="staff-view hidden">
+      <div class="calendar-container">
+        
+        <!-- En-tête Navigation Mois & Actions -->
+        <div class="calendar-header-card">
+          <div class="calendar-nav-row">
+            <div class="calendar-month-selector">
+              <button type="button" class="btn-cal-nav" onclick="changeCalendarMonth(-1)" title="Mois précédent">
+                <i class="fa-solid fa-chevron-left"></i>
+              </button>
+              <h2 id="calendar-month-label">Septembre 2026</h2>
+              <button type="button" class="btn-cal-nav" onclick="changeCalendarMonth(1)" title="Mois suivant">
+                <i class="fa-solid fa-chevron-right"></i>
+              </button>
+            </div>
+            <div class="calendar-header-actions">
+              <button type="button" class="btn-cal-today" onclick="goToTodayCalendar()" title="Revenir au mois et jour actuel">
+                Aujourd'hui
+              </button>
+              <button type="button" class="btn-cal-add" onclick="openCalendarModal()" title="Ajouter un événement ou une réservation">
+                <i class="fa-solid fa-plus"></i> Ajouter
+              </button>
+            </div>
+          </div>
+
+          <!-- En-tête des jours de la semaine (Lun à Dim) -->
+          <div class="calendar-weekdays-grid">
+            <span>Lun</span>
+            <span>Mar</span>
+            <span>Mer</span>
+            <span>Jeu</span>
+            <span>Ven</span>
+            <span>Sam</span>
+            <span>Dim</span>
+          </div>
+
+          <!-- Grille interactive des jours du mois -->
+          <div id="calendar-days-grid" class="calendar-days-grid">
+            <!-- Rendu dynamique JS -->
+          </div>
+        </div>
+
+        <!-- Détail de la Journée Sélectionnée (Programme du jour) -->
+        <div class="calendar-day-agenda-card">
+          <div class="agenda-header-row">
+            <div class="agenda-title-wrap">
+              <h3 id="agenda-date-title"><i class="fa-regular fa-calendar-check text-gold"></i> Programme du jour</h3>
+              <span class="agenda-count-badge" id="agenda-count-badge">0 entrée</span>
+            </div>
+            <button type="button" class="btn-agenda-quick-add" onclick="openCalendarModal(selectedCalendarDate)" title="Ajouter à cette date">
+              <i class="fa-solid fa-plus"></i> Nouveau
+            </button>
+          </div>
+
+          <div id="agenda-items-list" class="agenda-items-list">
+            <!-- Rendu dynamique JS des événements & réservations -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.7.0</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.8.0</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
 
@@ -338,6 +389,11 @@
         <i class="fa-solid fa-temperature-half"></i>
         <span>Températures</span>
         <span class="nav-badge warning hidden" id="badge-nav-temp">!</span>
+      </button>
+      <button type="button" class="nav-item" id="tab-nav-calendar" onclick="switchStaffView('calendar')">
+        <i class="fa-solid fa-calendar-days"></i>
+        <span>Calendrier</span>
+        <span class="nav-badge hidden" id="badge-nav-calendar">0</span>
       </button>
     </nav>
 
@@ -647,6 +703,77 @@
     </div>
   </div>
 
+  <!-- MODAL 6 : Ajout Événement / Réservation Calendrier (v1.8.0) -->
+  <div id="calendar-modal" class="modal-overlay hidden">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <div>
+          <span class="modal-subtitle">Staff Hub • Planning & Réservations</span>
+          <h3 class="modal-title" id="cal-modal-title">Nouvelle entrée</h3>
+        </div>
+        <button class="btn-close" onclick="closeCalendarModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <form onsubmit="handleCalendarSubmit(event)" class="modal-body" style="gap:12px;">
+        <!-- Sélecteur Type : Événement vs Réservation -->
+        <div class="cal-type-selector">
+          <label class="cal-type-btn active" id="label-cal-type-event">
+            <input type="radio" name="calType" value="event" checked onchange="toggleCalendarType('event')">
+            <span>🎉 Événement</span>
+          </label>
+          <label class="cal-type-btn" id="label-cal-type-booking">
+            <input type="radio" name="calType" value="booking" onchange="toggleCalendarType('booking')">
+            <span>👥 Réservation</span>
+          </label>
+        </div>
+
+        <!-- Date & Heure -->
+        <div class="form-row-2col">
+          <div class="form-group" style="flex:1;">
+            <label for="input-cal-date"><i class="fa-regular fa-calendar text-gold"></i> Date *</label>
+            <input type="date" id="input-cal-date" required class="input-dark">
+          </div>
+          <div class="form-group" style="flex:1;">
+            <label for="input-cal-time"><i class="fa-regular fa-clock text-gold"></i> Heure</label>
+            <input type="time" id="input-cal-time" class="input-dark">
+          </div>
+        </div>
+
+        <!-- Champs spécifiques à RÉSERVATION (Nom, Nb pers, Téléphone) -->
+        <div id="cal-booking-fields" class="hidden" style="display:flex; flex-direction:column; gap:10px;">
+          <div class="form-group">
+            <label for="input-cal-name"><i class="fa-solid fa-user text-gold"></i> Nom ou prénom *</label>
+            <input type="text" id="input-cal-name" placeholder="ex: Alexandre Dupont" class="input-dark" autocomplete="off">
+          </div>
+
+          <div class="form-row-2col">
+            <div class="form-group" style="flex:1;">
+              <label for="input-cal-guests"><i class="fa-solid fa-users text-gold"></i> Nb personnes *</label>
+              <input type="number" id="input-cal-guests" min="1" max="150" placeholder="ex: 6" class="input-dark">
+            </div>
+            <div class="form-group" style="flex:1;">
+              <label for="input-cal-phone"><i class="fa-solid fa-phone text-gold"></i> Téléphone</label>
+              <input type="tel" id="input-cal-phone" placeholder="ex: 06 12 34 56 78" class="input-dark" autocomplete="tel">
+            </div>
+          </div>
+        </div>
+
+        <!-- Description (quelques mots) pour l'événement ou l'occasion de la résa -->
+        <div class="form-group">
+          <label for="input-cal-desc" id="label-cal-desc"><i class="fa-solid fa-pen-nib text-gold"></i> Description (quelques mots) *</label>
+          <input type="text" id="input-cal-desc" required placeholder="ex: Concert Jazz, Match OL, Afterwork, Anniv..." class="input-dark" autocomplete="off">
+        </div>
+
+        <div class="modal-footer" style="margin-top:8px;">
+          <button type="button" class="btn-secondary" onclick="closeCalendarModal()">Annuler</button>
+          <button type="submit" class="btn-primary" id="btn-submit-cal">
+            <i class="fa-solid fa-check"></i> Enregistrer
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- Toast Notification Staff Hub -->
   <div id="staff-toast" class="staff-toast">
     <i class="fa-solid fa-circle-check text-gold"></i>
@@ -663,7 +790,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v1.7.0 -->
-  <script src="app.js?v=1.7.0"></script>
+  <!-- Script JS de l'application avec cache-busting v1.8.0 -->
+  <script src="app.js?v=1.8.0"></script>
 </body>
 </html>
