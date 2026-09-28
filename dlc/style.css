@@ -3115,19 +3115,44 @@ body {
 .agenda-item-actions {
   display: flex;
   justify-content: flex-end;
-  border-top: 1px dashed rgba(255, 255, 255, 0.06);
-  padding-top: 6px;
-  margin-top: 2px;
+  align-items: center;
+  gap: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  padding-top: 8px;
+  margin-top: 6px;
+}
+
+.btn-edit-agenda-item {
+  background: rgba(255, 209, 91, 0.1);
+  border: 1px solid rgba(255, 209, 91, 0.3);
+  color: var(--color-gold);
+  font-family: var(--font-heading);
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 6px 12px;
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.btn-edit-agenda-item:active {
+  background: var(--color-gold);
+  color: #101013;
 }
 
 .btn-delete-agenda-item {
-  background: transparent;
-  border: none;
-  color: var(--text-muted);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: var(--status-red);
   font-size: 0.85rem;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3137,7 +3162,8 @@ body {
 }
 
 .btn-delete-agenda-item:active {
-  color: var(--status-red);
+  background: var(--status-red);
+  color: #ffffff;
 }
 
 .agenda-empty-state {

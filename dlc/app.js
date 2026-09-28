@@ -46,6 +46,7 @@ let selectedCalendarDate = new Date().toISOString().split('T')[0];
 let currentCalendarMonth = new Date().getMonth();
 let currentCalendarYear = new Date().getFullYear();
 let currentCalendarType = 'event';
+let editingCalendarItemId = null;
 let currentActiveView = 'dlc';
 let pendingFinishBatch = null;
 let currentFilterCategory = 'all';
@@ -103,7 +104,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.8.0').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.8.1').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -111,7 +112,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.8.0';
+const APP_VERSION = 'v1.8.1';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -3051,6 +3052,9 @@ function renderAgendaForSelectedDate() {
         </div>
         ${contentHtml}
         <div class="agenda-item-actions">
+          <button type="button" class="btn-edit-agenda-item" onclick="openEditCalendarModal('${item.id}')" title="Modifier cette entrée">
+            <i class="fa-solid fa-pen-to-square"></i> Modifier
+          </button>
           <button type="button" class="btn-delete-agenda-item" onclick="deleteCalendarItem('${item.id}')" title="Supprimer cette entrée">
             <i class="fa-solid fa-trash-can"></i>
           </button>
@@ -3065,6 +3069,13 @@ function renderAgendaForSelectedDate() {
 function openCalendarModal(defaultDate) {
   const modal = document.getElementById('calendar-modal');
   if (!modal) return;
+
+  editingCalendarItemId = null;
+
+  const modalTitle = document.getElementById('cal-modal-title');
+  const btnSubmit = document.getElementById('btn-submit-cal');
+  if (modalTitle) modalTitle.textContent = 'Nouvelle entrée';
+  if (btnSubmit) btnSubmit.innerHTML = '<i class="fa-solid fa-check"></i> Enregistrer';
 
   const dateInput = document.getElementById('input-cal-date');
   const timeInput = document.getElementById('input-cal-time');
@@ -3082,13 +3093,62 @@ function openCalendarModal(defaultDate) {
   if (phoneInput) phoneInput.value = '';
   if (descInput) descInput.value = '';
 
+  const radioEvent = document.querySelector('input[name="calType"][value="event"]');
+  if (radioEvent) radioEvent.checked = true;
+
   toggleCalendarType('event');
+  modal.classList.remove('hidden');
+}
+
+function openEditCalendarModal(itemId) {
+  const item = calendarItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  const modal = document.getElementById('calendar-modal');
+  if (!modal) return;
+
+  editingCalendarItemId = itemId;
+
+  const modalTitle = document.getElementById('cal-modal-title');
+  const btnSubmit = document.getElementById('btn-submit-cal');
+  if (modalTitle) {
+    modalTitle.textContent = item.type === 'booking' ? 'Modifier la réservation' : "Modifier l'événement";
+  }
+  if (btnSubmit) {
+    btnSubmit.innerHTML = '<i class="fa-solid fa-check"></i> Enregistrer les modifications';
+  }
+
+  const targetType = item.type || 'event';
+  const radioEvent = document.querySelector('input[name="calType"][value="event"]');
+  const radioBooking = document.querySelector('input[name="calType"][value="booking"]');
+  if (targetType === 'booking' && radioBooking) {
+    radioBooking.checked = true;
+  } else if (radioEvent) {
+    radioEvent.checked = true;
+  }
+  toggleCalendarType(targetType);
+
+  const dateInput = document.getElementById('input-cal-date');
+  const timeInput = document.getElementById('input-cal-time');
+  const descInput = document.getElementById('input-cal-desc');
+  const nameInput = document.getElementById('input-cal-name');
+  const guestsInput = document.getElementById('input-cal-guests');
+  const phoneInput = document.getElementById('input-cal-phone');
+
+  if (dateInput) dateInput.value = item.date || selectedCalendarDate || new Date().toISOString().split('T')[0];
+  if (timeInput) timeInput.value = item.time || '';
+  if (descInput) descInput.value = item.desc || '';
+  if (nameInput) nameInput.value = item.name || '';
+  if (guestsInput) guestsInput.value = item.guests || '';
+  if (phoneInput) phoneInput.value = item.phone || '';
+
   modal.classList.remove('hidden');
 }
 
 function closeCalendarModal() {
   const modal = document.getElementById('calendar-modal');
   if (modal) modal.classList.add('hidden');
+  editingCalendarItemId = null;
 }
 
 function toggleCalendarType(type) {
@@ -3100,6 +3160,7 @@ function toggleCalendarType(type) {
   const inputDesc = document.getElementById('input-cal-desc');
   const inputName = document.getElementById('input-cal-name');
   const inputGuests = document.getElementById('input-cal-guests');
+  const modalTitle = document.getElementById('cal-modal-title');
 
   if (labelDesc) labelDesc.innerHTML = '<i class="fa-solid fa-pen-nib text-gold"></i> Description';
   if (inputDesc) {
@@ -3113,10 +3174,12 @@ function toggleCalendarType(type) {
     if (labelEvent) labelEvent.classList.remove('active');
     if (labelBooking) labelBooking.classList.add('active');
     if (bookingFields) bookingFields.classList.remove('hidden');
+    if (editingCalendarItemId && modalTitle) modalTitle.textContent = 'Modifier la réservation';
   } else {
     if (labelEvent) labelEvent.classList.add('active');
     if (labelBooking) labelBooking.classList.remove('active');
     if (bookingFields) bookingFields.classList.add('hidden');
+    if (editingCalendarItemId && modalTitle) modalTitle.textContent = "Modifier l'événement";
   }
 }
 
@@ -3157,6 +3220,57 @@ function handleCalendarSubmit(e) {
     }
   }
 
+  // Cas 1 : Modification d'une entrée existante
+  if (editingCalendarItemId) {
+    const existingIndex = calendarItems.findIndex(i => i.id === editingCalendarItemId);
+    if (existingIndex !== -1) {
+      const oldItem = calendarItems[existingIndex];
+      const updatedItem = {
+        ...oldItem,
+        type: currentCalendarType,
+        date: dateVal,
+        time: timeVal,
+        desc: descVal,
+        name: nameVal,
+        guests: guestsVal,
+        phone: phoneVal,
+        updatedAt: new Date().toISOString()
+      };
+      calendarItems[existingIndex] = updatedItem;
+
+      try {
+        localStorage.setItem(STORAGE_KEYS.CALENDAR, JSON.stringify(calendarItems));
+      } catch (err) {
+        console.warn('Erreur stockage local calendar:', err);
+      }
+
+      if (db) {
+        db.collection('calendar_items').doc(editingCalendarItemId).set(updatedItem)
+          .catch(err => console.warn('Erreur set calendar cloud:', err));
+      }
+
+      closeCalendarModal();
+
+      // Repositionner sur la date (au cas où le jour a été modifié)
+      selectedCalendarDate = dateVal;
+      const parts = dateVal.split('-');
+      currentCalendarYear = parseInt(parts[0], 10);
+      currentCalendarMonth = parseInt(parts[1], 10) - 1;
+
+      renderCalendarMonth();
+      renderAgendaForSelectedDate();
+      updateCalendarBadge();
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate(25); } catch (e) {}
+      }
+
+      showStaffToast(currentCalendarType === 'booking' ? `✏️ Réservation "${nameVal}" modifiée !` : `✏️ Événement "${descVal}" modifié !`);
+      return;
+    }
+  }
+
+  // Cas 2 : Création d'une nouvelle entrée
   const newItem = {
     id: 'cal_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
     createdAt: new Date().toISOString(),
@@ -3207,6 +3321,10 @@ function deleteCalendarItem(itemId) {
 
   const itemLabel = item.type === 'booking' ? `la réservation de "${item.name}"` : `l'événement "${item.desc}"`;
   if (confirm(`Supprimer ${itemLabel} ?`)) {
+    if (editingCalendarItemId === itemId) {
+      closeCalendarModal();
+    }
+
     calendarItems = calendarItems.filter(i => i.id !== itemId);
 
     try {
