@@ -730,43 +730,43 @@
         <!-- Date & Heure -->
         <div class="form-row-2col">
           <div class="form-group" style="flex:1;">
-            <label for="input-cal-date"><i class="fa-regular fa-calendar text-gold"></i> Date *</label>
-            <input type="date" id="input-cal-date" required class="input-dark">
+            <label class="form-label" for="input-cal-date"><i class="fa-regular fa-calendar text-gold"></i> Date</label>
+            <input type="date" id="input-cal-date" class="form-input-date">
           </div>
           <div class="form-group" style="flex:1;">
-            <label for="input-cal-time"><i class="fa-regular fa-clock text-gold"></i> Heure</label>
-            <input type="time" id="input-cal-time" class="input-dark">
+            <label class="form-label" for="input-cal-time"><i class="fa-regular fa-clock text-gold"></i> Heure</label>
+            <input type="time" id="input-cal-time" class="form-input-time">
           </div>
         </div>
 
         <!-- Champs spécifiques à RÉSERVATION (Nom, Nb pers, Téléphone) -->
         <div id="cal-booking-fields" class="hidden" style="display:flex; flex-direction:column; gap:10px;">
           <div class="form-group">
-            <label for="input-cal-name"><i class="fa-solid fa-user text-gold"></i> Nom ou prénom *</label>
-            <input type="text" id="input-cal-name" placeholder="ex: Alexandre Dupont" class="input-dark" autocomplete="off">
+            <label class="form-label" for="input-cal-name"><i class="fa-solid fa-user text-gold"></i> Nom ou prénom</label>
+            <input type="text" id="input-cal-name" placeholder="ex: Alexandre Dupont" class="form-input-text" autocomplete="off">
           </div>
 
           <div class="form-row-2col">
             <div class="form-group" style="flex:1;">
-              <label for="input-cal-guests"><i class="fa-solid fa-users text-gold"></i> Nb personnes *</label>
-              <input type="number" id="input-cal-guests" min="1" max="150" placeholder="ex: 6" class="input-dark">
+              <label class="form-label" for="input-cal-guests"><i class="fa-solid fa-users text-gold"></i> Nb personnes</label>
+              <input type="number" id="input-cal-guests" min="1" max="150" placeholder="ex: 6" class="form-input-number">
             </div>
             <div class="form-group" style="flex:1;">
-              <label for="input-cal-phone"><i class="fa-solid fa-phone text-gold"></i> Téléphone</label>
-              <input type="tel" id="input-cal-phone" placeholder="ex: 06 12 34 56 78" class="input-dark" autocomplete="tel">
+              <label class="form-label" for="input-cal-phone"><i class="fa-solid fa-phone text-gold"></i> Téléphone</label>
+              <input type="tel" id="input-cal-phone" placeholder="ex: 06 12 34 56 78" class="form-input-tel" autocomplete="tel">
             </div>
           </div>
         </div>
 
-        <!-- Description (quelques mots) pour l'événement ou l'occasion de la résa -->
+        <!-- Description (évenement ou réservation) -->
         <div class="form-group">
-          <label for="input-cal-desc" id="label-cal-desc"><i class="fa-solid fa-pen-nib text-gold"></i> Description (quelques mots) *</label>
-          <input type="text" id="input-cal-desc" required placeholder="ex: Concert Jazz, Match OL, Afterwork, Anniv..." class="input-dark" autocomplete="off">
+          <label class="form-label" for="input-cal-desc" id="label-cal-desc"><i class="fa-solid fa-pen-nib text-gold"></i> Description</label>
+          <input type="text" id="input-cal-desc" placeholder="Description" class="form-input-text" autocomplete="off">
         </div>
 
         <div class="modal-footer" style="margin-top:8px;">
-          <button type="button" class="btn-secondary" onclick="closeCalendarModal()">Annuler</button>
-          <button type="submit" class="btn-primary" id="btn-submit-cal">
+          <button type="button" class="btn-cancel" onclick="closeCalendarModal()">Annuler</button>
+          <button type="submit" class="btn-submit" id="btn-submit-cal">
             <i class="fa-solid fa-check"></i> Enregistrer
           </button>
         </div>

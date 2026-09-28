@@ -3101,22 +3101,22 @@ function toggleCalendarType(type) {
   const inputName = document.getElementById('input-cal-name');
   const inputGuests = document.getElementById('input-cal-guests');
 
+  if (labelDesc) labelDesc.innerHTML = '<i class="fa-solid fa-pen-nib text-gold"></i> Description';
+  if (inputDesc) {
+    inputDesc.placeholder = 'Description';
+    inputDesc.required = false;
+  }
+  if (inputName) inputName.required = false;
+  if (inputGuests) inputGuests.required = false;
+
   if (type === 'booking') {
     if (labelEvent) labelEvent.classList.remove('active');
     if (labelBooking) labelBooking.classList.add('active');
     if (bookingFields) bookingFields.classList.remove('hidden');
-    if (inputName) inputName.required = true;
-    if (inputGuests) inputGuests.required = true;
-    if (labelDesc) labelDesc.innerHTML = '<i class="fa-solid fa-pen-nib text-gold"></i> Occasion / Description (3/4 mots) *';
-    if (inputDesc) inputDesc.placeholder = 'ex: Anniversaire 30 ans, Afterwork, Pot de départ...';
   } else {
     if (labelEvent) labelEvent.classList.add('active');
     if (labelBooking) labelBooking.classList.remove('active');
     if (bookingFields) bookingFields.classList.add('hidden');
-    if (inputName) inputName.required = false;
-    if (inputGuests) inputGuests.required = false;
-    if (labelDesc) labelDesc.innerHTML = '<i class="fa-solid fa-pen-nib text-gold"></i> Description (quelques mots) *';
-    if (inputDesc) inputDesc.placeholder = 'ex: Concert Jazz, Match OL, Blind test, Soirée fléchettes...';
   }
 }
 
@@ -3130,29 +3130,30 @@ function handleCalendarSubmit(e) {
   const guestsInput = document.getElementById('input-cal-guests');
   const phoneInput = document.getElementById('input-cal-phone');
 
-  if (!dateInput || !descInput) return;
-
-  const dateVal = dateInput.value;
-  const timeVal = timeInput ? timeInput.value.trim() : '';
-  const descVal = descInput.value.trim();
-
-  if (!dateVal || !descVal) {
-    alert("Veuillez renseigner la date et la description.");
-    return;
-  }
+  const dateVal = (dateInput && dateInput.value) ? dateInput.value : (selectedCalendarDate || new Date().toISOString().split('T')[0]);
+  const timeVal = (timeInput && timeInput.value) ? timeInput.value.trim() : '';
+  let descVal = (descInput && descInput.value) ? descInput.value.trim() : '';
 
   let nameVal = '';
   let guestsVal = 1;
   let phoneVal = '';
 
   if (currentCalendarType === 'booking') {
-    nameVal = nameInput ? nameInput.value.trim() : '';
-    guestsVal = guestsInput && guestsInput.value ? parseInt(guestsInput.value, 10) : 1;
-    phoneVal = phoneInput ? phoneInput.value.trim() : '';
+    nameVal = (nameInput && nameInput.value) ? nameInput.value.trim() : '';
+    guestsVal = (guestsInput && parseInt(guestsInput.value, 10) > 0) ? parseInt(guestsInput.value, 10) : 1;
+    phoneVal = (phoneInput && phoneInput.value) ? phoneInput.value.trim() : '';
 
-    if (!nameVal) {
-      alert("Veuillez indiquer le nom ou prénom de la réservation.");
-      return;
+    if (!nameVal && !descVal) {
+      nameVal = 'Réservation';
+      descVal = 'Réservation';
+    } else if (!nameVal) {
+      nameVal = descVal || 'Réservation';
+    } else if (!descVal) {
+      descVal = `Réservation ${nameVal}`;
+    }
+  } else {
+    if (!descVal) {
+      descVal = 'Événement';
     }
   }
 
@@ -3197,7 +3198,7 @@ function handleCalendarSubmit(e) {
     try { navigator.vibrate(25); } catch (e) {}
   }
 
-  showStaffToast(currentCalendarType === 'booking' ? `👥 Réservation "${nameVal}" enregistrée !` : `🎉 Événement ajouté au planning !`);
+  showStaffToast(currentCalendarType === 'booking' ? `👥 Réservation "${nameVal}" enregistrée !` : `🎉 Événement "${descVal}" ajouté au planning !`);
 }
 
 function deleteCalendarItem(itemId) {

@@ -1012,7 +1012,11 @@ body {
 
 .form-input-date,
 .form-input-text,
-.form-select {
+.form-input-time,
+.form-input-number,
+.form-input-tel,
+.form-select,
+.input-dark {
   width: 100%;
   background: var(--bg-input);
   border: 1px solid var(--border-soft);
@@ -1023,11 +1027,16 @@ body {
   color: var(--text-primary);
   outline: none;
   transition: border-color 0.2s ease;
+  color-scheme: dark;
 }
 
 .form-input-date:focus,
 .form-input-text:focus,
-.form-select:focus {
+.form-input-time:focus,
+.form-input-number:focus,
+.form-input-tel:focus,
+.form-select:focus,
+.input-dark:focus {
   border-color: var(--color-gold);
 }
 
