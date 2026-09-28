@@ -2504,12 +2504,18 @@ function handleTemperatureSubmit(e) {
 
   const valBlanc = parseFloat(inputBlanc.value.replace(',', '.'));
   const valMetro = parseFloat(inputMetro.value.replace(',', '.'));
-  const valCongel = parseFloat(inputCongel.value.replace(',', '.'));
+  let valCongel = parseFloat(inputCongel.value.replace(',', '.'));
   const note = (inputNote && inputNote.value) ? inputNote.value.trim() : '';
 
   if (isNaN(valBlanc) || isNaN(valMetro) || isNaN(valCongel)) {
     alert("Veuillez saisir les 3 températures (ex: 3.2, 3.5, -19.0).");
     return;
+  }
+
+  // Tolérance ergonomique mobile (iOS Safari n'a souvent pas de touche '-' sur le pavé numérique) :
+  // Un congélateur étant obligatoirement sous zéro, si l'utilisateur saisit '19' ou '18.5', on convertit en négatif.
+  if (valCongel > 0) {
+    valCongel = -valCongel;
   }
 
   // Normes HACCP officielles restauration :
