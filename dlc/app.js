@@ -31,13 +31,16 @@ const STORAGE_KEYS = {
   UNLOCKED: 'bob_dlc_unlocked_v1',
   REMEMBER: 'bob_dlc_remember_v1',
   ARCHIVES: 'bob_dlc_archives_v1',
-  SHOPPING: 'bob_dlc_shopping_v1'
+  SHOPPING: 'bob_dlc_shopping_v1',
+  TEMPERATURE: 'bob_dlc_temperature_v1'
 };
 
 // État global en mémoire
 let products = [];
 let archivedBatches = [];
 let shoppingItems = [];
+let temperatureLogs = [];
+let currentTempShift = 'Ouverture';
 let currentActiveView = 'dlc';
 let pendingFinishBatch = null;
 let currentFilterCategory = 'all';
@@ -77,16 +80,20 @@ document.addEventListener('DOMContentLoaded', () => {
   updateArchiveBadge();
   renderShoppingList();
   updateShoppingBadge();
+  renderTemperatureView();
+  updateTemperatureBadge();
   initFirebase();
 
-  // Navigation initiale selon l'URL hash (#courses ou #dlc)
+  // Navigation initiale selon l'URL hash (#courses, #temperatures ou #dlc)
   if (window.location.hash === '#courses') {
     switchStaffView('shopping', false);
+  } else if (window.location.hash === '#temperatures') {
+    switchStaffView('temperature', false);
   }
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.6.0').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.7.0').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -94,7 +101,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.6.0';
+const APP_VERSION = 'v1.7.0';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -167,6 +174,19 @@ function initStorage() {
   } else {
     shoppingItems = [];
   }
+
+  // Initialisation du suivi des températures frigos (HACCP v1.7.0)
+  const storedTemps = localStorage.getItem(STORAGE_KEYS.TEMPERATURE);
+  if (storedTemps) {
+    try {
+      temperatureLogs = JSON.parse(storedTemps);
+    } catch (e) {
+      temperatureLogs = [];
+    }
+  } else {
+    temperatureLogs = [];
+  }
+  updateTemperatureBadge();
 }
 
 function countTotalBatches(items = products) {
@@ -207,6 +227,7 @@ function initFirebase() {
     listenToCloudInventory();
     listenToCloudArchives();
     listenToCloudShopping();
+    listenToCloudTemperature();
   } catch (err) {
     console.error('Erreur init Firebase:', err);
     updateCloudStatus('error', 'Erreur Cloud');
@@ -235,6 +256,23 @@ function listenToCloudShopping() {
       updateShoppingBadge();
     }
   }, err => console.warn('Erreur écoute courses Cloud:', err));
+}
+
+function listenToCloudTemperature() {
+  if (!db) return;
+  db.collection('temperature_logs').onSnapshot(snapshot => {
+    if (!snapshot.empty) {
+      const logs = [];
+      snapshot.forEach(doc => logs.push(doc.data()));
+      logs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+      temperatureLogs = logs;
+      try {
+        localStorage.setItem(STORAGE_KEYS.TEMPERATURE, JSON.stringify(temperatureLogs));
+      } catch (e) {}
+      renderTemperatureView();
+      updateTemperatureBadge();
+    }
+  }, err => console.warn('Erreur écoute températures Cloud:', err));
 }
 
 function listenToCloudArchives() {
@@ -2026,8 +2064,10 @@ function exportBackupData() {
     exportedAt: new Date().toISOString(),
     batchesCount: countTotalBatches(products),
     archivesCount: archivedBatches.length,
+    temperaturesCount: temperatureLogs.length,
     products: products,
-    archivedBatches: archivedBatches
+    archivedBatches: archivedBatches,
+    temperatureLogs: temperatureLogs
   };
   const jsonStr = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -2052,7 +2092,8 @@ function importBackupData(event) {
       if (data && Array.isArray(data.products)) {
         const count = countTotalBatches(data.products);
         const archCount = Array.isArray(data.archivedBatches) ? data.archivedBatches.length : 0;
-        if (confirm(`Restaurer cette sauvegarde contenant ${data.products.length} produits (${count} lots actifs, ${archCount} archives) ?\n\nCela mettra également à jour le Cloud pour vos collègues.`)) {
+        const tempCount = Array.isArray(data.temperatureLogs) ? data.temperatureLogs.length : 0;
+        if (confirm(`Restaurer cette sauvegarde contenant ${data.products.length} produits (${count} lots actifs, ${archCount} archives, ${tempCount} relevés T°) ?\n\nCela mettra également à jour le Cloud pour vos collègues.`)) {
           products = data.products;
           if (Array.isArray(data.archivedBatches)) {
             archivedBatches = data.archivedBatches;
@@ -2062,6 +2103,17 @@ function importBackupData(event) {
             if (db) {
               archivedBatches.forEach(arch => {
                 db.collection('archived_batches').doc(arch.archiveId).set(arch).catch(err => console.warn(err));
+              });
+            }
+          }
+          if (Array.isArray(data.temperatureLogs)) {
+            temperatureLogs = data.temperatureLogs;
+            localStorage.setItem(STORAGE_KEYS.TEMPERATURE, JSON.stringify(temperatureLogs));
+            updateTemperatureBadge();
+            renderTemperatureView();
+            if (db) {
+              temperatureLogs.forEach(tLog => {
+                db.collection('temperature_logs').doc(tLog.id).set(tLog).catch(err => console.warn(err));
               });
             }
           }
@@ -2099,23 +2151,39 @@ function switchStaffView(viewName, updateHash = true) {
   currentActiveView = viewName;
   const dlcView = document.getElementById('view-dlc');
   const shoppingView = document.getElementById('view-shopping');
+  const tempView = document.getElementById('view-temperature');
+
   const dlcTab = document.getElementById('tab-nav-dlc');
   const shoppingTab = document.getElementById('tab-nav-shopping');
+  const tempTab = document.getElementById('tab-nav-temp');
+
+  // Masquer toutes les vues d'abord
+  if (dlcView) dlcView.classList.add('hidden');
+  if (shoppingView) shoppingView.classList.add('hidden');
+  if (tempView) tempView.classList.add('hidden');
+
+  if (dlcTab) dlcTab.classList.remove('active');
+  if (shoppingTab) shoppingTab.classList.remove('active');
+  if (tempTab) tempTab.classList.remove('active');
 
   if (viewName === 'shopping') {
-    if (dlcView) dlcView.classList.add('hidden');
     if (shoppingView) shoppingView.classList.remove('hidden');
-    if (dlcTab) dlcTab.classList.remove('active');
     if (shoppingTab) shoppingTab.classList.add('active');
     if (updateHash) {
       history.replaceState(null, null, '#courses');
     }
     renderShoppingList();
+  } else if (viewName === 'temperature') {
+    if (tempView) tempView.classList.remove('hidden');
+    if (tempTab) tempTab.classList.add('active');
+    if (updateHash) {
+      history.replaceState(null, null, '#temperatures');
+    }
+    renderTemperatureView();
   } else {
+    // Vue par défaut : dlc
     if (dlcView) dlcView.classList.remove('hidden');
-    if (shoppingView) shoppingView.classList.add('hidden');
     if (dlcTab) dlcTab.classList.add('active');
-    if (shoppingTab) shoppingTab.classList.remove('active');
     if (updateHash) {
       history.replaceState(null, null, '#dlc');
     }
@@ -2404,5 +2472,326 @@ function updateShoppingBadge() {
   } else {
     badge.classList.add('hidden');
   }
+}
+
+// =============================================================================
+// 14. MODULE RELEVÉ DES TEMPÉRATURES FRIGOS & FROID (HACCP v1.7.0)
+// =============================================================================
+
+function toggleTempShift(shift) {
+  currentTempShift = shift;
+  const openLabel = document.getElementById('label-shift-open');
+  const closeLabel = document.getElementById('label-shift-close');
+  if (openLabel && closeLabel) {
+    if (shift === 'Ouverture') {
+      openLabel.classList.add('active');
+      closeLabel.classList.remove('active');
+    } else {
+      openLabel.classList.remove('active');
+      closeLabel.classList.add('active');
+    }
+  }
+}
+
+function handleTemperatureSubmit(e) {
+  if (e) e.preventDefault();
+  const inputBlanc = document.getElementById('input-temp-frigo-blanc');
+  const inputMetro = document.getElementById('input-temp-frigo-metro');
+  const inputCongel = document.getElementById('input-temp-congelateur');
+  const inputNote = document.getElementById('input-temp-note');
+
+  if (!inputBlanc || !inputMetro || !inputCongel) return;
+
+  const valBlanc = parseFloat(inputBlanc.value.replace(',', '.'));
+  const valMetro = parseFloat(inputMetro.value.replace(',', '.'));
+  const valCongel = parseFloat(inputCongel.value.replace(',', '.'));
+  const note = (inputNote && inputNote.value) ? inputNote.value.trim() : '';
+
+  if (isNaN(valBlanc) || isNaN(valMetro) || isNaN(valCongel)) {
+    alert("Veuillez saisir les 3 températures (ex: 3.2, 3.5, -19.0).");
+    return;
+  }
+
+  // Normes HACCP officielles restauration :
+  // Frigo Blanc : 0°C à +4°C (alerte si > 4.0°C)
+  // Frigo Metro : 0°C à +4°C (alerte si > 4.0°C)
+  // Congélateur : ≤ -18.0°C (alerte si > -15.0°C)
+  const isBlancOk = valBlanc <= 4.0;
+  const isMetroOk = valMetro <= 4.0;
+  const isCongelOk = valCongel <= -15.0;
+  const isGlobalCompliant = isBlancOk && isMetroOk && (valCongel <= -18.0);
+
+  const now = new Date();
+  const todayIso = now.toISOString().split('T')[0];
+
+  const newLog = {
+    id: 'temp_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+    createdAt: now.toISOString(),
+    date: todayIso,
+    shift: currentTempShift || 'Ouverture',
+    frigoBlanc: Math.round(valBlanc * 10) / 10,
+    frigoMetro: Math.round(valMetro * 10) / 10,
+    congelateur: Math.round(valCongel * 10) / 10,
+    note: note,
+    isCompliant: isGlobalCompliant
+  };
+
+  temperatureLogs.unshift(newLog);
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.TEMPERATURE, JSON.stringify(temperatureLogs));
+  } catch (err) {
+    console.warn('Erreur stockage local temperature:', err);
+  }
+
+  if (db) {
+    db.collection('temperature_logs').doc(newLog.id).set(newLog)
+      .catch(err => console.warn('Erreur set temperature cloud:', err));
+  }
+
+  // Réinitialiser les champs de saisie
+  inputBlanc.value = '';
+  inputMetro.value = '';
+  inputCongel.value = '';
+  if (inputNote) inputNote.value = '';
+
+  renderTemperatureView();
+  updateTemperatureBadge();
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(30); } catch (e) {}
+  }
+
+  if (!isGlobalCompliant) {
+    showStaffToast('⚠️ Température anormale enregistrée ! Vérifiez la fermeture des portes.');
+  } else {
+    showStaffToast('❄️ Relevé de températures enregistré avec succès !');
+  }
+}
+
+function renderTemperatureView() {
+  const badgeLatestStatus = document.getElementById('temp-latest-status-badge');
+  const latestMetaEl = document.getElementById('temp-latest-time');
+  const boxBlanc = document.getElementById('gauge-box-frigo-blanc');
+  const boxMetro = document.getElementById('gauge-box-frigo-metro');
+  const boxCongel = document.getElementById('gauge-box-congelateur');
+  const valBlancEl = document.getElementById('gauge-frigo-blanc');
+  const valMetroEl = document.getElementById('gauge-frigo-metro');
+  const valCongelEl = document.getElementById('gauge-congelateur');
+  const historyList = document.getElementById('temperature-history-list');
+
+  if (temperatureLogs.length === 0) {
+    if (badgeLatestStatus) {
+      badgeLatestStatus.className = 'temp-status-badge';
+      badgeLatestStatus.textContent = 'Aucun relevé';
+    }
+    if (latestMetaEl) latestMetaEl.textContent = 'Aucun';
+    if (valBlancEl) valBlancEl.textContent = '--';
+    if (valMetroEl) valMetroEl.textContent = '--';
+    if (valCongelEl) valCongelEl.textContent = '--';
+    if (boxBlanc) boxBlanc.className = 'temp-appliance-box';
+    if (boxMetro) boxMetro.className = 'temp-appliance-box';
+    if (boxCongel) boxCongel.className = 'temp-appliance-box';
+
+    if (historyList) {
+      historyList.innerHTML = `
+        <div class="temp-empty-state">
+          <i class="fa-solid fa-temperature-snowflake"></i>
+          <p><strong>Aucun relevé sanitaire enregistré</strong></p>
+          <span style="font-size:0.75rem; color:var(--text-muted);">Saisissez vos relevés d'ouverture et de fermeture ci-dessus pour assurer la traçabilité HACCP.</span>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  const latest = temperatureLogs[0];
+  const dateStr = formatDateTimeFr(latest.createdAt);
+
+  if (latestMetaEl) {
+    latestMetaEl.textContent = `${dateStr} (${latest.shift || 'Service'})`;
+  }
+
+  // Évaluation des 3 températures du dernier relevé
+  const blancOk = latest.frigoBlanc <= 4.0;
+  const metroOk = latest.frigoMetro <= 4.0;
+  const congelOk = latest.congelateur <= -18.0;
+  const congelWarning = latest.congelateur > -18.0 && latest.congelateur <= -15.0;
+
+  if (valBlancEl) valBlancEl.textContent = (latest.frigoBlanc > 0 ? '+' : '') + latest.frigoBlanc.toFixed(1) + '°C';
+  if (valMetroEl) valMetroEl.textContent = (latest.frigoMetro > 0 ? '+' : '') + latest.frigoMetro.toFixed(1) + '°C';
+  if (valCongelEl) valCongelEl.textContent = latest.congelateur.toFixed(1) + '°C';
+
+  if (boxBlanc) {
+    boxBlanc.className = 'temp-appliance-box ' + (blancOk ? 'status-ok' : 'status-alert');
+  }
+  if (boxMetro) {
+    boxMetro.className = 'temp-appliance-box ' + (metroOk ? 'status-ok' : 'status-alert');
+  }
+  if (boxCongel) {
+    boxCongel.className = 'temp-appliance-box ' + (congelOk ? 'status-ok' : (congelWarning ? 'status-warning' : 'status-alert'));
+  }
+
+  const allCompliant = blancOk && metroOk && congelOk;
+  if (badgeLatestStatus) {
+    if (allCompliant) {
+      badgeLatestStatus.className = 'temp-status-badge ok';
+      badgeLatestStatus.textContent = '✅ Conforme';
+    } else {
+      badgeLatestStatus.className = 'temp-status-badge danger';
+      badgeLatestStatus.textContent = '⚠️ Anomalie T°';
+    }
+  }
+
+  // Rendu de l'historique complet (données passées)
+  if (historyList) {
+    let listHtml = '';
+    temperatureLogs.forEach(log => {
+      const bOk = log.frigoBlanc <= 4.0;
+      const mOk = log.frigoMetro <= 4.0;
+      const cOk = log.congelateur <= -18.0;
+      const isAlert = !bOk || !mOk || !cOk;
+      const shiftClass = (log.shift === 'Fermeture') ? 'close' : 'open';
+      const shiftIcon = (log.shift === 'Fermeture') ? '🌙' : '☀️';
+
+      listHtml += `
+        <div class="temp-log-item ${isAlert ? 'alert' : ''}" id="temp-log-${log.id}">
+          <div class="temp-log-top">
+            <div class="temp-log-date">
+              <i class="fa-regular fa-calendar-check text-gold"></i>
+              <span>${formatDateTimeFr(log.createdAt)}</span>
+            </div>
+            <span class="temp-shift-tag ${shiftClass}">${shiftIcon} ${escapeHtml(log.shift || 'Service')}</span>
+          </div>
+
+          <div class="temp-log-values">
+            <div class="temp-val-pill ${bOk ? 'ok' : 'alert'}">
+              <span class="temp-val-label">Frigo Blanc</span>
+              <span>${log.frigoBlanc > 0 ? '+' : ''}${log.frigoBlanc.toFixed(1)}°C</span>
+            </div>
+            <div class="temp-val-pill ${mOk ? 'ok' : 'alert'}">
+              <span class="temp-val-label">Frigo Metro</span>
+              <span>${log.frigoMetro > 0 ? '+' : ''}${log.frigoMetro.toFixed(1)}°C</span>
+            </div>
+            <div class="temp-val-pill ${cOk ? 'ok' : 'alert'}">
+              <span class="temp-val-label">Congélateur</span>
+              <span>${log.congelateur.toFixed(1)}°C</span>
+            </div>
+          </div>
+
+          <div class="temp-log-footer">
+            <span class="temp-log-note">${log.note ? '📝 ' + escapeHtml(log.note) : 'RAS'}</span>
+            <button type="button" class="btn-delete-temp-log" onclick="deleteTemperatureLog('${log.id}')" title="Supprimer ce relevé">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    });
+    historyList.innerHTML = listHtml;
+  }
+}
+
+function deleteTemperatureLog(logId) {
+  const log = temperatureLogs.find(l => l.id === logId);
+  if (!log) return;
+
+  if (confirm(`Supprimer ce relevé de température du ${formatDateTimeFr(log.createdAt)} ?`)) {
+    temperatureLogs = temperatureLogs.filter(l => l.id !== logId);
+    try {
+      localStorage.setItem(STORAGE_KEYS.TEMPERATURE, JSON.stringify(temperatureLogs));
+    } catch (e) {}
+
+    if (db) {
+      db.collection('temperature_logs').doc(logId).delete()
+        .catch(err => console.warn('Erreur delete temperature cloud:', err));
+    }
+
+    renderTemperatureView();
+    updateTemperatureBadge();
+    showStaffToast('🗑️ Relevé supprimé');
+  }
+}
+
+function updateTemperatureBadge() {
+  const badge = document.getElementById('badge-nav-temp');
+  if (!badge) return;
+
+  const todayIso = new Date().toISOString().split('T')[0];
+  const logsToday = temperatureLogs.filter(l => (l.date === todayIso) || (l.createdAt && l.createdAt.startsWith(todayIso)));
+
+  if (logsToday.length === 0) {
+    // Aucun relevé fait aujourd'hui : rappel orange pour l'équipe
+    badge.textContent = '!';
+    badge.className = 'nav-badge warning';
+    badge.classList.remove('hidden');
+  } else {
+    // Si un relevé aujourd'hui est en alerte : badge rouge clignotant
+    const hasAlertToday = logsToday.some(l => l.frigoBlanc > 4.0 || l.frigoMetro > 4.0 || l.congelateur > -15.0);
+    if (hasAlertToday) {
+      badge.textContent = '!';
+      badge.className = 'nav-badge danger';
+      badge.classList.remove('hidden');
+    } else {
+      // Relevé(s) effectué(s) et conformes
+      badge.classList.add('hidden');
+    }
+  }
+}
+
+function exportTemperatureReport() {
+  const todayIso = new Date().toISOString().split('T')[0];
+  const nowFr = new Date().toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  let csv = '\uFEFF';
+  csv += '# =============================================================================\n';
+  csv += '# REGISTRE OFFICIEL DE CONTRÔLE DES TEMPÉRATURES DU FROID (PMS - HACCP)\n';
+  csv += '# Établissement : BOB • Blonde ou Brune (SARL BOB LYON)\n';
+  csv += '# Adresse : 12 rue Imbert Colomès, 69001 Lyon\n';
+  csv += `# Date d'export du registre : ${nowFr}\n`;
+  csv += '# Règlements CE 852/2004 & Arrêté ministériel du 21/12/2009 - Contrôle officiel DDPP\n';
+  csv += '# Enceintes contrôlées : Frigo Blanc (0°C à +4°C), Frigo Metro (0°C à +4°C), Congélateur (≤ -18°C)\n';
+  csv += '# =============================================================================\n\n';
+
+  csv += 'Date;Heure;Moment de service;Frigo Blanc (°C);Statut Frigo Blanc;Frigo Metro (°C);Statut Frigo Metro;Congélateur (°C);Statut Congélateur;Conformité Sanitaire;Remarques / Actions Correctives\n';
+
+  if (temperatureLogs.length === 0) {
+    csv += '"Aucun relevé enregistré";"";"";"";"";"";"";"";"";"";""\n';
+  } else {
+    temperatureLogs.forEach(log => {
+      const dt = new Date(log.createdAt || Date.now());
+      const dateOnly = dt.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const timeOnly = dt.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+
+      const bOk = log.frigoBlanc <= 4.0;
+      const mOk = log.frigoMetro <= 4.0;
+      const cOk = log.congelateur <= -18.0;
+      const isGlobal = bOk && mOk && cOk;
+
+      const statutBlanc = bOk ? 'Conforme (0 à +4°C)' : 'NON CONFORME (> +4°C)';
+      const statutMetro = mOk ? 'Conforme (0 à +4°C)' : 'NON CONFORME (> +4°C)';
+      const statutCongel = cOk ? 'Conforme (≤ -18°C)' : (log.congelateur <= -15.0 ? 'Tolérance (-15°C à -18°C)' : 'NON CONFORME (> -15°C)');
+      const statutGlobal = isGlobal ? 'CONFORME' : 'ANOMALIE';
+
+      const noteClean = (log.note || '').replace(/"/g, '""');
+
+      csv += `"${dateOnly}";"${timeOnly}";"${log.shift || 'Service'}";"${log.frigoBlanc}";"${statutBlanc}";"${log.frigoMetro}";"${statutMetro}";"${log.congelateur}";"${statutCongel}";"${statutGlobal}";"${noteClean}"\n`;
+    });
+  }
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `REGISTRE_TEMPERATURES_HACCP_BOB_${todayIso}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 

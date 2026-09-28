@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v1.6.0 -->
-  <link rel="stylesheet" href="style.css?v=1.6.0">
+  <!-- Feuille de style dédiée avec cache-busting v1.7.0 -->
+  <link rel="stylesheet" href="style.css?v=1.7.0">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
           <div>
             <div class="header-title-row">
               <h1>BOB • Staff Hub</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.6.0</span></span>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.7.0</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
@@ -163,9 +163,6 @@
             <h2><i class="fa-solid fa-cart-shopping text-gold"></i> Liste de Courses</h2>
             <span class="shopping-count-badge" id="shopping-header-count">0 à acheter</span>
           </div>
-          <p style="font-size:0.76rem; color:var(--text-muted); margin:0;">
-            Synchronisée en direct pour l'équipe (2 gérants + salarié).
-          </p>
           <div class="shopping-actions-row">
             <button type="button" class="btn-shopping-whatsapp" onclick="shareShoppingToWhatsApp()">
               <i class="fa-brands fa-whatsapp"></i> Partager sur WhatsApp
@@ -192,9 +189,136 @@
       </div>
     </div>
 
+    <!-- VUE 3 : Relevé des Températures Sanitaires Frigos & Froid (HACCP) -->
+    <div id="view-temperature" class="staff-view hidden">
+      <div class="temp-container">
+        
+        <!-- En-tête Statut Sanitaire & Dernier Relevé -->
+        <div class="temp-header-card">
+          <div class="temp-title-row">
+            <h2><i class="fa-solid fa-temperature-half text-gold"></i> Relevé des Températures</h2>
+            <span class="temp-status-badge" id="temp-latest-status-badge">Chargement...</span>
+          </div>
+          <div class="temp-meta-row" id="temp-latest-meta">
+            Dernier relevé : <strong id="temp-latest-time">Aucun</strong>
+          </div>
+
+          <!-- Jauges des 3 enceintes (Dernier état connu) -->
+          <div class="temp-appliances-grid">
+            <div class="temp-appliance-box" id="gauge-box-frigo-blanc">
+              <div class="appliance-icon">🥛</div>
+              <div class="appliance-info">
+                <span class="appliance-name">Frigo Blanc</span>
+                <span class="appliance-norm">0°C à +4°C</span>
+              </div>
+              <div class="appliance-value" id="gauge-frigo-blanc">--</div>
+            </div>
+
+            <div class="temp-appliance-box" id="gauge-box-frigo-metro">
+              <div class="appliance-icon">🥫</div>
+              <div class="appliance-info">
+                <span class="appliance-name">Frigo Metro</span>
+                <span class="appliance-norm">0°C à +4°C</span>
+              </div>
+              <div class="appliance-value" id="gauge-frigo-metro">--</div>
+            </div>
+
+            <div class="temp-appliance-box" id="gauge-box-congelateur">
+              <div class="appliance-icon">❄️</div>
+              <div class="appliance-info">
+                <span class="appliance-name">Congélateur</span>
+                <span class="appliance-norm">&le; -18°C</span>
+              </div>
+              <div class="appliance-value" id="gauge-congelateur">--</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Formulaire de saisie d'un nouveau relevé -->
+        <form class="temp-form-card" onsubmit="handleTemperatureSubmit(event)">
+          <div class="temp-form-title">
+            <i class="fa-solid fa-pen-to-square text-gold"></i>
+            <span>Nouveau relevé sanitaire</span>
+          </div>
+
+          <!-- Choix du moment (Ouverture vs Fermeture) -->
+          <div class="temp-shift-selector">
+            <label class="temp-shift-btn active" id="label-shift-open">
+              <input type="radio" name="tempShift" value="Ouverture" checked onchange="toggleTempShift('Ouverture')">
+              <span>☀️ Ouverture</span>
+            </label>
+            <label class="temp-shift-btn" id="label-shift-close">
+              <input type="radio" name="tempShift" value="Fermeture" onchange="toggleTempShift('Fermeture')">
+              <span>🌙 Fermeture</span>
+            </label>
+          </div>
+
+          <!-- Grille des 3 champs de températures -->
+          <div class="temp-inputs-grid">
+            <div class="temp-input-group">
+              <label for="input-temp-frigo-blanc">
+                <i class="fa-solid fa-temperature-arrow-down text-gold"></i> Frigo Blanc
+              </label>
+              <div class="temp-input-wrapper">
+                <input type="number" id="input-temp-frigo-blanc" step="0.1" placeholder="ex: 3.2" required class="temp-number-input">
+                <span class="temp-unit">°C</span>
+              </div>
+            </div>
+
+            <div class="temp-input-group">
+              <label for="input-temp-frigo-metro">
+                <i class="fa-solid fa-temperature-arrow-down text-gold"></i> Frigo Metro
+              </label>
+              <div class="temp-input-wrapper">
+                <input type="number" id="input-temp-frigo-metro" step="0.1" placeholder="ex: 3.5" required class="temp-number-input">
+                <span class="temp-unit">°C</span>
+              </div>
+            </div>
+
+            <div class="temp-input-group">
+              <label for="input-temp-congelateur">
+                <i class="fa-solid fa-snowflake text-gold"></i> Congélateur
+              </label>
+              <div class="temp-input-wrapper">
+                <input type="number" id="input-temp-congelateur" step="0.1" placeholder="ex: -19.0" required class="temp-number-input">
+                <span class="temp-unit">°C</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Note facultative -->
+          <div class="temp-note-wrapper">
+            <input type="text" id="input-temp-note" placeholder="Remarque optionnelle (ex: RAS, dégivrage, livraison...)" class="temp-note-input" autocomplete="off">
+          </div>
+
+          <button type="submit" class="btn-submit-temp">
+            <i class="fa-solid fa-check"></i> Enregistrer le relevé
+          </button>
+        </form>
+
+        <!-- Registre & Historique des relevés passés (Données passées) -->
+        <div class="temp-history-card">
+          <div class="temp-history-header">
+            <div>
+              <h3><i class="fa-solid fa-clock-rotate-left text-gold"></i> Registre & Données Passées</h3>
+              <span class="temp-history-sub">Historique officiel DDPP (6 mois)</span>
+            </div>
+            <button type="button" class="btn-export-temp-csv" onclick="exportTemperatureReport()" title="Télécharger le registre officiel pour les contrôles sanitaires">
+              <i class="fa-solid fa-file-arrow-down"></i> Export CSV
+            </button>
+          </div>
+
+          <div id="temperature-history-list" class="temp-history-list">
+            <!-- Rendu dynamique en JS -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.6.0</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.7.0</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
 
@@ -209,6 +333,11 @@
         <i class="fa-solid fa-cart-shopping"></i>
         <span>Courses</span>
         <span class="nav-badge hidden" id="badge-nav-shopping">0</span>
+      </button>
+      <button type="button" class="nav-item" id="tab-nav-temp" onclick="switchStaffView('temperature')">
+        <i class="fa-solid fa-temperature-half"></i>
+        <span>Températures</span>
+        <span class="nav-badge warning hidden" id="badge-nav-temp">!</span>
       </button>
     </nav>
 
@@ -448,7 +577,7 @@
 
         <div class="settings-section">
           <h4>Version & Mise à jour</h4>
-          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.6.0) si le téléphone a gardé l'ancien cache.</p>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (v1.7.0) si le téléphone a gardé l'ancien cache.</p>
           <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
             <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
           </button>
@@ -534,7 +663,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v1.6.0 -->
-  <script src="app.js?v=1.6.0"></script>
+  <!-- Script JS de l'application avec cache-busting v1.7.0 -->
+  <script src="app.js?v=1.7.0"></script>
 </body>
 </html>
