@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.9.0').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.9.1').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.9.0';
+const APP_VERSION = 'v1.9.1';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -258,6 +258,7 @@ function initFirebase() {
     listenToCloudShopping();
     listenToCloudTemperature();
     listenToCloudCalendar();
+    listenToCloudLightsSettings();
   } catch (err) {
     console.error('Erreur init Firebase:', err);
     updateCloudStatus('error', 'Erreur Cloud');
@@ -3386,6 +3387,7 @@ function updateCalendarBadge() {
 // =============================================================================
 
 const DEFAULT_LIGHTS_URL = 'http://192.168.1.211:8080';
+const DEFAULT_LIGHTS_HTTPS_FALLBACK = 'https://carroll-don-let-potato.trycloudflare.com';
 
 // Équipements répertoriés du bar (cache immédiat)
 const DEFAULT_LIGHTS_DEVICES = [
@@ -3419,10 +3421,43 @@ function getLightsServerUrl() {
   try {
     const saved = localStorage.getItem(STORAGE_KEYS.LIGHTS_URL);
     if (saved && saved.trim()) {
-      return saved.trim().replace(/\/+$/, '');
+      const trimmed = saved.trim().replace(/\/+$/, '');
+      // Si la page est en HTTPS (ex: https://www.boblyon.fr) et que l'URL locale HTTP est configurée,
+      // les navigateurs bloquent la requête (Mixed Content). On bascule automatiquement sur le tunnel HTTPS.
+      if (window.location.protocol === 'https:' && trimmed.startsWith('http://192.168.')) {
+        return DEFAULT_LIGHTS_HTTPS_FALLBACK;
+      }
+      return trimmed;
     }
   } catch (e) {}
+
+  // Par défaut : si la page actuelle est en HTTPS, utiliser le tunnel HTTPS pour éviter le blocage Mixed Content
+  if (window.location.protocol === 'https:') {
+    return DEFAULT_LIGHTS_HTTPS_FALLBACK;
+  }
   return DEFAULT_LIGHTS_URL;
+}
+
+function listenToCloudLightsSettings() {
+  if (!db) return;
+  db.collection('settings').doc('lights').onSnapshot(doc => {
+    if (doc && doc.exists) {
+      const data = doc.data();
+      if (data && data.url && data.url.trim()) {
+        const cloudUrl = data.url.trim().replace(/\/+$/, '');
+        const currentStored = localStorage.getItem(STORAGE_KEYS.LIGHTS_URL);
+        if (!currentStored || currentStored.startsWith('http://192.168.') || currentStored !== cloudUrl) {
+          localStorage.setItem(STORAGE_KEYS.LIGHTS_URL, cloudUrl);
+          updateLightsEndpointLabel();
+          if (currentActiveView === 'lights') {
+            fetchLightsData();
+          }
+        }
+      }
+    }
+  }, err => {
+    console.warn('Erreur écoute cloud lights:', err);
+  });
 }
 
 function saveLightsServerUrl() {
@@ -3430,7 +3465,7 @@ function saveLightsServerUrl() {
   if (!input) return;
   let val = input.value.trim().replace(/\/+$/, '');
   if (!val) {
-    val = DEFAULT_LIGHTS_URL;
+    val = window.location.protocol === 'https:' ? DEFAULT_LIGHTS_HTTPS_FALLBACK : DEFAULT_LIGHTS_URL;
   }
   if (!val.startsWith('http://') && !val.startsWith('https://')) {
     val = 'http://' + val;
@@ -3438,6 +3473,11 @@ function saveLightsServerUrl() {
   try {
     localStorage.setItem(STORAGE_KEYS.LIGHTS_URL, val);
   } catch (e) {}
+
+  if (db) {
+    db.collection('settings').doc('lights').set({ url: val, updatedAt: new Date().toISOString() }, { merge: true })
+      .catch(err => console.warn('Erreur sync cloud lights URL:', err));
+  }
 
   updateLightsEndpointLabel();
   showStaffToast(`⚙️ Contrôleur enregistré : ${val}`);
