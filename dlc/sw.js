@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bob-dlc-cache-v1.9.1';
+const CACHE_NAME = 'bob-dlc-cache-v1.9.2';
 const ASSETS_TO_CACHE = [
   './index.html',
   './style.css',

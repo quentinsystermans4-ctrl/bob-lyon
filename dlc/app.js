@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.9.1').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.9.2').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.9.1';
+const APP_VERSION = 'v1.9.2';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -3387,7 +3387,7 @@ function updateCalendarBadge() {
 // =============================================================================
 
 const DEFAULT_LIGHTS_URL = 'http://192.168.1.211:8080';
-const DEFAULT_LIGHTS_HTTPS_FALLBACK = 'https://carroll-don-let-potato.trycloudflare.com';
+const DEFAULT_LIGHTS_HTTPS_FALLBACK = 'https://defining-loop-cheaper-top.trycloudflare.com';
 
 // Équipements répertoriés du bar (cache immédiat)
 const DEFAULT_LIGHTS_DEVICES = [
@@ -3513,7 +3513,6 @@ function updateLightsConnectionBadge(state, message) {
   lightsConnectionState = state;
   const pill = document.getElementById('lights-status-pill');
   const label = document.getElementById('lights-status-label');
-  const alertBox = document.getElementById('lights-conn-alert');
 
   if (pill) {
     pill.classList.remove('offline', 'checking');
@@ -3525,17 +3524,9 @@ function updateLightsConnectionBadge(state, message) {
     if (state === 'online') {
       label.textContent = message || 'En ligne (Raspberry Pi)';
     } else if (state === 'checking') {
-      label.textContent = message || 'Connexion au bar...';
+      label.textContent = message || 'Connexion...';
     } else {
-      label.textContent = message || 'Hors-ligne / Injoignable';
-    }
-  }
-
-  if (alertBox) {
-    if (state === 'offline') {
-      alertBox.classList.remove('hidden');
-    } else {
-      alertBox.classList.add('hidden');
+      label.textContent = message || 'Hors-ligne';
     }
   }
 }
@@ -3569,7 +3560,7 @@ async function fetchLightsData() {
     }
   } catch (err) {
     console.warn('Erreur connexion éclairage:', err);
-    updateLightsConnectionBadge('offline', 'Injoignable (Hors Wi-Fi ou Mixed Content)');
+    updateLightsConnectionBadge('offline', 'Injoignable');
   }
 
   renderLightsSections();
@@ -3635,20 +3626,33 @@ function renderLightsSections() {
       const s = lightsStatus[d.id] || {};
       const isOn = s.on === true;
       const isOffline = s.offline === true;
-      const cardClass = `light-card ${isOn ? 'is-on' : ''} ${isOffline ? 'is-offline' : ''}`;
+      const cardClass = `light-card ${isOn ? 'is-on' : 'is-off'} ${isOffline ? 'is-offline' : ''}`;
+
+      let statusBadge = '';
+      if (isOffline) {
+        statusBadge = `<span class="light-badge-state offline"><i class="fa-solid fa-triangle-exclamation"></i> HORS-LIGNE</span>`;
+      } else if (isOn) {
+        statusBadge = `<span class="light-badge-state on"><i class="fa-solid fa-circle"></i> ALLUMÉ</span>`;
+      } else {
+        statusBadge = `<span class="light-badge-state off"><i class="fa-regular fa-circle"></i> ÉTEINT</span>`;
+      }
+
+      let btnPowerClass = isOffline ? '' : (isOn ? 'is-on' : 'is-off');
+      let btnPowerText = isOffline ? 'Injoignable' : (isOn ? 'ÉTEINDRE' : 'ALLUMER');
+      let btnPowerIcon = isOn ? 'fa-solid fa-power-off' : 'fa-regular fa-lightbulb';
 
       html += `
         <div class="${cardClass}" id="card-light-${d.id}">
           <div class="light-card-top">
             <span class="light-card-name" title="${escapeHtml(d.name)}">${escapeHtml(d.name)}</span>
-            <span class="light-status-dot"></span>
+            ${statusBadge}
           </div>
 
-          <button type="button" class="btn-light-power" 
+          <button type="button" class="btn-light-power ${btnPowerClass}" 
             onclick="actLight('${d.id}', 'toggle')" 
             ${isOffline ? 'disabled' : ''}>
-            <i class="fa-solid fa-power-off"></i>
-            <span>${isOffline ? 'Hors-ligne' : (isOn ? 'ALLUMÉ' : 'ÉTEINT')}</span>
+            <i class="${btnPowerIcon}"></i>
+            <span>${btnPowerText}</span>
           </button>
       `;
 

@@ -3331,165 +3331,145 @@ body {
   transform: scale(0.97);
 }
 
-/* Alerte de connexion */
-.lights-conn-alert {
-  background: rgba(239, 68, 68, 0.08);
-  border: 1px solid rgba(239, 68, 68, 0.25);
-  border-radius: 10px;
-  padding: 10px 12px;
+/* =============================================================================
+   VUE 5 : ÉCLAIRAGE CONNECTÉ DU BAR (Épuré & Ultra-lisible v1.9.2)
+   ============================================================================= */
+.lights-container {
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
+  flex-direction: column;
+  gap: 16px;
+  padding-bottom: 30px;
 }
 
-.alert-icon-col i {
-  color: #f87171;
-  font-size: 1.1rem;
-  margin-top: 2px;
-}
-
-.alert-content-col {
-  flex: 1;
-}
-
-.alert-content-col strong {
-  display: block;
-  color: #fca5a5;
-  font-size: 0.82rem;
-  font-family: var(--font-heading);
-  margin-bottom: 2px;
-}
-
-.alert-content-col p {
-  font-size: 0.74rem;
-  color: var(--text-secondary);
-  margin: 0 0 8px 0;
-  line-height: 1.35;
-}
-
-.alert-action-buttons {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.btn-alert-link, .btn-alert-cfg {
+.lights-header-card {
   background: var(--bg-card);
   border: 1px solid var(--border-soft);
-  color: var(--text-primary);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.lights-header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.lights-status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lights-status-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(16, 16, 20, 0.7);
+  border: 1px solid var(--border-soft);
+  padding: 6px 12px;
+  border-radius: 20px;
   font-family: var(--font-heading);
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 700;
-  padding: 6px 10px;
-  border-radius: 6px;
-  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.status-pulse-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 8px #22c55e;
+}
+
+.lights-status-indicator.offline .status-pulse-dot {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444;
+}
+
+.lights-status-indicator.checking .status-pulse-dot {
+  background: #f59e0b;
+  box-shadow: 0 0 8px #f59e0b;
+}
+
+.lights-endpoint-pill {
   display: inline-flex;
   align-items: center;
   gap: 5px;
+  background: var(--bg-card-alt);
+  border: 1px solid var(--border-soft);
+  padding: 5px 9px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  color: var(--text-muted);
   cursor: pointer;
 }
 
-.btn-alert-link:active, .btn-alert-cfg:active {
-  border-color: var(--color-gold);
-  color: var(--color-gold);
-}
-
-/* Carte Wi-Fi */
-.wifi-info-card {
-  background: linear-gradient(135deg, rgba(30, 41, 59, 0.35), rgba(20, 24, 34, 0.6));
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: 10px 14px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.wifi-icon-wrap {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  background: rgba(255, 209, 91, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.15rem;
-  flex-shrink: 0;
-}
-
-.wifi-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.wifi-label {
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  font-family: var(--font-heading);
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
-
-.wifi-ssid {
-  font-size: 0.92rem;
-  font-weight: 800;
-  font-family: var(--font-heading);
-  color: var(--text-primary);
-  letter-spacing: 0.02em;
-}
-
-.wifi-pwd-row {
+.lights-header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 3px;
-  flex-wrap: wrap;
 }
 
-.wifi-pwd {
-  font-family: ui-monospace, Menlo, Consolas, monospace;
-  font-size: 0.78rem;
-  color: var(--color-gold);
-  background: rgba(0, 0, 0, 0.3);
-  padding: 2px 7px;
-  border-radius: 5px;
-  border: 1px solid rgba(255, 209, 91, 0.15);
-}
-
-.btn-copy-wifi {
-  background: transparent;
+.btn-lights-refresh {
+  background: var(--bg-card-alt);
   border: 1px solid var(--border-soft);
   color: var(--text-secondary);
-  font-size: 0.7rem;
-  font-family: var(--font-heading);
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-.btn-copy-wifi:active {
-  background: var(--color-gold);
-  color: #101013;
+.btn-lights-refresh:active {
+  color: var(--color-gold);
+  border-color: var(--color-gold);
+  transform: scale(0.95);
+}
+
+.btn-lights-alloff {
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  font-family: var(--font-heading);
+  font-size: 0.82rem;
+  font-weight: 800;
+  padding: 9px 14px;
+  min-height: 40px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  touch-action: manipulation;
+}
+
+.btn-lights-alloff:active {
+  background: var(--status-red);
+  color: #ffffff;
+  transform: scale(0.97);
 }
 
 /* Sections & Grille */
 .lights-section {
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .lights-section-title {
   font-family: var(--font-heading);
-  font-size: 0.74rem;
+  font-size: 0.76rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--color-gold);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -3497,33 +3477,42 @@ body {
 
 .lights-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
 }
 
-/* Carte équipement */
+/* Carte équipement épurée et très lisible */
 .light-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border-soft);
-  border-radius: 12px;
-  padding: 12px;
+  background: #181920;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 13px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   position: relative;
-  transition: background 0.2s ease, border-color 0.2s ease, opacity 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   user-select: none;
 }
 
+/* État ALLUMÉ (Bien visible & contrasté) */
 .light-card.is-on {
-  background: linear-gradient(145deg, rgba(32, 28, 20, 0.95), rgba(46, 38, 20, 0.95));
-  border-color: rgba(255, 209, 91, 0.4);
-  box-shadow: 0 4px 14px rgba(255, 209, 91, 0.08);
+  background: linear-gradient(145deg, #2a2210 0%, #3a2e15 100%);
+  border: 2px solid #ffd15b;
+  box-shadow: 0 4px 18px rgba(255, 209, 91, 0.25);
 }
 
+/* État ÉTEINT (Sobre & propre) */
+.light-card.is-off {
+  background: #181920;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* État HORS-LIGNE */
 .light-card.is-offline {
   opacity: 0.5;
-  background: rgba(18, 20, 26, 0.75);
+  background: #121318;
+  border-color: rgba(239, 68, 68, 0.25);
 }
 
 .light-card-top {
@@ -3535,46 +3524,58 @@ body {
 
 .light-card-name {
   font-family: var(--font-heading);
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: var(--text-primary);
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: 0.01em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .light-card.is-on .light-card-name {
-  color: #fff4d1;
+  color: #fff9e6;
 }
 
-.light-status-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
-  background: #334155;
+/* Badge de statut ultra-visible */
+.light-badge-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-heading);
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   flex-shrink: 0;
-  transition: all 0.2s ease;
 }
 
-.light-card.is-on .light-status-dot {
-  background: var(--color-gold);
-  box-shadow: 0 0 8px var(--color-gold);
+.light-badge-state.on {
+  background: #ffd15b;
+  color: #101013;
+  box-shadow: 0 0 10px rgba(255, 209, 91, 0.6);
 }
 
-.light-card.is-offline .light-status-dot {
-  background: var(--status-red);
-  box-shadow: none;
+.light-badge-state.off {
+  background: rgba(255, 255, 255, 0.08);
+  color: #94a3b8;
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Bouton ON / OFF principal */
+.light-badge-state.offline {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Bouton tactile principal ALLUMER / ÉTEINDRE */
 .btn-light-power {
   width: 100%;
   min-height: 44px;
   padding: 10px;
-  border-radius: 8px;
-  border: 1px solid var(--border-soft);
-  background: var(--bg-card-alt);
-  color: var(--text-secondary);
+  border-radius: 10px;
   font-family: var(--font-heading);
   font-size: 0.88rem;
   font-weight: 800;
@@ -3583,25 +3584,39 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 8px;
   touch-action: manipulation;
+  letter-spacing: 0.03em;
 }
 
-.light-card.is-on .btn-light-power {
-  background: var(--color-gold);
-  border-color: var(--color-gold);
+.btn-light-power.is-on {
+  background: #ffd15b;
+  border: none;
   color: #101013;
-  box-shadow: 0 2px 8px rgba(255, 209, 91, 0.25);
+  box-shadow: 0 3px 10px rgba(255, 209, 91, 0.35);
 }
 
-.light-card.is-on .btn-light-power:active {
-  background: var(--color-gold-hover);
+.btn-light-power.is-on:active {
+  background: #e6b843;
   transform: scale(0.97);
 }
 
-.light-card:not(.is-on) .btn-light-power:active {
-  background: rgba(255, 255, 255, 0.08);
+.btn-light-power.is-off {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #e2e8f0;
+}
+
+.btn-light-power.is-off:active {
+  background: rgba(255, 255, 255, 0.12);
   transform: scale(0.97);
+}
+
+.btn-light-power[disabled] {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  color: #64748b;
+  cursor: not-allowed;
 }
 
 /* Contrôle curseur luminosité */
@@ -3609,9 +3624,10 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: rgba(0, 0, 0, 0.25);
-  padding: 6px 8px;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 6px 9px;
   border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .light-slider-icon {
@@ -3632,30 +3648,30 @@ body {
 
 .light-range-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--color-gold);
-  box-shadow: 0 0 6px rgba(255, 209, 91, 0.4);
+  box-shadow: 0 0 8px rgba(255, 209, 91, 0.5);
   cursor: pointer;
 }
 
 .light-range-slider::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
   background: var(--color-gold);
-  box-shadow: 0 0 6px rgba(255, 209, 91, 0.4);
+  box-shadow: 0 0 8px rgba(255, 209, 91, 0.5);
   cursor: pointer;
   border: none;
 }
 
 .light-slider-val {
-  font-size: 0.7rem;
+  font-size: 0.72rem;
   font-family: var(--font-heading);
-  font-weight: 700;
-  color: var(--text-muted);
-  width: 32px;
+  font-weight: 800;
+  color: var(--color-gold);
+  width: 34px;
   text-align: right;
 }
 
@@ -3684,9 +3700,9 @@ body {
 
 .color-swatch-btn {
   flex: 1;
-  height: 22px;
-  border-radius: 4px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  height: 24px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
   cursor: pointer;
   transition: transform 0.15s ease;
 }
@@ -3695,7 +3711,7 @@ body {
   transform: scale(1.15);
 }
 
-/* Offline retry & last seen */
+/* Offline retry */
 .light-offline-info {
   display: flex;
   flex-direction: column;
