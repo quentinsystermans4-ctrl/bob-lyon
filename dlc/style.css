@@ -51,6 +51,21 @@
   -webkit-tap-highlight-color: transparent;
 }
 
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+button i,
+button span,
+.btn-confirm-consumed *,
+.btn-keep-stock *,
+.btn-batch-finish *,
+.btn-critical-consumed * {
+  pointer-events: none;
+}
+
 body {
   background-color: var(--bg-page);
   font-family: var(--font-body);
@@ -569,14 +584,14 @@ body {
   color: var(--color-gold);
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 0.78rem;
-  padding: 8px 12px;
-  min-height: 40px;
+  font-size: 0.8rem;
+  padding: 8px 14px;
+  min-height: 44px;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   transition: all 0.15s ease;
 }
 
@@ -589,8 +604,10 @@ body {
   background: transparent;
   border: 1px solid var(--border-soft);
   color: var(--text-muted);
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -734,14 +751,15 @@ body {
   background: transparent;
   border: 1px solid var(--border-soft);
   color: var(--text-muted);
-  font-size: 0.78rem;
-  padding: 8px 12px;
-  min-height: 38px;
+  font-size: 0.8rem;
+  padding: 8px 14px;
+  min-height: 44px;
   border-radius: 8px;
   cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
+  touch-action: manipulation;
   transition: all 0.15s ease;
 }
 
@@ -1022,6 +1040,7 @@ body {
   border: 1px solid var(--border-soft);
   border-radius: 8px;
   padding: 10px 12px;
+  min-height: 44px;
   font-family: var(--font-body);
   font-size: 1rem;
   color: var(--text-primary);
@@ -1356,13 +1375,19 @@ body {
   color: #101013;
   font-family: var(--font-heading);
   font-weight: 800;
-  font-size: 0.78rem;
-  padding: 6px 12px;
-  border-radius: 6px;
+  font-size: 0.85rem;
+  padding: 10px 16px;
+  min-height: 44px;
+  border-radius: 8px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
+  justify-content: center;
+  gap: 7px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
   transition: all 0.15s ease;
 }
 
@@ -1376,10 +1401,24 @@ body {
   color: var(--text-secondary);
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 0.76rem;
-  padding: 6px 10px;
-  border-radius: 6px;
+  font-size: 0.82rem;
+  padding: 10px 14px;
+  min-height: 44px;
+  border-radius: 8px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: all 0.15s ease;
+}
+
+.btn-keep-stock:active {
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
 
 /* ==========================================================================
@@ -1589,14 +1628,15 @@ body {
   color: #4ade80;
   font-family: var(--font-heading);
   font-weight: 700;
-  font-size: 0.76rem;
-  padding: 8px 12px;
-  min-height: 38px;
+  font-size: 0.8rem;
+  padding: 8px 14px;
+  min-height: 44px;
   border-radius: 8px;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
+  touch-action: manipulation;
   transition: all 0.15s ease;
 }
 
@@ -2364,6 +2404,7 @@ body {
   font-size: 1.05rem;
   font-weight: 800;
   padding: 9px 24px 9px 8px;
+  min-height: 44px;
   text-align: center;
   transition: border-color 0.2s;
   -moz-appearance: textfield;
@@ -2811,7 +2852,7 @@ body {
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
-  min-height: 40px;
+  min-height: 44px;
 }
 
 .calendar-day-cell:active {

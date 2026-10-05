@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.9.2').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.9.3').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.9.2';
+const APP_VERSION = 'v1.9.3';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -894,11 +894,11 @@ function renderCriticalDlcAlerts() {
   criticals.forEach(item => {
     let urgencyText = '';
     if (item.days === 0) {
-      urgencyText = `<strong style="color:var(--status-red);">Échoit AUJOURD'HUI</strong>`;
+      urgencyText = `<strong style="color:var(--status-red);">Périme aujourd'hui</strong>`;
     } else if (item.days === 1) {
-      urgencyText = `<strong style="color:#fbbf24;">Échoit DEMAIN (J-1)</strong>`;
+      urgencyText = `<strong style="color:#fbbf24;">Périme demain</strong>`;
     } else {
-      urgencyText = `<strong style="color:#fbbf24;">Échoit dans ${item.days} jours (J-${item.days})</strong>`;
+      urgencyText = `<strong style="color:#fbbf24;">Échéance dans ${item.days}j</strong>`;
     }
 
     const lotLabel = item.multiple ? ` (Lot ${item.lotNum})` : '';
@@ -906,7 +906,7 @@ function renderCriticalDlcAlerts() {
     itemsHtml += `
       <div class="critical-dlc-item">
         <div class="critical-dlc-info">
-          <span>🔥 <strong>${escapeHtml(item.productName)}</strong>${lotLabel} &bull; DLC : ${item.dateStr} &bull; ${urgencyText}</span>
+          <span>🔥 <strong>${escapeHtml(item.productName)}</strong>${lotLabel} &bull; ${urgencyText}</span>
         </div>
         <div class="critical-dlc-actions">
           <button class="btn-critical-consumed" onclick="finishBatch('${item.productId}', '${item.batchId}')" title="Sortir du stock">
@@ -976,10 +976,16 @@ function renderMultiLotAlerts() {
 
   let html = '';
   alerts.forEach(item => {
-    const isExpired = item.days <= 0;
-    const timeText = isExpired
-      ? `<strong style="color:var(--status-red);">${item.days === 0 ? "aujourd'hui" : Math.abs(item.days) + 'j de retard'}</strong>`
-      : `dans <strong>${item.days} jour(s)</strong> (${item.dateStr})`;
+    let timeText = '';
+    if (item.days < 0) {
+      timeText = `<strong style="color:var(--status-red);">${Math.abs(item.days)}j de retard</strong>`;
+    } else if (item.days === 0) {
+      timeText = `<strong style="color:var(--status-red);">aujourd'hui</strong>`;
+    } else if (item.days === 1) {
+      timeText = `<strong style="color:#fbbf24;">demain</strong>`;
+    } else {
+      timeText = `dans <strong>${item.days}j</strong>`;
+    }
 
     html += `
       <div class="multi-lot-alert-card">
@@ -988,13 +994,13 @@ function renderMultiLotAlerts() {
           <span>Vérification Stock Multi-Lots</span>
         </div>
         <div class="alert-card-question">
-          Le <strong>Lot ${item.lotNum}</strong> de <strong>${item.productName}</strong> (${item.type} ${item.dateStr}) arrive à échéance ${timeText}. A-t-il été consommé au bar ?
+          Attention, <strong>${escapeHtml(item.productName)}</strong> (Lot ${item.lotNum}) arrive à échéance ${timeText}. Ce lot est-il terminé ?
         </div>
         <div class="alert-card-actions">
-          <button class="btn-confirm-consumed" onclick="confirmBatchConsumed('${item.productId}', '${item.batchId}')">
+          <button type="button" class="btn-confirm-consumed" onclick="confirmBatchConsumed('${item.productId}', '${item.batchId}')">
             <i class="fa-solid fa-check"></i> Oui, lot terminé
           </button>
-          <button class="btn-keep-stock" onclick="snoozeBatchAlert('${item.batchId}')">
+          <button type="button" class="btn-keep-stock" onclick="snoozeBatchAlert('${item.batchId}')">
             Non, encore en stock
           </button>
         </div>
@@ -1007,22 +1013,29 @@ function renderMultiLotAlerts() {
 }
 
 function confirmBatchConsumed(productId, batchId) {
-  const prod = products.find(p => p.id === productId);
-  if (!prod || !prod.batches) return;
-  const batch = prod.batches.find(b => b.id === batchId);
-  if (batch) {
-    archiveBatchRecord(prod, batch, 'consumed');
-  }
-  prod.batches = prod.batches.filter(b => b.id !== batchId);
-  saveProductsToStorage(prod);
-  renderProducts();
-  renderCriticalDlcAlerts();
-  renderMultiLotAlerts();
-  if (navigator.vibrate) navigator.vibrate(35);
+  try {
+    const prod = products.find(p => String(p.id) === String(productId));
+    if (!prod || !prod.batches) return;
+    const batch = prod.batches.find(b => String(b.id) === String(batchId));
+    if (batch) {
+      archiveBatchRecord(prod, batch, 'consumed');
+    }
+    prod.batches = prod.batches.filter(b => String(b.id) !== String(batchId));
+    saveProductsToStorage(prod);
+    renderProducts();
+    renderCriticalDlcAlerts();
+    renderMultiLotAlerts();
+    if (navigator.vibrate) {
+      try { navigator.vibrate(35); } catch (_) {}
+    }
 
-  // Ajout automatique à la liste de courses
-  addShoppingItem(prod.name, 'dlc');
-  showStaffToast(`🍽️ Lot terminé • "${prod.name}" ajouté aux courses !`);
+    // Ajout automatique à la liste de courses
+    addShoppingItem(prod.name, 'dlc');
+    showStaffToast(`🍽️ Lot terminé • "${prod.name}" ajouté aux courses !`);
+  } catch (err) {
+    console.error('Erreur confirmBatchConsumed:', err);
+    showStaffToast(`⚠️ Erreur lors de la confirmation`);
+  }
 }
 
 function snoozeBatchAlert(batchId) {
@@ -1303,7 +1316,23 @@ function archiveBatchRecord(prod, batch, reason = 'consumed') {
   };
 
   archivedBatches.unshift(archiveItem);
-  localStorage.setItem(STORAGE_KEYS.ARCHIVES, JSON.stringify(archivedBatches));
+  try {
+    localStorage.setItem(STORAGE_KEYS.ARCHIVES, JSON.stringify(archivedBatches));
+  } catch (e) {
+    console.warn('Quota localStorage dépassé pour archives, épuration des photos...', e);
+    // Purger les photos base64 volumineuses des archives antérieures pour libérer la mémoire Safari iOS
+    archivedBatches.forEach((a, idx) => {
+      if (idx > 3) a.photo = null;
+    });
+    if (archivedBatches.length > 50) {
+      archivedBatches = archivedBatches.slice(0, 50);
+    }
+    try {
+      localStorage.setItem(STORAGE_KEYS.ARCHIVES, JSON.stringify(archivedBatches));
+    } catch (e2) {
+      console.warn('Impossible de sauvegarder archives localement:', e2);
+    }
+  }
   updateArchiveBadge();
 
   if (db) {
@@ -1313,9 +1342,9 @@ function archiveBatchRecord(prod, batch, reason = 'consumed') {
 }
 
 function finishBatch(productId, batchId) {
-  const prod = products.find(p => p.id === productId);
+  const prod = products.find(p => String(p.id) === String(productId));
   if (!prod || !prod.batches) return;
-  const batch = prod.batches.find(b => b.id === batchId);
+  const batch = prod.batches.find(b => String(b.id) === String(batchId));
   if (!batch) return;
 
   pendingFinishBatch = { productId, batchId, prod, batch };
@@ -1345,14 +1374,16 @@ function confirmFinishWithReason(reason) {
 
   archiveBatchRecord(prod, batch, reason);
 
-  prod.batches = prod.batches.filter(b => b.id !== batchId);
+  prod.batches = prod.batches.filter(b => String(b.id) !== String(batchId));
   saveProductsToStorage(prod);
   closeFinishModal();
   renderProducts();
   updateKpiCounts();
   renderCriticalDlcAlerts();
   renderMultiLotAlerts();
-  if (navigator.vibrate) navigator.vibrate(40);
+  if (navigator.vibrate) {
+    try { navigator.vibrate(40); } catch (_) {}
+  }
 
   // Passerelle automatique vers la liste de courses
   const addCheckbox = document.getElementById('checkbox-add-to-shopping');
@@ -3630,11 +3661,7 @@ function renderLightsSections() {
 
       let statusBadge = '';
       if (isOffline) {
-        statusBadge = `<span class="light-badge-state offline"><i class="fa-solid fa-triangle-exclamation"></i> HORS-LIGNE</span>`;
-      } else if (isOn) {
-        statusBadge = `<span class="light-badge-state on"><i class="fa-solid fa-circle"></i> ALLUMÉ</span>`;
-      } else {
-        statusBadge = `<span class="light-badge-state off"><i class="fa-regular fa-circle"></i> ÉTEINT</span>`;
+        statusBadge = `<span class="light-badge-state offline"><i class="fa-solid fa-triangle-exclamation"></i> Injoignable</span>`;
       }
 
       let btnPowerClass = isOffline ? '' : (isOn ? 'is-on' : 'is-off');
