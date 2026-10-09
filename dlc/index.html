@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v1.9.4 -->
-  <link rel="stylesheet" href="style.css?v=1.9.4">
+  <!-- Feuille de style dédiée avec cache-busting v2.0.0 -->
+  <link rel="stylesheet" href="style.css?v=2.0.0">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
           <div>
             <div class="header-title-row">
               <h1>BOB • Staff Hub</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v1.9.4</span></span>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v2.0.0</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
@@ -402,9 +402,72 @@
       </div>
     </div>
 
+    <!-- VUE 6 : Checklist d'Ouverture & Fermeture du Bar (v2.0.0) -->
+    <div id="view-checklist" class="staff-view hidden">
+      <div class="checklist-container">
+
+        <!-- Carte d'en-tête de la checklist -->
+        <div class="checklist-header-card">
+          <div class="checklist-title-row">
+            <div class="checklist-title-wrap">
+              <h2><i class="fa-solid fa-clipboard-check text-gold"></i> Checklist Bar</h2>
+              <span class="checklist-status-badge" id="checklist-status-badge">0 / 0 fait</span>
+            </div>
+          </div>
+
+          <!-- COMMUTATEUR OUVERTURE / FERMETURE : Les 2 boutons principaux demandés -->
+          <div class="checklist-type-toggle">
+            <button type="button" class="checklist-type-btn active" id="btn-checklist-type-open" onclick="switchChecklistType('open')">
+              <div class="type-btn-icon"><i class="fa-solid fa-sun text-gold"></i></div>
+              <div class="type-btn-content">
+                <span class="type-btn-title">Ouverture</span>
+                <span class="type-btn-sub" id="sub-open-progress">0/0 fait</span>
+              </div>
+            </button>
+            <button type="button" class="checklist-type-btn" id="btn-checklist-type-close" onclick="switchChecklistType('close')">
+              <div class="type-btn-icon"><i class="fa-solid fa-moon"></i></div>
+              <div class="type-btn-content">
+                <span class="type-btn-title">Fermeture</span>
+                <span class="type-btn-sub" id="sub-close-progress">0/0 fait</span>
+              </div>
+            </button>
+          </div>
+
+          <!-- Barre de progression visuelle -->
+          <div class="checklist-progress-container">
+            <div class="checklist-progress-fill" id="checklist-progress-fill" style="width: 0%;"></div>
+          </div>
+
+          <!-- Ligne d'informations & Bouton de modification de la liste active -->
+          <div class="checklist-controls-row">
+            <div class="checklist-active-info">
+              <span class="checklist-active-heading" id="checklist-active-heading">☀️ Checklist d'Ouverture</span>
+              <span class="checklist-active-percentage" id="checklist-active-percentage">0% réalisé</span>
+            </div>
+            <div class="checklist-actions-group">
+              <button type="button" class="btn-checklist-edit" onclick="openChecklistEditModal()" title="Modifier et personnaliser les tâches de cette liste">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Modifier</span>
+              </button>
+              <button type="button" class="btn-checklist-reset" onclick="resetCurrentChecklist()" title="Décocher toutes les cases de cette liste">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Décocher</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liste des items à cocher (rendu dynamique JS) -->
+        <div id="checklist-items-list" class="checklist-items-list">
+          <!-- Rendu dynamique en JS -->
+        </div>
+
+      </div>
+    </div>
+
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v1.9.4</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v2.0.0</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
 
@@ -414,6 +477,11 @@
         <i class="fa-solid fa-layer-group"></i>
         <span>DLC & Stock</span>
         <span class="nav-badge danger hidden" id="badge-nav-dlc">!</span>
+      </button>
+      <button type="button" class="nav-item" id="tab-nav-checklist" onclick="switchStaffView('checklist')">
+        <i class="fa-solid fa-clipboard-check"></i>
+        <span>Checklist</span>
+        <span class="nav-badge hidden" id="badge-nav-checklist">0</span>
       </button>
       <button type="button" class="nav-item" id="tab-nav-shopping" onclick="switchStaffView('shopping')">
         <i class="fa-solid fa-cart-shopping"></i>
@@ -690,7 +758,7 @@
 
         <div class="settings-section">
           <h4>Version & Mise à jour</h4>
-          <p class="settings-desc">Force le rechargement immédiat de la dernière version (<span id="settings-version-text">v1.9.4</span>) si le téléphone a gardé l'ancien cache.</p>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (<span id="settings-version-text">v2.0.0</span>) si le téléphone a gardé l'ancien cache.</p>
           <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
             <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
           </button>
@@ -831,6 +899,49 @@
     </div>
   </div>
 
+  <!-- MODAL 7 : Modification de la Checklist Ouverture / Fermeture (v2.0.0) -->
+  <div id="checklist-edit-modal" class="modal-overlay hidden">
+    <div class="modal-dialog modal-dialog-wide">
+      <div class="modal-header">
+        <div>
+          <span class="modal-subtitle" id="checklist-edit-subtitle">Checklist Bar • Configuration</span>
+          <h3 class="modal-title" id="checklist-edit-title">Modifier la Checklist</h3>
+        </div>
+        <button class="btn-close" onclick="closeChecklistEditModal()"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="modal-body">
+        <p class="settings-desc">
+          Ajoutez, renommez ou supprimez les tâches de l'équipe. Vos modifications sont enregistrées en direct.
+        </p>
+
+        <!-- Formulaire d'ajout rapide d'une tâche -->
+        <form class="checklist-add-form" onsubmit="handleChecklistAddItem(event)">
+          <input type="text" id="input-checklist-new-item" class="checklist-add-input" placeholder="Ajouter une tâche (ex: Nettoyer la machine à glaçons...)" autocomplete="off">
+          <button type="submit" class="checklist-add-btn">
+            <i class="fa-solid fa-plus"></i> Ajouter
+          </button>
+        </form>
+
+        <!-- Liste des tâches en cours de modification -->
+        <div id="checklist-edit-items-list" class="checklist-edit-items-list">
+          <!-- Rendu dynamique JS -->
+        </div>
+
+        <button type="button" class="btn-checklist-restore-defaults" onclick="restoreDefaultChecklistForCurrentType()">
+          <i class="fa-solid fa-rotate-left"></i> Rétablir les tâches d'origine de cette liste
+        </button>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn-cancel" onclick="closeChecklistEditModal()">Fermer</button>
+        <button type="button" class="btn-submit" onclick="closeChecklistEditModal()">
+          <i class="fa-solid fa-check"></i> Enregistrer & Terminer
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Staff Hub -->
   <div id="staff-toast" class="staff-toast">
     <i class="fa-solid fa-circle-check text-gold"></i>
@@ -847,7 +958,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v1.9.4 -->
-  <script src="app.js?v=1.9.4"></script>
+  <!-- Script JS de l'application avec cache-busting v2.0.0 -->
+  <script src="app.js?v=2.0.0"></script>
 </body>
 </html>

@@ -25,6 +25,37 @@ const DEFAULT_PRODUCTS = [
   { id: 'pate_pizza', name: 'Pâte à pizza', category: 'pate', icon: '🍕', batches: [], order: 10 }
 ];
 
+const DEFAULT_CHECKLIST_ITEMS = [
+  // OUVERTURE DU BAR (☀️)
+  { id: 'open_1', type: 'open', text: "Désactiver l'alarme", checked: false, order: 1, checkedAt: null },
+  { id: 'open_2', type: 'open', text: "Allumer les lumières et vitrines", checked: false, order: 2, checkedAt: null },
+  { id: 'open_3', type: 'open', text: "Mettre la musique d'ambiance", checked: false, order: 3, checkedAt: null },
+  { id: 'open_4', type: 'open', text: "Faire les températures des frigos (Metro, Blanc, Congélo)", checked: false, order: 4, checkedAt: null },
+  { id: 'open_5', type: 'open', text: "Allumer la machine à café et tirer un café de chauffe", checked: false, order: 5, checkedAt: null },
+  { id: 'open_6', type: 'open', text: "Installer la terrasse (tables, chaises, ardoises, cendriers)", checked: false, order: 6, checkedAt: null },
+  { id: 'open_7', type: 'open', text: "Allumer la caisse / TPE et vérifier le fond de caisse", checked: false, order: 7, checkedAt: null },
+  { id: 'open_8', type: 'open', text: "Vérifier la pression des fûts de bière et rincer les becs", checked: false, order: 8, checkedAt: null },
+  { id: 'open_9', type: 'open', text: "Vérifier le stock de verres propres et lancer le lave-verre", checked: false, order: 9, checkedAt: null },
+  { id: 'open_10', type: 'open', text: "Préparer le poste planches apéro (planches bois, couteaux, sauces)", checked: false, order: 10, checkedAt: null },
+  { id: 'open_11', type: 'open', text: "Contrôler la propreté de la salle, mezzanine et sanitaires", checked: false, order: 11, checkedAt: null },
+  { id: 'open_12', type: 'open', text: "Consulter l'application BOB pour les DLC prioritaires du jour", checked: false, order: 12, checkedAt: null },
+
+  // FERMETURE DU BAR (🌙)
+  { id: 'close_1', type: 'close', text: "Encaisser les dernières tables et clôturer la caisse (Z de caisse)", checked: false, order: 1, checkedAt: null },
+  { id: 'close_2', type: 'close', text: "Rentrer la terrasse, empiler et cadenasser le mobilier", checked: false, order: 2, checkedAt: null },
+  { id: 'close_3', type: 'close', text: "Débarrasser et nettoyer toutes les tables, la mezzanine et le comptoir", checked: false, order: 3, checkedAt: null },
+  { id: 'close_4', type: 'close', text: "Vider, nettoyer les filtres et éteindre le lave-verre", checked: false, order: 4, checkedAt: null },
+  { id: 'close_5', type: 'close', text: "Ranger tous les aliments entamés aux frigos et vérifier les DLC du lendemain", checked: false, order: 5, checkedAt: null },
+  { id: 'close_6', type: 'close', text: "Nettoyer et désinfecter le plan de travail (planches, trancheuse, couteaux)", checked: false, order: 6, checkedAt: null },
+  { id: 'close_7', type: 'close', text: "Fermer les arrivées pression des bières et égouttoirs nettoyés", checked: false, order: 7, checkedAt: null },
+  { id: 'close_8', type: 'close', text: "Nettoyer le groupe café (cycle backflush) et vider le bac à marc", checked: false, order: 8, checkedAt: null },
+  { id: 'close_9', type: 'close', text: "Vider toutes les poubelles (bar, salle, terrasse, recyclage) et nouveaux sacs", checked: false, order: 9, checkedAt: null },
+  { id: 'close_10', type: 'close', text: "Nettoyer et désinfecter les sanitaires, recharger papier et savon", checked: false, order: 10, checkedAt: null },
+  { id: 'close_11', type: 'close', text: "Balayer et passer la serpillière dans tout le bar", checked: false, order: 11, checkedAt: null },
+  { id: 'close_12', type: 'close', text: "Éteindre la musique, les écrans et toutes les lumières (Tout OFF)", checked: false, order: 12, checkedAt: null },
+  { id: 'close_13', type: 'close', text: "Vérifier la fermeture des portes, fenêtres et enclencher l'alarme", checked: false, order: 13, checkedAt: null }
+];
+
 const STORAGE_KEYS = {
   PRODUCTS: 'bob_dlc_products_v1',
   PIN: 'bob_dlc_pin_v1',
@@ -34,7 +65,8 @@ const STORAGE_KEYS = {
   SHOPPING: 'bob_dlc_shopping_v1',
   TEMPERATURE: 'bob_dlc_temperature_v1',
   CALENDAR: 'bob_dlc_calendar_v1',
-  LIGHTS_URL: 'bob_lights_server_url_v1'
+  LIGHTS_URL: 'bob_lights_server_url_v1',
+  CHECKLIST: 'bob_staff_checklists_v2'
 };
 
 // État global en mémoire
@@ -43,6 +75,8 @@ let archivedBatches = [];
 let shoppingItems = [];
 let temperatureLogs = [];
 let calendarItems = [];
+let checklistItems = [];
+let currentChecklistType = 'open'; // 'open' | 'close'
 let selectedCalendarDate = new Date().toISOString().split('T')[0];
 let currentCalendarMonth = new Date().getMonth();
 let currentCalendarYear = new Date().getFullYear();
@@ -92,10 +126,14 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCalendarMonth();
   renderAgendaForSelectedDate();
   updateCalendarBadge();
+  renderChecklistView();
+  updateChecklistBadge();
   initFirebase();
 
-  // Navigation initiale selon l'URL hash (#courses, #temperatures, #calendrier, #lumieres ou #dlc)
-  if (window.location.hash === '#courses') {
+  // Navigation initiale selon l'URL hash (#checklist, #courses, #temperatures, #calendrier, #lumieres ou #dlc)
+  if (window.location.hash === '#checklist' || window.location.hash === '#checklists') {
+    switchStaffView('checklist', false);
+  } else if (window.location.hash === '#courses') {
     switchStaffView('shopping', false);
   } else if (window.location.hash === '#temperatures') {
     switchStaffView('temperature', false);
@@ -107,7 +145,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.9.4').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=2.0.0').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -115,7 +153,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.9.4';
+const APP_VERSION = 'v2.0.0';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -216,6 +254,22 @@ function initStorage() {
     calendarItems = [];
   }
   updateCalendarBadge();
+
+  // Initialisation de la checklist bar Ouverture / Fermeture (v2.0.0)
+  const storedChecklist = localStorage.getItem(STORAGE_KEYS.CHECKLIST);
+  if (storedChecklist) {
+    try {
+      checklistItems = JSON.parse(storedChecklist);
+    } catch (e) {
+      checklistItems = JSON.parse(JSON.stringify(DEFAULT_CHECKLIST_ITEMS));
+    }
+  } else {
+    checklistItems = JSON.parse(JSON.stringify(DEFAULT_CHECKLIST_ITEMS));
+    try {
+      localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+    } catch (e) {}
+  }
+  updateChecklistBadge();
 }
 
 function countTotalBatches(items = products) {
@@ -259,6 +313,7 @@ function initFirebase() {
     listenToCloudTemperature();
     listenToCloudCalendar();
     listenToCloudLightsSettings();
+    listenToCloudChecklist();
   } catch (err) {
     console.error('Erreur init Firebase:', err);
     updateCloudStatus('error', 'Erreur Cloud');
@@ -2156,10 +2211,12 @@ function exportBackupData() {
     archivesCount: archivedBatches.length,
     temperaturesCount: temperatureLogs.length,
     calendarCount: calendarItems.length,
+    checklistsCount: checklistItems.length,
     products: products,
     archivedBatches: archivedBatches,
     temperatureLogs: temperatureLogs,
-    calendarItems: calendarItems
+    calendarItems: calendarItems,
+    checklistItems: checklistItems
   };
   const jsonStr = JSON.stringify(data, null, 2);
   const blob = new Blob([jsonStr], { type: 'application/json' });
@@ -2186,7 +2243,8 @@ function importBackupData(event) {
         const archCount = Array.isArray(data.archivedBatches) ? data.archivedBatches.length : 0;
         const tempCount = Array.isArray(data.temperatureLogs) ? data.temperatureLogs.length : 0;
         const calCount = Array.isArray(data.calendarItems) ? data.calendarItems.length : 0;
-        if (confirm(`Restaurer cette sauvegarde contenant ${data.products.length} produits (${count} lots actifs, ${archCount} archives, ${tempCount} relevés T°, ${calCount} entrées planning) ?\n\nCela mettra également à jour le Cloud pour vos collègues.`)) {
+        const chkCount = Array.isArray(data.checklistItems) ? data.checklistItems.length : 0;
+        if (confirm(`Restaurer cette sauvegarde contenant ${data.products.length} produits (${count} lots actifs, ${archCount} archives, ${tempCount} relevés T°, ${calCount} planning, ${chkCount} checklists) ?\n\nCela mettra également à jour le Cloud pour vos collègues.`)) {
           products = data.products;
           if (Array.isArray(data.archivedBatches)) {
             archivedBatches = data.archivedBatches;
@@ -2219,6 +2277,17 @@ function importBackupData(event) {
             if (db) {
               calendarItems.forEach(cItem => {
                 db.collection('calendar_items').doc(cItem.id).set(cItem).catch(err => console.warn(err));
+              });
+            }
+          }
+          if (Array.isArray(data.checklistItems)) {
+            checklistItems = data.checklistItems;
+            localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+            updateChecklistBadge();
+            renderChecklistView();
+            if (db) {
+              checklistItems.forEach(cTask => {
+                db.collection('checklist_items').doc(cTask.id).set(cTask).catch(err => console.warn(err));
               });
             }
           }
@@ -2259,12 +2328,14 @@ function switchStaffView(viewName, updateHash = true) {
   const tempView = document.getElementById('view-temperature');
   const calendarView = document.getElementById('view-calendar');
   const lightsView = document.getElementById('view-lights');
+  const checklistView = document.getElementById('view-checklist');
 
   const dlcTab = document.getElementById('tab-nav-dlc');
   const shoppingTab = document.getElementById('tab-nav-shopping');
   const tempTab = document.getElementById('tab-nav-temp');
   const calendarTab = document.getElementById('tab-nav-calendar');
   const lightsTab = document.getElementById('tab-nav-lights');
+  const checklistTab = document.getElementById('tab-nav-checklist');
 
   // Masquer toutes les vues d'abord
   if (dlcView) dlcView.classList.add('hidden');
@@ -2272,19 +2343,28 @@ function switchStaffView(viewName, updateHash = true) {
   if (tempView) tempView.classList.add('hidden');
   if (calendarView) calendarView.classList.add('hidden');
   if (lightsView) lightsView.classList.add('hidden');
+  if (checklistView) checklistView.classList.add('hidden');
 
   if (dlcTab) dlcTab.classList.remove('active');
   if (shoppingTab) shoppingTab.classList.remove('active');
   if (tempTab) tempTab.classList.remove('active');
   if (calendarTab) calendarTab.classList.remove('active');
   if (lightsTab) lightsTab.classList.remove('active');
+  if (checklistTab) checklistTab.classList.remove('active');
 
   // Arrêter le polling d'éclairage si on quitte l'onglet
   if (viewName !== 'lights') {
     stopLightsPolling();
   }
 
-  if (viewName === 'shopping') {
+  if (viewName === 'checklist') {
+    if (checklistView) checklistView.classList.remove('hidden');
+    if (checklistTab) checklistTab.classList.add('active');
+    if (updateHash) {
+      history.replaceState(null, null, '#checklist');
+    }
+    renderChecklistView();
+  } else if (viewName === 'shopping') {
     if (shoppingView) shoppingView.classList.remove('hidden');
     if (shoppingTab) shoppingTab.classList.add('active');
     if (updateHash) {
@@ -3812,5 +3892,475 @@ function copyWifiPassword() {
     showStaffToast(`Wi-Fi : ${pwd}`);
   }
 }
+
+// =============================================================================
+// 16. CHECKLIST D'OUVERTURE ET FERMETURE DU BAR (v2.0.0)
+// =============================================================================
+
+function switchChecklistType(type) {
+  currentChecklistType = (type === 'close') ? 'close' : 'open';
+  renderChecklistView();
+  if (navigator.vibrate) {
+    try { navigator.vibrate(15); } catch (e) {}
+  }
+}
+
+function renderChecklistView() {
+  const container = document.getElementById('checklist-items-list');
+  if (!container) return;
+
+  const btnOpen = document.getElementById('btn-checklist-type-open');
+  const btnClose = document.getElementById('btn-checklist-type-close');
+  const subOpen = document.getElementById('sub-open-progress');
+  const subClose = document.getElementById('sub-close-progress');
+  const activeHeading = document.getElementById('checklist-active-heading');
+  const activePercentage = document.getElementById('checklist-active-percentage');
+  const progressBadge = document.getElementById('checklist-status-badge');
+  const progressFill = document.getElementById('checklist-progress-fill');
+
+  // Filtrer les éléments par type
+  const openItems = checklistItems.filter(i => i.type === 'open').sort((a, b) => (a.order || 0) - (b.order || 0));
+  const closeItems = checklistItems.filter(i => i.type === 'close').sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const openDone = openItems.filter(i => i.checked).length;
+  const openTotal = openItems.length;
+  const closeDone = closeItems.filter(i => i.checked).length;
+  const closeTotal = closeItems.length;
+
+  if (subOpen) subOpen.textContent = `${openDone}/${openTotal} fait${openDone > 1 ? 's' : ''}`;
+  if (subClose) subClose.textContent = `${closeDone}/${closeTotal} fait${closeDone > 1 ? 's' : ''}`;
+
+  if (btnOpen) {
+    if (currentChecklistType === 'open') btnOpen.classList.add('active');
+    else btnOpen.classList.remove('active');
+  }
+  if (btnClose) {
+    if (currentChecklistType === 'close') btnClose.classList.add('active');
+    else btnClose.classList.remove('active');
+  }
+
+  const currentItems = (currentChecklistType === 'open') ? openItems : closeItems;
+  const currentDone = (currentChecklistType === 'open') ? openDone : closeDone;
+  const currentTotal = (currentChecklistType === 'open') ? openTotal : closeTotal;
+  const pct = currentTotal > 0 ? Math.round((currentDone / currentTotal) * 100) : 0;
+
+  if (activeHeading) {
+    activeHeading.textContent = (currentChecklistType === 'open') ? "☀️ Checklist d'Ouverture" : "🌙 Checklist de Fermeture";
+  }
+  if (activePercentage) {
+    activePercentage.textContent = `${pct}% réalisé (${currentDone}/${currentTotal})`;
+  }
+  if (progressBadge) {
+    progressBadge.textContent = `${currentDone} / ${currentTotal} fait${currentDone > 1 ? 's' : ''}`;
+    if (currentTotal > 0 && currentDone === currentTotal) {
+      progressBadge.classList.add('all-done');
+    } else {
+      progressBadge.classList.remove('all-done');
+    }
+  }
+  if (progressFill) {
+    progressFill.style.width = `${pct}%`;
+  }
+
+  if (currentItems.length === 0) {
+    container.innerHTML = `
+      <div class="checklist-empty-state">
+        <i class="fa-solid fa-clipboard-list"></i>
+        <p>Aucune tâche configurée pour cette liste.</p>
+        <button type="button" class="btn-checklist-edit" onclick="openChecklistEditModal()">
+          <i class="fa-solid fa-plus"></i> Ajouter des tâches
+        </button>
+      </div>
+    `;
+    return;
+  }
+
+  let html = '';
+  currentItems.forEach((item) => {
+    const isChecked = !!item.checked;
+    let timeMeta = '';
+    if (isChecked && item.checkedAt) {
+      try {
+        const d = new Date(item.checkedAt);
+        const hh = String(d.getHours()).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        timeMeta = `Fait à ${hh}h${mm}`;
+      } catch (e) {}
+    }
+
+    html += `
+      <div class="checklist-item-card ${isChecked ? 'is-checked' : ''}" onclick="toggleChecklistItem('${item.id}')">
+        <button type="button" class="checklist-checkbox-btn" aria-label="Cocher tâche">
+          <i class="fa-solid fa-check"></i>
+        </button>
+        <div class="checklist-item-text-wrap">
+          <span class="checklist-item-text">${escapeHtml(item.text)}</span>
+          ${timeMeta ? `<span class="checklist-item-meta"><i class="fa-regular fa-clock"></i> ${timeMeta}</span>` : ''}
+        </div>
+        <span class="checklist-item-tag">${isChecked ? 'Fait' : 'À faire'}</span>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function toggleChecklistItem(itemId) {
+  const item = checklistItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  item.checked = !item.checked;
+  item.checkedAt = item.checked ? new Date().toISOString() : null;
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+  } catch (e) {
+    console.warn('Erreur stockage local checklist:', e);
+  }
+
+  renderChecklistView();
+  updateChecklistBadge();
+
+  if (db) {
+    db.collection('checklist_items').doc(itemId).set(item, { merge: true })
+      .catch(err => console.warn('Erreur update checklist cloud:', err));
+  }
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(20); } catch (e) {}
+  }
+
+  // Toast d'encouragement si 100% terminé
+  const currentItems = checklistItems.filter(i => i.type === item.type);
+  const doneCount = currentItems.filter(i => i.checked).length;
+  if (currentItems.length > 0 && doneCount === currentItems.length) {
+    const name = item.type === 'open' ? "Ouverture" : "Fermeture";
+    showStaffToast(`🎉 Checklist ${name} complétée à 100% !`);
+  }
+}
+
+function resetCurrentChecklist() {
+  const name = currentChecklistType === 'open' ? "d'ouverture" : "de fermeture";
+  if (!confirm(`Remettre à zéro la checklist ${name} ?\nToutes les cases de cette liste seront décochées pour commencer le prochain service.`)) {
+    return;
+  }
+
+  const itemsToReset = checklistItems.filter(i => i.type === currentChecklistType);
+  itemsToReset.forEach(item => {
+    item.checked = false;
+    item.checkedAt = null;
+    if (db) {
+      db.collection('checklist_items').doc(item.id).set(item, { merge: true }).catch(err => console.warn(err));
+    }
+  });
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+  } catch (e) {
+    console.warn(e);
+  }
+
+  renderChecklistView();
+  updateChecklistBadge();
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(25); } catch (e) {}
+  }
+
+  showStaffToast(`🔄 Checklist ${name} réinitialisée pour le service !`);
+}
+
+function openChecklistEditModal(type = currentChecklistType) {
+  currentChecklistType = (type === 'close') ? 'close' : 'open';
+  const modal = document.getElementById('checklist-edit-modal');
+  const title = document.getElementById('checklist-edit-title');
+  const subtitle = document.getElementById('checklist-edit-subtitle');
+
+  if (title) {
+    title.innerHTML = (currentChecklistType === 'open') ?
+      '<i class="fa-solid fa-sun text-gold"></i> Modifier la Checklist Ouverture' :
+      '<i class="fa-solid fa-moon text-blue"></i> Modifier la Checklist Fermeture';
+  }
+  if (subtitle) {
+    subtitle.textContent = (currentChecklistType === 'open') ?
+      "Tâches à réaliser pour l'ouverture du bar" :
+      "Tâches à réaliser pour la fermeture du bar";
+  }
+
+  renderChecklistEditModalList();
+
+  if (modal) modal.classList.remove('hidden');
+
+  const input = document.getElementById('input-checklist-new-item');
+  if (input) {
+    input.value = '';
+    setTimeout(() => input.focus(), 150);
+  }
+}
+
+function closeChecklistEditModal() {
+  const modal = document.getElementById('checklist-edit-modal');
+  if (modal) modal.classList.add('hidden');
+  renderChecklistView();
+  updateChecklistBadge();
+}
+
+function renderChecklistEditModalList() {
+  const container = document.getElementById('checklist-edit-items-list');
+  if (!container) return;
+
+  const items = checklistItems.filter(i => i.type === currentChecklistType).sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  if (items.length === 0) {
+    container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:0.85rem;padding:16px 0;">Aucune tâche configurée. Ajoutez-en une ci-dessus !</p>';
+    return;
+  }
+
+  let html = '';
+  items.forEach((item, index) => {
+    html += `
+      <div class="checklist-edit-row">
+        <span class="checklist-edit-row-num">${index + 1}</span>
+        <input type="text" class="checklist-edit-row-input" value="${escapeHtml(item.text)}"
+          placeholder="Libellé de la tâche"
+          onchange="saveChecklistItemText('${item.id}', this.value)"
+          onkeydown="if(event.key==='Enter'){this.blur();}">
+        <div class="checklist-edit-row-actions">
+          <button type="button" class="btn-edit-action" onclick="moveChecklistItem('${item.id}', -1)" title="Monter" ${index === 0 ? 'disabled style="opacity:0.3;pointer-events:none;"' : ''}>
+            <i class="fa-solid fa-arrow-up"></i>
+          </button>
+          <button type="button" class="btn-edit-action" onclick="moveChecklistItem('${item.id}', 1)" title="Descendre" ${index === items.length - 1 ? 'disabled style="opacity:0.3;pointer-events:none;"' : ''}>
+            <i class="fa-solid fa-arrow-down"></i>
+          </button>
+          <button type="button" class="btn-edit-action btn-delete" onclick="deleteChecklistItem('${item.id}')" title="Supprimer cette tâche">
+            <i class="fa-solid fa-trash-can"></i>
+          </button>
+        </div>
+      </div>
+    `;
+  });
+
+  container.innerHTML = html;
+}
+
+function handleChecklistAddItem(e) {
+  if (e) e.preventDefault();
+  const input = document.getElementById('input-checklist-new-item');
+  if (!input) return;
+  const text = input.value.trim();
+  if (!text) return;
+
+  const currentItems = checklistItems.filter(i => i.type === currentChecklistType);
+  const maxOrder = currentItems.reduce((max, i) => Math.max(max, i.order || 0), 0);
+
+  const newItem = {
+    id: 'chk_' + currentChecklistType + '_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+    type: currentChecklistType,
+    text: text,
+    checked: false,
+    order: maxOrder + 1,
+    checkedAt: null,
+    updatedAt: new Date().toISOString()
+  };
+
+  checklistItems.push(newItem);
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+  } catch (err) {
+    console.warn(err);
+  }
+
+  if (db) {
+    db.collection('checklist_items').doc(newItem.id).set(newItem)
+      .catch(err => console.warn('Erreur ajout checklist cloud:', err));
+  }
+
+  input.value = '';
+  input.focus();
+  renderChecklistEditModalList();
+  renderChecklistView();
+  updateChecklistBadge();
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(20); } catch (e) {}
+  }
+
+  showStaffToast(`✅ Tâche ajoutée à la liste !`);
+}
+
+function saveChecklistItemText(itemId, newText) {
+  const item = checklistItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  const cleanText = (newText || '').trim();
+  if (!cleanText) {
+    renderChecklistEditModalList();
+    return;
+  }
+
+  item.text = cleanText;
+  item.updatedAt = new Date().toISOString();
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+  } catch (e) {
+    console.warn(e);
+  }
+
+  if (db) {
+    db.collection('checklist_items').doc(itemId).set(item, { merge: true })
+      .catch(err => console.warn('Erreur update checklist cloud:', err));
+  }
+
+  renderChecklistView();
+  showStaffToast(`✏️ Tâche mise à jour`);
+}
+
+function moveChecklistItem(itemId, direction) {
+  const currentItems = checklistItems.filter(i => i.type === currentChecklistType).sort((a, b) => (a.order || 0) - (b.order || 0));
+  const idx = currentItems.findIndex(i => i.id === itemId);
+  if (idx < 0) return;
+
+  const targetIdx = idx + direction;
+  if (targetIdx < 0 || targetIdx >= currentItems.length) return;
+
+  const currentItem = currentItems[idx];
+  const targetItem = currentItems[targetIdx];
+
+  const tempOrder = currentItem.order;
+  currentItem.order = targetItem.order;
+  targetItem.order = tempOrder;
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+  } catch (e) {
+    console.warn(e);
+  }
+
+  if (db) {
+    db.collection('checklist_items').doc(currentItem.id).set(currentItem, { merge: true }).catch(err => console.warn(err));
+    db.collection('checklist_items').doc(targetItem.id).set(targetItem, { merge: true }).catch(err => console.warn(err));
+  }
+
+  renderChecklistEditModalList();
+  renderChecklistView();
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(15); } catch (e) {}
+  }
+}
+
+function deleteChecklistItem(itemId) {
+  const item = checklistItems.find(i => i.id === itemId);
+  if (!item) return;
+
+  if (!confirm(`Supprimer définitivement la tâche :\n"${item.text}" ?`)) {
+    return;
+  }
+
+  checklistItems = checklistItems.filter(i => i.id !== itemId);
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+  } catch (e) {
+    console.warn(e);
+  }
+
+  if (db) {
+    db.collection('checklist_items').doc(itemId).delete()
+      .catch(err => console.warn('Erreur delete checklist cloud:', err));
+  }
+
+  renderChecklistEditModalList();
+  renderChecklistView();
+  updateChecklistBadge();
+
+  if (navigator.vibrate) {
+    try { navigator.vibrate(20); } catch (e) {}
+  }
+
+  showStaffToast(`🗑️ Tâche supprimée`);
+}
+
+function restoreDefaultChecklistForCurrentType() {
+  const name = currentChecklistType === 'open' ? "d'ouverture" : "de fermeture";
+  if (!confirm(`Rétablir toutes les tâches d'origine de la checklist ${name} ?\nLes modifications apportées à cette liste seront remplacées.`)) {
+    return;
+  }
+
+  const defaults = DEFAULT_CHECKLIST_ITEMS.filter(i => i.type === currentChecklistType);
+  const oldItems = checklistItems.filter(i => i.type === currentChecklistType);
+  if (db) {
+    oldItems.forEach(old => {
+      db.collection('checklist_items').doc(old.id).delete().catch(err => console.warn(err));
+    });
+  }
+
+  checklistItems = checklistItems.filter(i => i.type !== currentChecklistType);
+  defaults.forEach(d => {
+    const fresh = JSON.parse(JSON.stringify(d));
+    checklistItems.push(fresh);
+    if (db) {
+      db.collection('checklist_items').doc(fresh.id).set(fresh).catch(err => console.warn(err));
+    }
+  });
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+  } catch (e) {
+    console.warn(e);
+  }
+
+  renderChecklistEditModalList();
+  renderChecklistView();
+  updateChecklistBadge();
+
+  showStaffToast(`🔄 Tâches ${name} rétablies par défaut !`);
+}
+
+function updateChecklistBadge() {
+  const badge = document.getElementById('badge-nav-checklist');
+  if (!badge) return;
+
+  const currentItems = checklistItems.filter(i => i.type === currentChecklistType);
+  const remaining = currentItems.filter(i => !i.checked).length;
+
+  if (remaining > 0) {
+    badge.textContent = remaining;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+function listenToCloudChecklist() {
+  if (!db) return;
+  db.collection('checklist_items').onSnapshot(snapshot => {
+    if (!snapshot.empty) {
+      const items = [];
+      snapshot.forEach(doc => items.push(doc.data()));
+      items.sort((a, b) => (a.order || 0) - (b.order || 0));
+      checklistItems = items;
+      try {
+        localStorage.setItem(STORAGE_KEYS.CHECKLIST, JSON.stringify(checklistItems));
+      } catch (e) {}
+      renderChecklistView();
+      updateChecklistBadge();
+      const modal = document.getElementById('checklist-edit-modal');
+      if (modal && !modal.classList.contains('hidden')) {
+        renderChecklistEditModalList();
+      }
+    } else {
+      // Si la collection cloud est vide (premier lancement), seed avec les tâches par défaut
+      if (checklistItems && checklistItems.length > 0) {
+        checklistItems.forEach(item => {
+          db.collection('checklist_items').doc(item.id).set(item).catch(err => console.warn(err));
+        });
+      }
+    }
+  }, err => console.warn('Erreur écoute checklist Cloud:', err));
+}
+
 
 
