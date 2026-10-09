@@ -82,7 +82,7 @@ let currentCalendarMonth = new Date().getMonth();
 let currentCalendarYear = new Date().getFullYear();
 let currentCalendarType = 'event';
 let editingCalendarItemId = null;
-let currentActiveView = 'dlc';
+let currentActiveView = 'lights';
 let pendingFinishBatch = null;
 let currentFilterCategory = 'all';
 let currentFilterStatus = 'all';
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateChecklistBadge();
   initFirebase();
 
-  // Navigation initiale selon l'URL hash (#checklist, #courses, #temperatures, #calendrier, #lumieres ou #dlc)
+  // Navigation initiale selon l'URL hash (#lumieres, #checklist, #temperatures, #dlc, #calendrier, #courses)
   if (window.location.hash === '#checklist' || window.location.hash === '#checklists') {
     switchStaffView('checklist', false);
   } else if (window.location.hash === '#courses') {
@@ -139,13 +139,18 @@ document.addEventListener('DOMContentLoaded', () => {
     switchStaffView('temperature', false);
   } else if (window.location.hash === '#calendrier' || window.location.hash === '#calendar') {
     switchStaffView('calendar', false);
+  } else if (window.location.hash === '#dlc' || window.location.hash === '#stock') {
+    switchStaffView('dlc', false);
   } else if (window.location.hash === '#lumieres' || window.location.hash === '#lights' || window.location.hash === '#eclairage') {
+    switchStaffView('lights', false);
+  } else {
+    // Par défaut à l'ouverture : vue Lumières
     switchStaffView('lights', false);
   }
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=2.0.1').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=2.0.2').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -153,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v2.0.1';
+const APP_VERSION = 'v2.0.2';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -2386,20 +2391,20 @@ function switchStaffView(viewName, updateHash = true) {
     }
     renderCalendarMonth();
     renderAgendaForSelectedDate();
-  } else if (viewName === 'lights') {
+  } else if (viewName === 'dlc') {
+    if (dlcView) dlcView.classList.remove('hidden');
+    if (dlcTab) dlcTab.classList.add('active');
+    if (updateHash) {
+      history.replaceState(null, null, '#dlc');
+    }
+  } else {
+    // Vue par défaut : lumières (ou si viewName === 'lights')
     if (lightsView) lightsView.classList.remove('hidden');
     if (lightsTab) lightsTab.classList.add('active');
     if (updateHash) {
       history.replaceState(null, null, '#lumieres');
     }
     startLightsPolling();
-  } else {
-    // Vue par défaut : dlc
-    if (dlcView) dlcView.classList.remove('hidden');
-    if (dlcTab) dlcTab.classList.add('active');
-    if (updateHash) {
-      history.replaceState(null, null, '#dlc');
-    }
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });

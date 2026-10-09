@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v2.0.1 -->
-  <link rel="stylesheet" href="style.css?v=2.0.1">
+  <!-- Feuille de style dédiée avec cache-busting v2.0.2 -->
+  <link rel="stylesheet" href="style.css?v=2.0.2">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
           <div>
             <div class="header-title-row">
               <h1>BOB • Staff Hub</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v2.0.1</span></span>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v2.0.2</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
@@ -97,7 +97,7 @@
     </header>
 
     <!-- VUE 1 : DLC & Traçabilité Hygiène -->
-    <div id="view-dlc" class="staff-view active">
+    <div id="view-dlc" class="staff-view hidden">
       <!-- Tableau de bord / Compteurs rapides -->
       <div class="kpi-grid">
         <div class="kpi-card kpi-red" onclick="filterByStatus('red')">
@@ -357,7 +357,7 @@
     </div>
 
     <!-- VUE 5 : Éclairage & Lampes Connectées du Bar (v1.9.0) -->
-    <div id="view-lights" class="staff-view hidden">
+    <div id="view-lights" class="staff-view active">
       <div class="lights-container">
         
         <!-- En-tête Commandes Rapides Éclairage (Épuré) -->
@@ -456,13 +456,13 @@
 
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v2.0.1</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v2.0.2</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
 
     <!-- Barre de Navigation Staff Hub (Mobile Bottom Nav) : Ordre personnalisé -->
     <nav class="staff-bottom-nav">
-      <button type="button" class="nav-item" id="tab-nav-lights" onclick="switchStaffView('lights')">
+      <button type="button" class="nav-item active" id="tab-nav-lights" onclick="switchStaffView('lights')">
         <i class="fa-solid fa-lightbulb"></i>
         <span>Lumières</span>
       </button>
@@ -476,7 +476,7 @@
         <span>Températures</span>
         <span class="nav-badge warning hidden" id="badge-nav-temp">!</span>
       </button>
-      <button type="button" class="nav-item active" id="tab-nav-dlc" onclick="switchStaffView('dlc')">
+      <button type="button" class="nav-item" id="tab-nav-dlc" onclick="switchStaffView('dlc')">
         <i class="fa-solid fa-layer-group"></i>
         <span>DLC & Stock</span>
         <span class="nav-badge danger hidden" id="badge-nav-dlc">!</span>
@@ -747,7 +747,7 @@
 
         <div class="settings-section">
           <h4>Version & Mise à jour</h4>
-          <p class="settings-desc">Force le rechargement immédiat de la dernière version (<span id="settings-version-text">v2.0.1</span>) si le téléphone a gardé l'ancien cache.</p>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (<span id="settings-version-text">v2.0.2</span>) si le téléphone a gardé l'ancien cache.</p>
           <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
             <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
           </button>
@@ -947,7 +947,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v2.0.1 -->
-  <script src="app.js?v=2.0.1"></script>
+  <!-- Script JS de l'application avec cache-busting v2.0.2 -->
+  <script src="app.js?v=2.0.2"></script>
 </body>
 </html>
