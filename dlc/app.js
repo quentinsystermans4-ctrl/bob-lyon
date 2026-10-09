@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=1.9.3').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=1.9.4').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v1.9.3';
+const APP_VERSION = 'v1.9.4';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -3418,7 +3418,7 @@ function updateCalendarBadge() {
 // =============================================================================
 
 const DEFAULT_LIGHTS_URL = 'http://192.168.1.211:8080';
-const DEFAULT_LIGHTS_HTTPS_FALLBACK = 'https://defining-loop-cheaper-top.trycloudflare.com';
+const DEFAULT_LIGHTS_HTTPS_FALLBACK = 'https://readings-yellow-owen-non.trycloudflare.com';
 
 // Équipements répertoriés du bar (cache immédiat)
 const DEFAULT_LIGHTS_DEVICES = [
