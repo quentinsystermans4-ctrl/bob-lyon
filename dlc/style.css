@@ -2402,6 +2402,34 @@ body {
   text-overflow: ellipsis;
 }
 
+.temp-label-with-action {
+  justify-content: space-between;
+}
+
+.btn-temp-sign {
+  background: rgba(255, 209, 91, 0.15);
+  border: 1px solid var(--border-gold);
+  color: var(--color-gold);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1;
+  padding: 1px 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-temp-sign:active {
+  background: var(--color-gold);
+  color: #121212;
+  transform: scale(0.92);
+}
+
 .temp-input-wrapper {
   position: relative;
   display: flex;

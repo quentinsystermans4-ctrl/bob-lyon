@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
   updateShoppingBadge();
   renderTemperatureView();
   updateTemperatureBadge();
+  setupTemperatureInputs();
   renderCalendarMonth();
   renderAgendaForSelectedDate();
   updateCalendarBadge();
@@ -150,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=2.0.2').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=2.0.3').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -158,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v2.0.2';
+const APP_VERSION = 'v2.0.3';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -2696,6 +2697,73 @@ function updateShoppingBadge() {
 // 14. MODULE RELEVÉ DES TEMPÉRATURES FRIGOS & FROID (HACCP v1.7.0 / v1.8.0)
 // =============================================================================
 
+// Détection d'un appareil Android (mobile ou tablette)
+function isAndroidDevice() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = (navigator.userAgent || navigator.vendor || window.opera || '').toLowerCase();
+  if (ua.includes('android')) return true;
+  if (navigator.userAgentData && navigator.userAgentData.platform) {
+    if (navigator.userAgentData.platform.toLowerCase().includes('android')) return true;
+  }
+  return false;
+}
+
+// Sur Android, basculer les champs de saisie de température en clavier classique
+// (sur Android, type="number" ouvre un pavé numérique 10 touches sans touche '-',
+// ce qui bloque la saisie des températures négatives pour le congélateur).
+// Sur iOS, le comportement existant est intégralement préservé.
+function applyAndroidTemperatureKeyboardFix() {
+  if (!isAndroidDevice()) return;
+
+  const tempInputIds = ['input-temp-frigo-blanc', 'input-temp-frigo-metro', 'input-temp-congelateur'];
+  tempInputIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.type = 'text';
+      el.setAttribute('inputmode', 'text');
+      el.removeAttribute('step');
+      el.setAttribute('autocomplete', 'off');
+      el.setAttribute('autocorrect', 'off');
+      el.setAttribute('autocapitalize', 'off');
+      el.setAttribute('spellcheck', 'false');
+    }
+  });
+}
+
+// Raccourci rapide pour basculer le signe +/- du congélateur
+function toggleCongelSign() {
+  const input = document.getElementById('input-temp-congelateur');
+  if (!input) return;
+  let val = input.value.trim().replace(/[−–—]/g, '-');
+  if (!val) {
+    input.value = '-';
+  } else if (val.startsWith('-')) {
+    input.value = val.substring(1);
+  } else {
+    input.value = '-' + val;
+  }
+  input.focus();
+}
+
+// Initialisation et écouteurs ergonomiques pour la saisie des températures
+function setupTemperatureInputs() {
+  const congelInput = document.getElementById('input-temp-congelateur');
+  if (congelInput && !congelInput.dataset.listenersAttached) {
+    congelInput.dataset.listenersAttached = 'true';
+    congelInput.addEventListener('blur', () => {
+      let raw = congelInput.value.trim().replace(/\s+/g, '').replace(/[−–—]/g, '-').replace(',', '.');
+      if (!raw) return;
+      const num = parseFloat(raw);
+      if (!isNaN(num) && num > 0) {
+        congelInput.value = '-' + raw;
+      }
+    });
+  }
+
+  // Clavier classique sur Android uniquement (conformément à la demande utilisateur)
+  applyAndroidTemperatureKeyboardFix();
+}
+
 function handleTemperatureSubmit(e) {
   if (e) e.preventDefault();
   const inputBlanc = document.getElementById('input-temp-frigo-blanc');
@@ -2705,9 +2773,16 @@ function handleTemperatureSubmit(e) {
 
   if (!inputBlanc || !inputMetro || !inputCongel) return;
 
-  const valBlanc = parseFloat(inputBlanc.value.replace(',', '.'));
-  const valMetro = parseFloat(inputMetro.value.replace(',', '.'));
-  let valCongel = parseFloat(inputCongel.value.replace(',', '.'));
+  const parseTemp = (val) => {
+    if (val === null || val === undefined) return NaN;
+    const str = String(val).trim().replace(/\s+/g, '').replace(/[−–—]/g, '-').replace(',', '.');
+    if (!str) return NaN;
+    return parseFloat(str);
+  };
+
+  const valBlanc = parseTemp(inputBlanc.value);
+  const valMetro = parseTemp(inputMetro.value);
+  let valCongel = parseTemp(inputCongel.value);
   const note = (inputNote && inputNote.value) ? inputNote.value.trim() : '';
 
   if (isNaN(valBlanc) || isNaN(valMetro) || isNaN(valCongel)) {
@@ -2778,6 +2853,7 @@ function handleTemperatureSubmit(e) {
 }
 
 function renderTemperatureView() {
+  setupTemperatureInputs();
   const badgeLatestStatus = document.getElementById('temp-latest-status-badge');
   const latestMetaEl = document.getElementById('temp-latest-time');
   const boxBlanc = document.getElementById('gauge-box-frigo-blanc');
