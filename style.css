@@ -1477,6 +1477,8 @@ h1, h2, h3, h4, h5, h6 {
 .tab-pane.active .menu-item-card:nth-child(8) { animation-delay: 0.24s; }
 .tab-pane.active .menu-item-card:nth-child(9) { animation-delay: 0.27s; }
 .tab-pane.active .menu-item-card:nth-child(10) { animation-delay: 0.30s; }
+.tab-pane.active .menu-item-card:nth-child(11) { animation-delay: 0.33s; }
+.tab-pane.active .menu-item-card:nth-child(12) { animation-delay: 0.36s; }
 
 @keyframes cardFadeUp {
   from {
@@ -1487,6 +1489,10 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+.menu-item-card.border-gold-soft {
+  border-color: rgba(255, 209, 91, 0.28);
 }
 
 .menu-item-card {
@@ -2980,13 +2986,3 @@ h1, h2, h3, h4, h5, h6 {
     scroll-behavior: auto !important;
   }
 }
-
-
-
-.btn-xs {
-  font-size: 0.78rem;
-  padding: 0.45rem 0.8rem;
-  border-radius: var(--radius-sm);
-  gap: 0.35rem;
-}
-

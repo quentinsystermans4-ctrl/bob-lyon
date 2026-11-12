@@ -115,10 +115,7 @@ function initLiveScheduleStatus() {
     if (statusTextDrawer) statusTextDrawer.textContent = message;
 
     // Dot class
-    const dot = statusPillTop ? statusPillTop.querySelector('.status-dot') : null;
-    if (dot) {
-      dot.className = 'status-dot ' + dotClass;
-    }
+    document.querySelectorAll('.status-dot').forEach(dot => { dot.className = 'status-dot ' + dotClass; });
 
     // Highlight current day in table
     highlightScheduleRow(day);
