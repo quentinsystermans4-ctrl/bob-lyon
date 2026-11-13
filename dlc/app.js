@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=2.1.1').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=2.1.2').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v2.1.1';
+const APP_VERSION = 'v2.1.2';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -3835,7 +3835,7 @@ function listenToCloudAiSettings() {
 function saveGeminiApiKey() {
   const input = document.getElementById('settings-gemini-key');
   if (!input) return;
-  const key = input.value.trim();
+  const key = input.value.trim().replace(/["']/g, '');
 
   if (!key) {
     if (confirm("Supprimer la clé API Gemini et repasser sur le scanner local standard ?")) {
@@ -3852,8 +3852,8 @@ function saveGeminiApiKey() {
     return;
   }
 
-  if (!key.startsWith('AIza') || key.length < 25) {
-    alert("Format de clé suspect. Les clés Google Gemini commencent par 'AIza' et comportent environ 39 caractères.\nVérifiez votre clé sur Google AI Studio.");
+  if (key.length < 20) {
+    alert("Format de clé suspect : la clé semble trop courte. Vérifiez que vous avez bien copié toute la clé depuis Google AI Studio.");
     return;
   }
 
@@ -3873,7 +3873,7 @@ function saveGeminiApiKey() {
 async function testGeminiApiKey() {
   const input = document.getElementById('settings-gemini-key');
   const statusEl = document.getElementById('gemini-key-status');
-  const key = input && input.value.trim() ? input.value.trim() : getGeminiApiKey();
+  const key = input && input.value.trim() ? input.value.trim().replace(/["']/g, '') : getGeminiApiKey();
 
   if (!key) {
     alert("Veuillez d'abord coller votre clé API Gemini.");
@@ -3888,22 +3888,38 @@ async function testGeminiApiKey() {
     statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Test de connexion à Google Gemini en cours...';
   }
 
-  try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
-    const resp = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: "Reponds seulement 'OK'." }] }],
-        generationConfig: { maxOutputTokens: 5 }
-      })
-    });
+  const testModels = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+  let testSuccess = false;
+  let lastErrorMsg = '';
 
-    if (!resp.ok) {
-      const errText = await resp.text();
-      throw new Error(`Google a retourné le code ${resp.status} : ${errText}`);
+  for (const model of testModels) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(key)}`;
+      const resp = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': key
+        },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: "Reponds seulement 'OK'." }] }],
+          generationConfig: { maxOutputTokens: 5 }
+        })
+      });
+
+      if (resp.ok) {
+        testSuccess = true;
+        break;
+      } else {
+        const errText = await resp.text();
+        lastErrorMsg = `HTTP ${resp.status}: ${errText}`;
+      }
+    } catch (e) {
+      lastErrorMsg = e.message;
     }
+  }
 
+  if (testSuccess) {
     if (statusEl) {
       statusEl.style.background = 'rgba(16, 185, 129, 0.15)';
       statusEl.style.color = '#34d399';
@@ -3911,13 +3927,13 @@ async function testGeminiApiKey() {
       statusEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> <strong>Connexion réussie !</strong> La clé est valide et l\'IA Vision est prête.';
     }
     showStaffToast("✅ Clé Gemini valide et opérationnelle !");
-  } catch (err) {
-    console.error('Erreur test clé Gemini:', err);
+  } else {
+    console.error('Erreur test clé Gemini:', lastErrorMsg);
     if (statusEl) {
       statusEl.style.background = 'rgba(239, 68, 68, 0.15)';
       statusEl.style.color = '#f87171';
       statusEl.style.border = '1px solid rgba(239, 68, 68, 0.3)';
-      statusEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <strong>Erreur de validation :</strong> ${err.message}`;
+      statusEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <strong>Erreur de validation :</strong> ${lastErrorMsg}`;
     }
   }
 }
@@ -3974,15 +3990,18 @@ Extrais de façon chirurgicale et réponds STRICTEMENT avec un objet JSON valide
 - "productName": le nom ou désignation de la denrée alimentaire lisible sur l'étiquette (ex: "Jambon blanc supérieur", "Burrata", "Chorizo tranché"), ou null si non pertinent.`;
 
   // Modèles testés par ordre de rapidité / disponibilité
-  const models = ['gemini-1.5-flash', 'gemini-2.0-flash'];
+  const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
   let lastError = null;
 
   for (const model of models) {
     try {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`;
       const response = await fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-goog-api-key': apiKey
+        },
         body: JSON.stringify({
           contents: [{
             parts: [
