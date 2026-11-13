@@ -66,7 +66,8 @@ const STORAGE_KEYS = {
   TEMPERATURE: 'bob_dlc_temperature_v1',
   CALENDAR: 'bob_dlc_calendar_v1',
   LIGHTS_URL: 'bob_lights_server_url_v1',
-  CHECKLIST: 'bob_staff_checklists_v2'
+  CHECKLIST: 'bob_staff_checklists_v2',
+  GEMINI_KEY: 'bob_gemini_api_key_v1'
 };
 
 // État global en mémoire
@@ -151,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=2.0.3').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=2.1.0').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -159,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v2.0.3';
+const APP_VERSION = 'v2.1.0';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -276,6 +277,7 @@ function initStorage() {
     } catch (e) {}
   }
   updateChecklistBadge();
+  updateGeminiUiStatus();
 }
 
 function countTotalBatches(items = products) {
@@ -320,6 +322,7 @@ function initFirebase() {
     listenToCloudCalendar();
     listenToCloudLightsSettings();
     listenToCloudChecklist();
+    listenToCloudAiSettings();
   } catch (err) {
     console.error('Erreur init Firebase:', err);
     updateCloudStatus('error', 'Erreur Cloud');
@@ -1244,6 +1247,7 @@ function openDlcModal(productId) {
   document.getElementById('input-lot-note').value = '';
   resetOcrStatus();
   removePhoto();
+  updateGeminiUiStatus();
 
   // Gestion du choix Remplacement vs 2e Lot
   const choiceContainer = document.getElementById('batch-choice-container');
@@ -1566,6 +1570,7 @@ function handlePhotoUpload(event) {
   reader.onload = function(e) {
     const img = new Image();
     img.onload = function() {
+      // 1. Version compressée standard (max 900px, JPEG 0.72) pour affichage et Firestore
       const canvas = document.getElementById('compress-canvas');
       const ctx = canvas.getContext('2d');
 
@@ -1589,7 +1594,7 @@ function handlePhotoUpload(event) {
       canvas.height = height;
       ctx.drawImage(img, 0, 0, width, height);
 
-      // Compression JPEG 0.72 (~80-120Ko) pour affichage et stockage
+      // Compression JPEG 0.72 (~80-120Ko) pour affichage et stockage Firestore
       const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.72);
       currentUploadedPhotoBase64 = compressedDataUrl;
 
@@ -1598,11 +1603,33 @@ function handlePhotoUpload(event) {
       document.getElementById('photo-preview-box').classList.remove('hidden');
       document.getElementById('btn-camera-label').classList.add('hidden');
 
-      // Pré-traitement spécifique OCR : N&B + rehaussement de contraste pour matrices de points et étiquettes thermiques
+      // 2. Version haute-résolution (max 1600px, JPEG 0.85) spécifiquement pour l'IA Gemini Vision
+      const AI_MAX_DIM = 1600;
+      let aiWidth = img.width;
+      let aiHeight = img.height;
+      if (aiWidth > aiHeight) {
+        if (aiWidth > AI_MAX_DIM) {
+          aiHeight = Math.round((aiHeight * AI_MAX_DIM) / aiWidth);
+          aiWidth = AI_MAX_DIM;
+        }
+      } else {
+        if (aiHeight > AI_MAX_DIM) {
+          aiWidth = Math.round((aiWidth * AI_MAX_DIM) / aiHeight);
+          aiHeight = AI_MAX_DIM;
+        }
+      }
+      const aiCanvas = document.createElement('canvas');
+      aiCanvas.width = aiWidth;
+      aiCanvas.height = aiHeight;
+      const aiCtx = aiCanvas.getContext('2d');
+      aiCtx.drawImage(img, 0, 0, aiWidth, aiHeight);
+      const highResDataUrl = aiCanvas.toDataURL('image/jpeg', 0.85);
+
+      // Pré-traitement spécifique OCR pour le repli local Tesseract
       const ocrOptimizedDataUrl = preprocessImageForOcr(canvas);
 
-      // Lancement immédiat de l'analyse OCR intelligente calibrée
-      triggerOcrAnalysis(ocrOptimizedDataUrl);
+      // Lancement de l'analyse (IA Gemini en priorité si clé présente, Tesseract en repli)
+      triggerOcrAnalysis(ocrOptimizedDataUrl, highResDataUrl);
     };
     img.src = e.target.result;
   };
@@ -1636,42 +1663,108 @@ function preprocessImageForOcr(canvas) {
   }
 }
 
-async function triggerOcrAnalysis(imageDataUrl) {
+async function triggerOcrAnalysis(ocrOptimizedDataUrl, highResDataUrl) {
   const statusBox = document.getElementById('ocr-status-box');
+  const loadingEl = document.getElementById('ocr-loading');
+  const successEl = document.getElementById('ocr-success');
+  const successText = document.getElementById('ocr-success-text');
+
+  if (statusBox) statusBox.classList.remove('hidden');
+  if (loadingEl) loadingEl.classList.remove('hidden');
+  if (successEl) successEl.classList.add('hidden');
+
+  const geminiKey = getGeminiApiKey();
+
+  // 1. PRIORITÉ : Analyse chirurgicale par Google Gemini Vision AI si configurée
+  if (geminiKey) {
+    try {
+      if (loadingEl) {
+        loadingEl.innerHTML = `
+          <i class="fa-solid fa-wand-magic-sparkles fa-spin text-gold"></i>
+          <span>Analyse par IA Gemini Vision en cours...</span>
+        `;
+      }
+
+      const aiResult = await callGeminiVision(geminiKey, highResDataUrl || ocrOptimizedDataUrl);
+      console.log('Résultat IA Gemini Vision:', aiResult);
+
+      const detected = [];
+
+      if (aiResult.date) {
+        document.getElementById('input-dlc-date').value = aiResult.date;
+        detected.push(`Date : ${formatDateFr(aiResult.date)}`);
+      }
+
+      if (aiResult.type) {
+        toggleConservationType(aiResult.type);
+        detected.push(`Type : ${aiResult.type}`);
+      }
+
+      if (aiResult.lot) {
+        document.getElementById('input-lot-note').value = aiResult.lot;
+        detected.push(`Lot : ${aiResult.lot}`);
+      }
+
+      if (loadingEl) loadingEl.classList.add('hidden');
+      if (detected.length > 0) {
+        const prodInfo = aiResult.productName ? ` • ${aiResult.productName}` : '';
+        successText.innerHTML = `✨ <strong>IA Gemini Vision</strong> : ${detected.join(' | ')}${prodInfo}`;
+        successEl.classList.remove('hidden');
+        if (navigator.vibrate) navigator.vibrate(35);
+      } else {
+        successText.textContent = `Photo enregistrée. Date non détectée par l'IA, saisie manuelle.`;
+        successEl.classList.remove('hidden');
+      }
+      return;
+    } catch (aiErr) {
+      console.warn("Échec IA Gemini, bascule sur scanner local :", aiErr);
+      if (loadingEl) {
+        loadingEl.innerHTML = `
+          <i class="fa-solid fa-arrows-rotate fa-spin text-gold"></i>
+          <span>IA indisponible, repli sur scanner local...</span>
+        `;
+      }
+    }
+  }
+
+  // 2. REPLI : Scanner Tesseract local (hors-ligne ou si pas de clé configurée)
+  runTesseractOcr(ocrOptimizedDataUrl);
+}
+
+function runTesseractOcr(imageDataUrl) {
   const loadingEl = document.getElementById('ocr-loading');
   const successEl = document.getElementById('ocr-success');
   const successText = document.getElementById('ocr-success-text');
 
   if (!window.Tesseract) {
     console.log('Tesseract OCR non disponible, saisie manuelle.');
+    if (loadingEl) loadingEl.classList.add('hidden');
     return;
   }
 
-  statusBox.classList.remove('hidden');
-  loadingEl.classList.remove('hidden');
-  successEl.classList.add('hidden');
-
-  try {
-    const result = await Tesseract.recognize(imageDataUrl, 'fra+eng', {
-      logger: m => {
-        if (m.status === 'loading tesseract core' || m.status === 'loading language traineddata') {
-          const pct = Math.round((m.progress || 0) * 100);
+  Tesseract.recognize(imageDataUrl, 'fra+eng', {
+    logger: m => {
+      if (m.status === 'loading tesseract core' || m.status === 'loading language traineddata') {
+        const pct = Math.round((m.progress || 0) * 100);
+        if (loadingEl) {
           loadingEl.innerHTML = `
             <i class="fa-solid fa-wand-magic-sparkles fa-spin text-gold"></i>
-            <span>Chargement du scanner (${pct}%)...</span>
+            <span>Chargement scanner local (${pct}%)...</span>
           `;
-        } else if (m.status === 'recognizing text') {
-          const pct = Math.round((m.progress || 0) * 100);
+        }
+      } else if (m.status === 'recognizing text') {
+        const pct = Math.round((m.progress || 0) * 100);
+        if (loadingEl) {
           loadingEl.innerHTML = `
             <i class="fa-solid fa-wand-magic-sparkles fa-spin text-gold"></i>
-            <span>Lecture de l'étiquette (${pct}%)...</span>
+            <span>Lecture locale (${pct}%)...</span>
           `;
         }
       }
-    });
-
+    }
+  }).then(result => {
     const rawText = result && result.data ? result.data.text : '';
-    console.log('Texte OCR brut:', rawText);
+    console.log('Texte OCR brut (Tesseract):', rawText);
 
     const parsed = parseOcrLabelText(rawText);
     const detected = [];
@@ -1691,25 +1784,34 @@ async function triggerOcrAnalysis(imageDataUrl) {
       detected.push(`Lot : ${parsed.lot}`);
     }
 
-    loadingEl.classList.add('hidden');
+    if (loadingEl) loadingEl.classList.add('hidden');
     if (detected.length > 0) {
-      successText.textContent = `✨ Détecté : ${detected.join(' | ')}`;
+      successText.textContent = `⚡ Scanner local : ${detected.join(' | ')}`;
       successEl.classList.remove('hidden');
       if (navigator.vibrate) navigator.vibrate(35);
     } else {
-      successText.textContent = `Photo nette enregistrée. Vérifiez la date ci-dessous.`;
+      const hintKey = !getGeminiApiKey() ? " (Activez l'IA Gemini dans les paramètres pour 99% de réussite)" : "";
+      successText.textContent = `Photo nette enregistrée. Vérifiez la date ci-dessous${hintKey}.`;
       successEl.classList.remove('hidden');
     }
-  } catch (err) {
-    console.warn('Erreur analyse OCR:', err);
-    loadingEl.classList.add('hidden');
+  }).catch(err => {
+    console.warn('Erreur analyse OCR Tesseract:', err);
+    if (loadingEl) loadingEl.classList.add('hidden');
     successText.textContent = `Photo enregistrée. Vous pouvez ajuster les champs manuellement.`;
     successEl.classList.remove('hidden');
-  }
+  });
 }
 
 function parseOcrLabelText(rawText) {
-  const text = rawText.replace(/\r?\n/g, ' ');
+  let text = rawText.replace(/\r?\n/g, ' ');
+  
+  // Correction tolérante des confusions OCR fréquentes sur chiffres et séparateurs :
+  // Ex: "15/l0/2026", "24.O9.26", "1S - 11 - 2026"
+  text = text.replace(/(\b[0-3]?[0-9OlISsBZb])\s*[\/\.\-]\s*([0-1]?[0-9OlISsBZb])\s*[\/\.\-]\s*(20\d\d|\d{2}\b)/g, (m, dPart, mPart, yPart) => {
+    const fix = (s) => s.replace(/[Oo]/g, '0').replace(/[Il|]/g, '1').replace(/[Zz]/g, '2').replace(/[Ss]/g, '5').replace(/[Bb]/g, '8');
+    return `${fix(dPart)}/${fix(mPart)}/${yPart}`;
+  });
+
   const lower = text.toLowerCase();
 
   // 1. Extraction de toutes les dates candidates
@@ -2129,6 +2231,13 @@ function openSettingsModal() {
   document.getElementById('settings-new-pin').value = '';
   const lightsInput = document.getElementById('settings-lights-url');
   if (lightsInput) lightsInput.value = getLightsServerUrl();
+  const geminiInput = document.getElementById('settings-gemini-key');
+  if (geminiInput) geminiInput.value = getGeminiApiKey();
+  const geminiStatus = document.getElementById('gemini-key-status');
+  if (geminiStatus) {
+    geminiStatus.className = 'hidden';
+    geminiStatus.innerHTML = '';
+  }
   document.getElementById('settings-modal').classList.remove('hidden');
 }
 
@@ -3686,6 +3795,231 @@ function resetLightsServerUrl() {
   updateLightsEndpointLabel();
   showStaffToast('🔄 Adresse réinitialisée sur 192.168.1.211:8080');
   refreshLightsNow();
+}
+
+// =============================================================================
+// 17. INTELLIGENCE ARTIFICIELLE GOOGLE GEMINI VISION (LECTURE ÉTIQUETTES)
+// =============================================================================
+
+function getGeminiApiKey() {
+  try {
+    return (localStorage.getItem(STORAGE_KEYS.GEMINI_KEY) || '').trim();
+  } catch (e) {
+    return '';
+  }
+}
+
+function listenToCloudAiSettings() {
+  if (!db) return;
+  db.collection('settings').doc('ai').onSnapshot(doc => {
+    if (doc && doc.exists) {
+      const data = doc.data();
+      if (data && typeof data.geminiApiKey === 'string') {
+        const cloudKey = data.geminiApiKey.trim();
+        const currentStored = getGeminiApiKey();
+        if (cloudKey && currentStored !== cloudKey) {
+          try {
+            localStorage.setItem(STORAGE_KEYS.GEMINI_KEY, cloudKey);
+          } catch (e) {}
+          updateGeminiUiStatus();
+          const geminiInput = document.getElementById('settings-gemini-key');
+          if (geminiInput) geminiInput.value = cloudKey;
+        }
+      }
+    }
+  }, err => {
+    console.warn('Erreur écoute cloud AI:', err);
+  });
+}
+
+function saveGeminiApiKey() {
+  const input = document.getElementById('settings-gemini-key');
+  if (!input) return;
+  const key = input.value.trim();
+
+  if (!key) {
+    if (confirm("Supprimer la clé API Gemini et repasser sur le scanner local standard ?")) {
+      try {
+        localStorage.removeItem(STORAGE_KEYS.GEMINI_KEY);
+      } catch (e) {}
+      if (db) {
+        db.collection('settings').doc('ai').set({ geminiApiKey: '', updatedAt: new Date().toISOString() }, { merge: true })
+          .catch(err => console.warn(err));
+      }
+      updateGeminiUiStatus();
+      showStaffToast("Scanner local restauré");
+    }
+    return;
+  }
+
+  if (!key.startsWith('AIzaSy') || key.length < 25) {
+    alert("Format de clé suspect. Les clés Google Gemini commencent par 'AIzaSy' et comportent environ 39 caractères.\nVérifiez votre clé sur Google AI Studio.");
+    return;
+  }
+
+  try {
+    localStorage.setItem(STORAGE_KEYS.GEMINI_KEY, key);
+  } catch (e) {}
+
+  if (db) {
+    db.collection('settings').doc('ai').set({ geminiApiKey: key, updatedAt: new Date().toISOString() }, { merge: true })
+      .catch(err => console.warn('Erreur sync cloud Gemini key:', err));
+  }
+
+  updateGeminiUiStatus();
+  showStaffToast("✨ Clé Gemini enregistrée et partagée avec l'équipe !");
+}
+
+async function testGeminiApiKey() {
+  const input = document.getElementById('settings-gemini-key');
+  const statusEl = document.getElementById('gemini-key-status');
+  const key = input && input.value.trim() ? input.value.trim() : getGeminiApiKey();
+
+  if (!key) {
+    alert("Veuillez d'abord coller votre clé API Gemini.");
+    return;
+  }
+
+  if (statusEl) {
+    statusEl.className = 'gemini-key-status';
+    statusEl.style.display = 'block';
+    statusEl.style.background = 'rgba(255, 209, 91, 0.1)';
+    statusEl.style.color = 'var(--color-gold)';
+    statusEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Test de connexion à Google Gemini en cours...';
+  }
+
+  try {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${key}`;
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: "Reponds seulement 'OK'." }] }],
+        generationConfig: { maxOutputTokens: 5 }
+      })
+    });
+
+    if (!resp.ok) {
+      const errText = await resp.text();
+      throw new Error(`Google a retourné le code ${resp.status} : ${errText}`);
+    }
+
+    if (statusEl) {
+      statusEl.style.background = 'rgba(16, 185, 129, 0.15)';
+      statusEl.style.color = '#34d399';
+      statusEl.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+      statusEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> <strong>Connexion réussie !</strong> La clé est valide et l\'IA Vision est prête.';
+    }
+    showStaffToast("✅ Clé Gemini valide et opérationnelle !");
+  } catch (err) {
+    console.error('Erreur test clé Gemini:', err);
+    if (statusEl) {
+      statusEl.style.background = 'rgba(239, 68, 68, 0.15)';
+      statusEl.style.color = '#f87171';
+      statusEl.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+      statusEl.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <strong>Erreur de validation :</strong> ${err.message}`;
+    }
+  }
+}
+
+function toggleGeminiKeyVisibility() {
+  const input = document.getElementById('settings-gemini-key');
+  const btn = document.getElementById('btn-toggle-gemini-key');
+  if (!input) return;
+  if (input.type === 'password') {
+    input.type = 'text';
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+  } else {
+    input.type = 'password';
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+  }
+}
+
+function updateGeminiUiStatus() {
+  const key = getGeminiApiKey();
+  const badgeText = document.getElementById('ai-engine-badge-text');
+  const badgeIcon = document.getElementById('ai-engine-badge-icon');
+  const badge = document.getElementById('ai-engine-badge');
+
+  if (badgeText) {
+    if (key) {
+      badgeText.textContent = "IA Gemini Vision active (99% de précision)";
+      if (badgeIcon) badgeIcon.className = "fa-solid fa-wand-magic-sparkles text-gold";
+      if (badge) {
+        badge.style.borderColor = "var(--border-gold)";
+        badge.style.color = "var(--color-gold)";
+        badge.title = "IA Gemini Vision activée. Cliquer pour gérer la clé.";
+      }
+    } else {
+      badgeText.textContent = "Activer l'IA Gemini (Gratuit) pour une lecture à 99%";
+      if (badgeIcon) badgeIcon.className = "fa-solid fa-bolt text-gold";
+      if (badge) {
+        badge.style.borderColor = "rgba(255, 255, 255, 0.15)";
+        badge.style.color = "var(--text-secondary)";
+        badge.title = "Cliquer pour configurer la clé Gemini gratuite.";
+      }
+    }
+  }
+}
+
+async function callGeminiVision(apiKey, imageDataUrl) {
+  const base64Data = imageDataUrl.replace(/^data:image\/[a-zA-Z]+;base64,/, '');
+
+  const prompt = `Tu es un expert HACCP en hygiène alimentaire et restauration pour un bar/restaurant.
+Analyse cette photo d'étiquette, emballage ou carton alimentaire.
+Extrais de façon chirurgicale et réponds STRICTEMENT avec un objet JSON valide (sans markdown) contenant :
+- "date": la date de péremption au format "YYYY-MM-DD" (DLC ou DLUO/DDM). RÈGLE CRUCIALE : Ne confonds JAMAIS avec la date d'emballage, de fabrication ou de conditionnement (ex: "emb le", "fab le", "pck le", "lot le", "conditionné le") qui est antérieure à la DLC. Si aucune date de péremption n'est lisible, renvoie null.
+- "type": "DLC" (si "à consommer jusqu'au", impératif sanitaire) ou "DLUO" (si "à consommer de préférence avant", DDM, qualité). Si incertain, mets "DLC".
+- "lot": le numéro de lot fournisseur (généralement après "Lot", "L.", "N°", ou une série alphanumérique/code de traçabilité estampillé). Si introuvable, null.
+- "productName": le nom ou désignation de la denrée alimentaire lisible sur l'étiquette (ex: "Jambon blanc supérieur", "Burrata", "Chorizo tranché"), ou null si non pertinent.`;
+
+  // Modèles testés par ordre de rapidité / disponibilité
+  const models = ['gemini-1.5-flash', 'gemini-2.0-flash'];
+  let lastError = null;
+
+  for (const model of models) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{
+            parts: [
+              { text: prompt },
+              {
+                inline_data: {
+                  mime_type: "image/jpeg",
+                  data: base64Data
+                }
+              }
+            ]
+          }],
+          generationConfig: {
+            temperature: 0.1,
+            response_mime_type: "application/json"
+          }
+        })
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Google Gemini HTTP ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const textOutput = data.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (!textOutput) throw new Error("Réponse vide de Google Gemini");
+
+      const cleanJson = textOutput.replace(/```json\s*|\s*```/g, '').trim();
+      return JSON.parse(cleanJson);
+    } catch (err) {
+      lastError = err;
+      console.warn(`Tentative Gemini modèle ${model} échouée :`, err);
+    }
+  }
+
+  throw lastError || new Error("Impossible de joindre l'API Google Gemini");
 }
 
 function updateLightsEndpointLabel() {

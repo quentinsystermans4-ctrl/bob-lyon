@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v2.0.3 -->
-  <link rel="stylesheet" href="style.css?v=2.0.3">
+  <!-- Feuille de style dédiée avec cache-busting v2.1.0 -->
+  <link rel="stylesheet" href="style.css?v=2.1.0">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
           <div>
             <div class="header-title-row">
               <h1>BOB • Staff Hub</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v2.0.3</span></span>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v2.1.0</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
@@ -457,7 +457,7 @@
 
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v2.0.3</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v2.1.0</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
 
@@ -551,6 +551,12 @@
             <input type="file" id="camera-input" accept="image/*" capture="environment" onchange="handlePhotoUpload(event)">
           </label>
           
+          <!-- Badge moteur IA / Scanner -->
+          <div id="ai-engine-badge" class="ai-engine-badge" onclick="openSettingsModal()" style="font-size:0.75rem; display:flex; align-items:center; justify-content:center; gap:6px; cursor:pointer; margin-top:5px; padding:6px 10px; border-radius:6px; background:rgba(255, 209, 91, 0.08); border:1px solid var(--border-gold); color:var(--color-gold); transition:all 0.2s ease;">
+            <i class="fa-solid fa-wand-magic-sparkles text-gold" id="ai-engine-badge-icon"></i>
+            <span id="ai-engine-badge-text">IA Gemini Vision</span>
+          </div>
+
           <!-- Statut de l'analyse OCR -->
           <div id="ocr-status-box" class="ocr-status-box hidden">
             <div id="ocr-loading" class="ocr-loading">
@@ -729,6 +735,34 @@
         <hr class="settings-divider">
 
         <div class="settings-section">
+          <h4><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> Intelligence Artificielle (Lecture d'étiquettes)</h4>
+          <p class="settings-desc">Google Gemini Vision AI pour déchiffrer avec précision la DLC, DLUO et N° de lot même sur les emballages froissés ou plastiques.</p>
+          <div class="form-group">
+            <label class="form-label">Clé API Google Gemini (Gratuite)</label>
+            <div style="display:flex; gap:8px;">
+              <input type="password" id="settings-gemini-key" class="form-input-text" placeholder="AIzaSy..." autocomplete="off" style="flex:1;">
+              <button type="button" class="btn-secondary" id="btn-toggle-gemini-key" onclick="toggleGeminiKeyVisibility()" title="Afficher/Masquer la clé" style="padding:0 14px;">
+                <i class="fa-solid fa-eye"></i>
+              </button>
+            </div>
+            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
+              Obtenez votre clé gratuite en 1 clic sur <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--color-gold); text-decoration:underline;">Google AI Studio</a>.
+            </p>
+          </div>
+          <div class="settings-btn-group">
+            <button type="button" class="btn-primary-action" onclick="saveGeminiApiKey()">
+              <i class="fa-solid fa-floppy-disk"></i> Enregistrer & Synchroniser l'équipe
+            </button>
+            <button type="button" class="btn-secondary" onclick="testGeminiApiKey()">
+              <i class="fa-solid fa-vial"></i> Tester la clé
+            </button>
+          </div>
+          <div id="gemini-key-status" class="hidden" style="margin-top:8px; font-size:0.8rem; padding:8px 12px; border-radius:6px;"></div>
+        </div>
+
+        <hr class="settings-divider">
+
+        <div class="settings-section">
           <h4><i class="fa-solid fa-lightbulb text-gold"></i> Contrôleur d'Éclairage (Raspberry Pi)</h4>
           <p class="settings-desc">Adresse IP locale au bar ou adresse sécurisée Cloudflare pour piloter en 4G.</p>
           <div class="form-group">
@@ -748,7 +782,7 @@
 
         <div class="settings-section">
           <h4>Version & Mise à jour</h4>
-          <p class="settings-desc">Force le rechargement immédiat de la dernière version (<span id="settings-version-text">v2.0.3</span>) si le téléphone a gardé l'ancien cache.</p>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (<span id="settings-version-text">v2.1.0</span>) si le téléphone a gardé l'ancien cache.</p>
           <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
             <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
           </button>
@@ -948,7 +982,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v2.0.3 -->
-  <script src="app.js?v=2.0.3"></script>
+  <!-- Script JS de l'application avec cache-busting v2.1.0 -->
+  <script src="app.js?v=2.1.0"></script>
 </body>
 </html>
