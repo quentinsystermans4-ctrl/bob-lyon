@@ -22,8 +22,8 @@
   <link rel="apple-touch-icon" href="../assets/logos/BOB EMBLEME B.png">
   <link rel="icon" type="image/png" href="../assets/logos/BOB EMBLEME B.png">
 
-  <!-- Feuille de style dédiée avec cache-busting v2.1.0 -->
-  <link rel="stylesheet" href="style.css?v=2.1.0">
+  <!-- Feuille de style dédiée avec cache-busting v2.1.1 -->
+  <link rel="stylesheet" href="style.css?v=2.1.1">
 </head>
 <body>
 
@@ -78,7 +78,7 @@
           <div>
             <div class="header-title-row">
               <h1>BOB • Staff Hub</h1>
-              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v2.1.0</span></span>
+              <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="header-version-text">v2.1.1</span></span>
             </div>
             <div class="header-meta-row">
               <span class="current-date" id="live-date">Chargement...</span>
@@ -457,7 +457,7 @@
 
     <!-- Pied de page avec versioning -->
     <footer class="app-footer">
-      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v2.1.0</span></span>
+      <span class="version-badge"><i class="fa-solid fa-code-branch"></i> <span id="footer-version-text">v2.1.1</span></span>
       <span>BOB • Blonde ou Brune Lyon • Équipe Bar</span>
     </footer>
 
@@ -738,15 +738,16 @@
           <h4><i class="fa-solid fa-wand-magic-sparkles text-gold"></i> Intelligence Artificielle (Lecture d'étiquettes)</h4>
           <p class="settings-desc">Google Gemini Vision AI pour déchiffrer avec précision la DLC, DLUO et N° de lot même sur les emballages froissés ou plastiques.</p>
           <div class="form-group">
-            <label class="form-label">Clé API Google Gemini (Gratuite)</label>
-            <div style="display:flex; gap:8px;">
-              <input type="password" id="settings-gemini-key" class="form-input-text" placeholder="AIzaSy..." autocomplete="off" style="flex:1;">
-              <button type="button" class="btn-secondary" id="btn-toggle-gemini-key" onclick="toggleGeminiKeyVisibility()" title="Afficher/Masquer la clé" style="padding:0 14px;">
+            <label class="form-label" for="settings-gemini-key">Clé API Google Gemini (Gratuite)</label>
+            <div class="input-group-addon">
+              <input type="password" id="settings-gemini-key" class="form-input-text" placeholder="Collez votre clé API ici (ex: AIzaSy...)" autocomplete="off">
+              <button type="button" class="btn-addon-icon" id="btn-toggle-gemini-key" onclick="toggleGeminiKeyVisibility()" title="Afficher / Masquer la clé">
                 <i class="fa-solid fa-eye"></i>
               </button>
             </div>
-            <p style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">
-              Obtenez votre clé gratuite en 1 clic sur <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--color-gold); text-decoration:underline;">Google AI Studio</a>.
+            <p style="font-size:0.78rem; color:var(--text-muted); margin-top:6px; line-height:1.4;">
+              1. Obtenez votre clé gratuite en 1 clic sur <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="color:var(--color-gold); text-decoration:underline; font-weight:600;"><i class="fa-solid fa-arrow-up-right-from-square"></i> Google AI Studio</a>.<br>
+              2. Collez la clé dans le champ ci-dessus, puis cliquez sur <strong>Enregistrer & Synchroniser l'équipe</strong>.
             </p>
           </div>
           <div class="settings-btn-group">
@@ -782,7 +783,7 @@
 
         <div class="settings-section">
           <h4>Version & Mise à jour</h4>
-          <p class="settings-desc">Force le rechargement immédiat de la dernière version (<span id="settings-version-text">v2.1.0</span>) si le téléphone a gardé l'ancien cache.</p>
+          <p class="settings-desc">Force le rechargement immédiat de la dernière version (<span id="settings-version-text">v2.1.1</span>) si le téléphone a gardé l'ancien cache.</p>
           <button type="button" class="btn-secondary" onclick="forceAppUpdate()">
             <i class="fa-solid fa-arrows-rotate"></i> Forcer la mise à jour (Vider le cache)
           </button>
@@ -982,7 +983,7 @@
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
-  <!-- Script JS de l'application avec cache-busting v2.1.0 -->
-  <script src="app.js?v=2.1.0"></script>
+  <!-- Script JS de l'application avec cache-busting v2.1.1 -->
+  <script src="app.js?v=2.1.1"></script>
 </body>
 </html>

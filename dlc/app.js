@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Enregistrement Service Worker pour fonctionnement PWA hors-ligne
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js?v=2.1.0').then(reg => {
+    navigator.serviceWorker.register('./sw.js?v=2.1.1').then(reg => {
       reg.update();
     }).catch(err => {
       console.log('Service Worker non actif en local / dev:', err);
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-const APP_VERSION = 'v2.1.0';
+const APP_VERSION = 'v2.1.1';
 
 function updateVersionDisplay() {
   const hEl = document.getElementById('header-version-text');
@@ -3852,8 +3852,8 @@ function saveGeminiApiKey() {
     return;
   }
 
-  if (!key.startsWith('AIzaSy') || key.length < 25) {
-    alert("Format de clé suspect. Les clés Google Gemini commencent par 'AIzaSy' et comportent environ 39 caractères.\nVérifiez votre clé sur Google AI Studio.");
+  if (!key.startsWith('AIza') || key.length < 25) {
+    alert("Format de clé suspect. Les clés Google Gemini commencent par 'AIza' et comportent environ 39 caractères.\nVérifiez votre clé sur Google AI Studio.");
     return;
   }
 
